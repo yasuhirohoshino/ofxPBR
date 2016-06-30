@@ -2,7 +2,7 @@
 
 ofxPBR is the Phisically-Based Rendering addon for openFrameworks.
 
-helper addon -> <a href="https://github.com/yasuhirohoshino/ofxPBR" target="_blank">ofxPBR</a>
+helper addon -> <a href="https://github.com/yasuhirohoshino/ofxPBRHelper" target="_blank">ofxPBRHelper</a>
 
 -
 
