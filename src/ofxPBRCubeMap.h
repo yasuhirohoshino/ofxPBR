@@ -6,6 +6,7 @@ class ofxPBRCubeMap{
 private:
     ofCamera envCam[6];
     ofFbo envFbo[6];
+    ofFbo cacheEnvFbo;
     ofTexture envTexture;
     
     ofImage iEnv;

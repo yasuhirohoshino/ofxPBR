@@ -144,26 +144,27 @@ void ofxPBRCubeMap::loadFromCache(string cachePath){
         texWidth /= 2;
         texHeight /= 2;
     }
-	envFbo[0].allocate(baseSize, baseSize * 0.5, textureFormat);
-	if (textureFormat == GL_RGB32F) {
-		envFbo[0].begin();
-		ofClear(0);
-		fCacheImage.draw(-baseSize * 1.5, -baseSize * 2.5);
-		envFbo[0].end();
-		ofFloatPixels _pix;
-		envFbo[0].readToPixels(_pix);
-		fEnv.setFromPixels(_pix);
-	}else{
-		envFbo[0].begin();
-		ofClear(0);
-		iCacheImage.draw(-baseSize * 1.5, -baseSize * 2.5);
-		envFbo[0].end();
-		ofPixels _pix;
-		envFbo[0].readToPixels(_pix);
-		iEnv.setFromPixels(_pix);
-	}
     makeFilteredCubeMap();
+    cacheEnvFbo.allocate(baseSize, baseSize * 0.5, textureFormat);
+    if (textureFormat == GL_RGB32F) {
+        cacheEnvFbo.begin();
+        ofClear(0);
+        fCacheImage.draw(-baseSize * 1.5, -baseSize * 2.5);
+        cacheEnvFbo.end();
+        ofFloatPixels _pix;
+        cacheEnvFbo.readToPixels(_pix);
+        fEnv.setFromPixels(_pix);
+    }else{
+        cacheEnvFbo.begin();
+        ofClear(0);
+        iCacheImage.draw(-baseSize * 1.5, -baseSize * 2.5);
+        cacheEnvFbo.end();
+        ofPixels _pix;
+        cacheEnvFbo.readToPixels(_pix);
+        iEnv.setFromPixels(_pix);
+    }
     ofEnableArbTex();
+    
 	bIsAllocated = true;
 }
 
