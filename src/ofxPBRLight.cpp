@@ -9,13 +9,6 @@ ofxPBRLight::ofxPBRLight(){
 ofxPBRLight::~ofxPBRLight(){
 }
 
-void ofxPBRLight::setup(float resolution) {
-	this->setupPerspective();
-	this->setForceAspectRatio(1.0);
-	this->setFov(90);
-	depthMapRes = resolution;
-}
-
 void ofxPBRLight::enable(bool isEnabled){
     this->isLightEnabled = isEnabled;
 }
