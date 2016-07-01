@@ -1,6 +1,9 @@
 #include "ofxPBRLight.h"
 
 ofxPBRLight::ofxPBRLight(){
+    this->setupPerspective();
+    this->setForceAspectRatio(1.0);
+    this->setFov(90);
 }
 
 ofxPBRLight::~ofxPBRLight(){

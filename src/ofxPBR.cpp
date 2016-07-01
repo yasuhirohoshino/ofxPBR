@@ -144,7 +144,7 @@ void ofxPBR::addLight(ofxPBRLight * light) {
 		if (l == light) return;
 	}
 	lights.push_back(light);
-	light->setup(getDepthMapResolution());
+	light->setDepthMapRes(getDepthMapResolution());
 	setNumLights(lights.size());
 }
 
