@@ -11,7 +11,7 @@ void ofApp::setup(){
     pbr.setup(1024);
     pbr.setCubeMap(&cubeMap);
     
-    scene = bind(mem_fn(&ofApp::renderScene), this);
+    scene = bind(&ofApp::renderScene, this);
     
     light.setLightType(LightType_Directional);
     light.setPosition(-1500, 1000, 1500);
