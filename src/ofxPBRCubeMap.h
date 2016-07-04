@@ -64,8 +64,6 @@ public:
 	ofTexture* getPanoramaTexture();
 	ofImage* getPanoramaImage();
 	ofFloatImage* getFloatPanoramaImage();
-	void fetchPanoramaImage(ofImage* img);
-	void fetchPanoramaImage(ofFloatImage* img);
 	ofFloatColor getColor(int x, int y);
 
 	void setRotation(float rotation) { this->rotation = rotation; };

@@ -170,7 +170,6 @@ void ofxPBRCubeMap::loadFromCache(string cachePath){
 
 void ofxPBRCubeMap::loadShaders()
 {
-	//textureFormat = GL_RGB32F;
 	shader.setupShaderFromSource(GL_VERTEX_SHADER, importanceSampling.gl3VertShader);
 	shader.setupShaderFromSource(GL_FRAGMENT_SHADER, importanceSampling.gl3FragShader);
 	shader.bindDefaults();
@@ -569,16 +568,6 @@ ofImage * ofxPBRCubeMap::getPanoramaImage()
 ofFloatImage * ofxPBRCubeMap::getFloatPanoramaImage()
 {
 	return &fEnv;
-}
-
-void ofxPBRCubeMap::fetchPanoramaImage(ofImage * img)
-{
-	img = &iEnv;
-}
-
-void ofxPBRCubeMap::fetchPanoramaImage(ofFloatImage * img)
-{
-	img = &fEnv;
 }
 
 ofFloatColor ofxPBRCubeMap::getColor(int x, int y)
