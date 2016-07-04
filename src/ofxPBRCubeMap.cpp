@@ -206,6 +206,8 @@ void ofxPBRCubeMap::makeCubeMapTextures(){
     for(int i=0;i<6;i++){
 		envCam[i] = ofCamera();
         envCam[i].setFov(90.0);
+        envCam[i].setNearClip(0.1);
+        envCam[i].setFarClip(6000);
         envCam[i].setPosition(0, 0, 0);
         envFbo[i].allocate(baseSize, baseSize, textureFormat);
         envFbo[i].begin();
