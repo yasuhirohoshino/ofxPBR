@@ -119,7 +119,7 @@ vec3 PrefilterEnvMap(float Roughness, vec3 R) {
 	mat3 rotationMatrix = mat3(cos(rot), 0, sin(rot), 0, 1, 0, -sin(rot), 0, cos(rot));
 	vec3 rotatedVector = rotationMatrix * R;
     vec4 color = mix(textureLod( envMap, rotatedVector, int(Roughness * numMips) ), textureLod( envMap, rotatedVector, min(int(Roughness * numMips) + 1, numMips)), fract(Roughness * numMips));
-    return color.rgb * cubeMapExposure;
+    return  color.rgb * cubeMapExposure;
 }
 
 vec3 EnvBRDFApprox( vec3 SpecularColor, float Roughness, float NoV ) {
@@ -418,7 +418,7 @@ vec3 CalcColor(vec3 baseColor, float roughnessVal, float metallicVal, vec3 norma
     vec3 specularColor = mix(vec3(0.01), baseColor, metallicVal);
     vec3 diffuse = PrefilterEnvMap(int(numMips * 2 / 3), normal) * diffuseColor;
     vec3 specular = ApproximateSpecularIBL(specularColor, roughnessVal, normal, viewDir, reflectDir);
-    vec3 fresnel = Fresnel(normal, normalize(-v_positionVarying.xyz), roughnessVal, reflectDir, 0.02) * metallicVal;
+    vec3 fresnel = Fresnel(normal, normalize(-v_positionVarying.xyz), roughnessVal, reflectDir, 0.02) * specularColor * metallicVal;
     for(int i=0; i<numLights; i++){
         if(lights[i].isEnabled == true){
             vec3 lightDeffuse;
