@@ -5,13 +5,14 @@
 #include "ofxPBRShadow.h"
 #include "ofxPBRMaterial.h"
 #include "shaders/environment.h"
+#include "shaders/pbr.h"
 
 class ofxPBR{
 public:
     ofxPBR();
     
 	void setup(int depthMapResolution);
-    void begin(ofCamera * camera, ofShader * shader);
+    void begin(ofCamera * camera, ofShader * shader = nullptr);
     void end();
 	void setCubeMap(ofxPBRCubeMap * cubeMap);
 	void enableCubeMap(bool enable);
@@ -41,4 +42,6 @@ private:
     
     ofShader* envShader;
     Environment environment;
+    ofShader defaultShader;
+    PBR pbr;
 };

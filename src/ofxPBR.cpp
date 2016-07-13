@@ -17,10 +17,20 @@ void ofxPBR::setup(int depthMapResolution) {
     envShader->setupShaderFromSource(GL_FRAGMENT_SHADER, environment.gl3FragShader);
     envShader->bindDefaults();
     envShader->linkProgram();
+    
+    defaultShader = ofShader();
+    defaultShader.setupShaderFromSource(GL_VERTEX_SHADER, pbr.gl3VertShader);
+    defaultShader.setupShaderFromSource(GL_FRAGMENT_SHADER, pbr.gl3FragShader);
+    defaultShader.bindDefaults();
+    defaultShader.linkProgram();
 }
 
 void ofxPBR::begin(ofCamera * camera, ofShader * shader){
-    PBRShader = shader;
+    if(shader != nullptr){
+        PBRShader = shader;
+    }else{
+        PBRShader = &defaultShader;
+    }
 	if (depthMapMode) {
 		PBRShader->begin();
 		PBRShader->setUniform1i("renderForDepthMap", true);
