@@ -1,5 +1,9 @@
 #include "ofxPBRMaterial.h"
 
+void ofxPBRMaterial::begin(ofxPBR* pbr){
+    begin(pbr->getShader());
+}
+
 void ofxPBRMaterial::begin(ofShader* shader){
     this -> shader = shader;
     shader -> setUniform2f("textureRepeatTimes", textureRepeat);

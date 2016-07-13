@@ -1,6 +1,7 @@
 #pragma once
 #include "ofMain.h"
-
+#include "ofxPBR.h"
+class ofxPBR;
 class ofxPBRMaterial{
 public:
     bool enableBaseColorMap = false;
@@ -37,8 +38,10 @@ public:
     float normalVal = 1.0;
     ofVec2f textureRepeat = ofVec2f(1.0, 1.0);
     ofVec2f detailTextureRepeat = ofVec2f(1.0, 1.0);
-    ofShader* shader;
     
+    void begin(ofxPBR* pbr);
     void begin(ofShader* shader);
     void end();
+private:
+    ofShader* shader;
 };
