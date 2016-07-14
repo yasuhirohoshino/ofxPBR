@@ -289,8 +289,7 @@ float CalcHardShadow(int index){
     return visiblity;
 }
 
-void LightWithShadow(vec4 v_positionVarying, vec3 v_normalVarying, vec3 color, float roughness, int index, out vec3 deffuse, out vec3 specular)
-{
+void LightWithShadow(vec4 v_positionVarying, vec3 v_normalVarying, vec3 color, float roughness, int index, out vec3 deffuse, out vec3 specular){
     vec3 lightDeffuse = vec3(0.0);
     vec3 lightSpecular = vec3(0.0);
     if(lights[index].type == 0 || lights[index].type == 3){

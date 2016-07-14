@@ -5,7 +5,6 @@ void ofApp::setup(){
     ofDisableArbTex();
     
     cam.setupPerspective(false, 60, 1, 12000);
-    renderShader.load("ofxPBRShaders/default");
     
     cubeMap.load("Barce_Rooftop_C_3k.jpg", 1024, true, "filteredMapCache");
     pbr.setup(1024);
@@ -42,19 +41,20 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::renderScene(){
     ofEnableDepthTest();
-    pbr.begin(&cam, &renderShader);
+    pbr.begin(&cam);
     
     material.roughness = 0.0;
     material.metallic = 0.0;
-    material.begin(pbr.getShader());
+    material.begin(&pbr);
     ofDrawBox(0, -40, 0, 2000, 10, 2000);
     material.end();
     
+    ofSetColor(255,0,0);
     for(int i=0;i<10;i++){
         material.roughness = float(i) / 9.0;
         for(int j=0;j<10;j++){
             material.metallic = float(j) / 9.0;
-            material.begin(pbr.getShader());
+            material.begin(&pbr);
             ofDrawSphere(i * 100 - 450, 0, j * 100 - 450, 35);
             material.end();
         }

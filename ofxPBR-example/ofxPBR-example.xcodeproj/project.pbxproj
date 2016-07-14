@@ -61,7 +61,7 @@
 		181726E3B538AC828CDC433B /* blur.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = blur.h; path = ../../../addons/ofxPBR/src/shaders/blur.h; sourceTree = SOURCE_ROOT; };
 		1C0DA2561397A7DE0246858B /* ofxGuiGroup.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxGuiGroup.h; path = ../../../addons/ofxGui/src/ofxGuiGroup.h; sourceTree = SOURCE_ROOT; };
 		21B9B65ED0F38DEE18B3C644 /* ofxPBRLight.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxPBRLight.cpp; path = ../../../addons/ofxPBR/src/ofxPBRLight.cpp; sourceTree = SOURCE_ROOT; };
-		262BC2FB79F81289725C46A0 /* ofxPBRMaterial.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxPBRMaterial.h; path = ../../../addons/ofxPBR/src/ofxPBRMaterial.h; sourceTree = SOURCE_ROOT; };
+		262BC2FB79F81289725C46A0 /* ofxPBRMaterial.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxPBRMaterial.h; path = ../../../addons/ofxPBR/src/ofxPBRMaterial.h; sourceTree = SOURCE_ROOT; };
 		2834D88A62CD23F3DE2C47D1 /* ofxButton.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxButton.h; path = ../../../addons/ofxGui/src/ofxButton.h; sourceTree = SOURCE_ROOT; };
 		28AE3A48FACA03F4C41D57A2 /* ofxPBR.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxPBR.h; path = ../../../addons/ofxPBR/src/ofxPBR.h; sourceTree = SOURCE_ROOT; };
 		3AC9D9D167D90650147488D9 /* ofxPBRShadow.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxPBRShadow.h; path = ../../../addons/ofxPBR/src/ofxPBRShadow.h; sourceTree = SOURCE_ROOT; };
@@ -76,7 +76,7 @@
 		87F26B4B24CBD428AD9EEBAA /* ofxBaseGui.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxBaseGui.h; path = ../../../addons/ofxGui/src/ofxBaseGui.h; sourceTree = SOURCE_ROOT; };
 		89449E3044D456F7DE7BEA14 /* ofxPanel.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxPanel.h; path = ../../../addons/ofxGui/src/ofxPanel.h; sourceTree = SOURCE_ROOT; };
 		907C5B5E104864A2D3A25745 /* ofxToggle.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxToggle.cpp; path = ../../../addons/ofxGui/src/ofxToggle.cpp; sourceTree = SOURCE_ROOT; };
-		936FFF611D266FC3006980B8 /* ofxPBRShaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ofxPBRShaders; path = bin/data/ofxPBRShaders; sourceTree = "<group>"; };
+		93FD291E1D3555F400AC70B4 /* pbr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pbr.h; path = ../../../addons/ofxPBR/src/shaders/pbr.h; sourceTree = "<group>"; };
 		9604B925D32EE39065747725 /* ofxBaseGui.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxBaseGui.cpp; path = ../../../addons/ofxGui/src/ofxBaseGui.cpp; sourceTree = SOURCE_ROOT; };
 		AD9230031092B611D01A632A /* importanceSampling.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = importanceSampling.h; path = ../../../addons/ofxPBR/src/shaders/importanceSampling.h; sourceTree = SOURCE_ROOT; };
 		B87C60311EC1FE841C1ECD89 /* ofxLabel.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxLabel.h; path = ../../../addons/ofxGui/src/ofxLabel.h; sourceTree = SOURCE_ROOT; };
@@ -114,6 +114,7 @@
 				181726E3B538AC828CDC433B /* blur.h */,
 				51E31FB725D29221C7C8A823 /* environment.h */,
 				AD9230031092B611D01A632A /* importanceSampling.h */,
+				93FD291E1D3555F400AC70B4 /* pbr.h */,
 			);
 			name = shaders;
 			sourceTree = "<group>";
@@ -205,7 +206,6 @@
 			children = (
 				E4B6FCAD0C3E899E008CF71C /* openFrameworks-Info.plist */,
 				E4EB6923138AFD0F00A09F29 /* Project.xcconfig */,
-				936FFF611D266FC3006980B8 /* ofxPBRShaders */,
 				E4B69E1C0A3A1BDC003C02F2 /* src */,
 				E4EEC9E9138DF44700A80321 /* openFrameworks */,
 				BB4B014C10F69532006C3DED /* addons */,
@@ -370,6 +370,7 @@
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(OF_CORE_HEADERS)",
+					src,
 					../../../addons/ofxGui/src,
 					../../../addons/ofxPBR/src,
 					../../../addons/ofxPBR/src/shaders,
@@ -406,6 +407,7 @@
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(OF_CORE_HEADERS)",
+					src,
 					../../../addons/ofxGui/src,
 					../../../addons/ofxPBR/src,
 					../../../addons/ofxPBR/src/shaders,
@@ -435,6 +437,7 @@
 				GCC_MODEL_TUNING = NONE;
 				HEADER_SEARCH_PATHS = (
 					"$(OF_CORE_HEADERS)",
+					src,
 					../../../addons/ofxGui/src,
 					../../../addons/ofxPBR/src,
 					../../../addons/ofxPBR/src/shaders,
@@ -464,6 +467,7 @@
 				GCC_MODEL_TUNING = NONE;
 				HEADER_SEARCH_PATHS = (
 					"$(OF_CORE_HEADERS)",
+					src,
 					../../../addons/ofxGui/src,
 					../../../addons/ofxPBR/src,
 					../../../addons/ofxPBR/src/shaders,
