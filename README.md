@@ -6,6 +6,8 @@ helper addon -> [ofxPBRHelper](https://github.com/yasuhirohoshino/ofxPBRHelper)
 
 ![thumb1](images/thumbnail1.jpg)
 
+HDR image is downloaded from http://www.hdrlabs.com/sibl/archive.html
+
 -
 
 By Yasuhiro Hoshino
