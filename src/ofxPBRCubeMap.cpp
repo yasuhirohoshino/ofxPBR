@@ -11,7 +11,6 @@ void ofxPBRCubeMap::load(ofImage * sphereMapImage, int baseSize){
     
     for(int i = 0; i < 6; i++){
         iTex.filteredCubeMapFaces[i].assign(maxMipLevel, ofImage());
-        
     }
     
     iTex.rawTexture = *sphereMapImage;
@@ -25,6 +24,7 @@ void ofxPBRCubeMap::load(ofFloatImage * sphereMapImage, int baseSize){
 	loadShaders();
     this->baseSize = baseSize;
     maxMipLevel = log2(baseSize) + 1;
+    
     for(int i = 0; i < 6; i++){
         fTex.filteredCubeMapFaces[i].assign(maxMipLevel, ofFloatImage());
     }
@@ -41,9 +41,14 @@ void ofxPBRCubeMap::load(string imagePath, int baseSize, bool useCache, string c
     this->baseSize = baseSize;
     maxMipLevel = log2(baseSize) + 1;
     
-    for(int i = 0; i < 6; i++){
-        iTex.filteredCubeMapFaces[i].assign(maxMipLevel, ofImage());
-        fTex.filteredCubeMapFaces[i].assign(maxMipLevel, ofFloatImage());
+    if(isHDRImagePath(imagePath)){
+        for(int i = 0; i < 6; i++){
+            fTex.filteredCubeMapFaces[i].assign(maxMipLevel, ofFloatImage());
+        }
+    }else{
+        for(int i = 0; i < 6; i++){
+            iTex.filteredCubeMapFaces[i].assign(maxMipLevel, ofImage());
+        }
     }
     
     if(useCache){
@@ -330,8 +335,7 @@ void ofxPBRCubeMap::makeRawCubeMap(){
 			fTex.cubeMapFaces[i].clear();
 		}
 		fTex.rawTexture.resize(baseSize, baseSize * 0.5);
-	}
-	else {
+	} else {
 		int width = iTex.cubeMapFaces[0].getWidth();
         int height = iTex.cubeMapFaces[0].getHeight();
 
@@ -379,7 +383,7 @@ void ofxPBRCubeMap::makeFilteredCubeMap(){
                              fTex.filteredCubeMapFaces[3][i].getPixels(),
                              fTex.filteredCubeMapFaces[5][i].getPixels(),
                              i);
-        }else{
+        } else {
             int width = iTex.filteredCubeMapFaces[0][i].getWidth();
             int height = iTex.filteredCubeMapFaces[0][i].getHeight();
             makeCubeMapFaces(width, height,
@@ -477,8 +481,7 @@ void ofxPBRCubeMap::makeCache(string chachePath){
 		for (int j = 0; j < maxMipLevel; j++) {
 			if (textureFormat == GL_RGB32F) {
 				fTex.filteredCubeMapFaces[i][j].clear();
-			}
-			else {
+			} else {
 				iTex.filteredCubeMapFaces[i][j].clear();
 			}
 		}
@@ -489,7 +492,7 @@ bool ofxPBRCubeMap::isHDRImagePath(string path){
     if(path.find(".hdr", 0) != string::npos ||
        path.find(".exr", 0) != string::npos){
         return true;
-    }else{
+    } else {
         return false;
     }
 }
@@ -511,7 +514,7 @@ void ofxPBRCubeMap::unbind(){
 bool ofxPBRCubeMap::isHDR(){
     if(textureFormat == GL_RGB32F){
         return true;
-    }else{
+    } else {
         return false;
     }
 }
@@ -529,8 +532,7 @@ ofTexture * ofxPBRCubeMap::getPanoramaTexture()
 {
 	if (isHDR()) {
 		return &fTex.rawTexture.getTexture();
-	}
-	else {
+	} else {
 		return &iTex.rawTexture.getTexture();
 	}
 }
@@ -549,8 +551,7 @@ ofFloatColor ofxPBRCubeMap::getColor(int x, int y)
 {
 	if (isHDR()) {
 		return fTex.rawTexture.getColor(x, y);
-	}
-	else {
+    } else {
 		return iTex.rawTexture.getColor(x, y);
 	}
 }
