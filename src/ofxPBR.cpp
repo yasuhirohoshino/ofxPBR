@@ -62,7 +62,7 @@ void ofxPBR::begin(ofCamera * camera, ofShader * shader){
 			lights[i]->beginLighting(PBRShader, i);
 		}
 		if (lights.size() != 0) {
-			PBRShader->setUniformTexture("shadowMap", *shadow.getDepthMap(), 2);
+			PBRShader->setUniformTexture("shadowMap", *shadow.getDepthMap(), 10);
 			PBRShader->setUniform2f("depthMapAtrasRes", shadow.getDepthMapAtrasRes());
 			PBRShader->setUniform2f("depthTexMag", shadow.getDepthTexMag());
 			glUniformMatrix4fv(PBRShader->getUniformLocation("shadowMatrix"), lights.size(), false, shadowMatrix[0].getPtr());
@@ -169,6 +169,10 @@ void ofxPBR::setEnvShader(ofShader* shader){
 
 ofShader* ofxPBR::getShader(){
     return PBRShader;
+}
+
+int getLastTextureIndex(){
+    return 11;
 }
 
 // private

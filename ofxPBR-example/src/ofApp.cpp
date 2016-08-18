@@ -17,7 +17,7 @@ void ofApp::setup(){
     light.lookAt(ofVec3f(0));
     light.setScale(1.5);
     light.setColor(ofFloatColor(1.0));
-    light.setShadowType(ShadowType_Soft);
+    light.setShadowType(ShadowType_Hard);
     pbr.addLight(&light);
     
     cubeMap.setEnvLevel(0.3);

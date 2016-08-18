@@ -27,6 +27,7 @@ public:
 	void removeLight(int index);
     void setEnvShader(ofShader* shader);
     ofShader* getShader();
+    int getLastTextureIndex();
     
 private:
 	void setNumLights(int numLights);
