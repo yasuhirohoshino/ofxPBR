@@ -9,21 +9,11 @@ private:
     ofFbo cacheEnvFbo;
     ofTexture envTexture;
     
-    ofImage iEnv;
-    ofImage iEnvMapImages[6];
-    vector <ofImage> iFilteredImages[6];
-    ofImage iCacheImage;
-    
-    ofFloatImage fEnv;
-    ofFloatImage fEnvMapImages[6];
-    vector <ofFloatImage> fFilteredImages[6];
-    ofFloatImage fCacheImage;
-    
     template<typename T>
     struct Texture{
         T rawTexture;
-        T cubeMap[6];
-        vector<T> filteredCubeMaps[6];
+        T cubeMapFaces[6];
+        vector<T> filteredCubeMapFaces[6];
         T cacheTexture;
     };
     
@@ -33,18 +23,17 @@ private:
     ofShader shader;
     ImportanceSampling importanceSampling;
     ofMesh sphereMesh, envSphereMesh;
+    
     unsigned int cubeMapID;
     unsigned int filteredCubeMapID;
     int textureUnit;
     int baseSize;
+    int textureFormat;
+    int maxMipLevel;
     
     int cacheWidth, cacheHeight;
     ofFbo cacheFbo;
     
-    int textureFormat;
-    
-    int maxMipLevel;
-
 	bool bIsAllocated = false;
 
 	void loadShaders();
