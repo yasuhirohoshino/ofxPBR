@@ -32,8 +32,6 @@ private:
     ofImage iCacheImage;
     ofFloatImage fCacheImage;
     
-    ofMesh skyboxFaces[6];
-    
     int maxMipLevel;
 
 	bool bIsAllocated = false;
@@ -43,7 +41,6 @@ private:
     void makeCubeMap();
     void makeFilteredCubeMap();
     void makeCache(string cachePath);
-    void makeCube();
 
 	float rotation = 0.0;
 	float exposure = 1.0;

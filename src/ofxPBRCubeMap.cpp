@@ -174,7 +174,6 @@ void ofxPBRCubeMap::loadShaders()
 	shader.setupShaderFromSource(GL_FRAGMENT_SHADER, importanceSampling.gl3FragShader);
 	shader.bindDefaults();
 	shader.linkProgram();
-	makeCube();
 }
 
 void ofxPBRCubeMap::makeCubeMapTextures(){
@@ -492,47 +491,6 @@ void ofxPBRCubeMap::unbind(){
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0 );
     glDisable( GL_TEXTURE_CUBE_MAP );
     glActiveTexture( GL_TEXTURE0 );
-}
-
-void ofxPBRCubeMap::makeCube(){
-    skyboxFaces[0].addVertex(ofVec3f(0.5, 0.5, -0.5));
-    skyboxFaces[0].addVertex(ofVec3f(0.5, -0.5, -0.5));
-    skyboxFaces[0].addVertex(ofVec3f(0.5, 0.5, 0.5));
-    skyboxFaces[0].addVertex(ofVec3f(0.5, -0.5, 0.5));
-    
-    skyboxFaces[1].addVertex(ofVec3f(-0.5, 0.5, 0.5));
-    skyboxFaces[1].addVertex(ofVec3f(-0.5, -0.5, 0.5));
-    skyboxFaces[1].addVertex(ofVec3f(-0.5, 0.5, -0.5));
-    skyboxFaces[1].addVertex(ofVec3f(-0.5, -0.5, -0.5));
-    
-    skyboxFaces[2].addVertex(ofVec3f(-0.5, 0.5, 0.5));
-    skyboxFaces[2].addVertex(ofVec3f(-0.5, 0.5, -0.5));
-    skyboxFaces[2].addVertex(ofVec3f(0.5, 0.5, 0.5));
-    skyboxFaces[2].addVertex(ofVec3f(0.5, 0.5, -0.5));
-    
-    skyboxFaces[3].addVertex(ofVec3f(-0.5, -0.5, -0.5));
-    skyboxFaces[3].addVertex(ofVec3f(-0.5, -0.5, 0.5));
-    skyboxFaces[3].addVertex(ofVec3f(0.5, -0.5, -0.5));
-    skyboxFaces[3].addVertex(ofVec3f(0.5, -0.5, 0.5));
-    
-    skyboxFaces[4].addVertex(ofVec3f(-0.5, 0.5, -0.5));
-    skyboxFaces[4].addVertex(ofVec3f(-0.5, -0.5, -0.5));
-    skyboxFaces[4].addVertex(ofVec3f(0.5, 0.5, -0.5));
-    skyboxFaces[4].addVertex(ofVec3f(0.5, -0.5, -0.5));
-    
-    skyboxFaces[5].addVertex(ofVec3f(0.5, 0.5, 0.5));
-    skyboxFaces[5].addVertex(ofVec3f(0.5, -0.5, 0.5));
-    skyboxFaces[5].addVertex(ofVec3f(-0.5, 0.5, 0.5));
-    skyboxFaces[5].addVertex(ofVec3f(-0.5, -0.5, 0.5));
-                           
-    for(int i=0; i<6; i++){
-        skyboxFaces[i].addTriangle(0, 1, 2);
-        skyboxFaces[i].addTriangle(2, 1, 3);
-        skyboxFaces[i].addTexCoord(ofVec2f(0.0, 0.0));
-        skyboxFaces[i].addTexCoord(ofVec2f(0.0, 1.0));
-        skyboxFaces[i].addTexCoord(ofVec2f(1.0, 0.0));
-        skyboxFaces[i].addTexCoord(ofVec2f(1.0, 1.0));
-    }
 }
 
 bool ofxPBRCubeMap::isHDR(){
