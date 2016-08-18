@@ -16,7 +16,7 @@ void ofxPBRCubeMap::load(ofImage * sphereMapImage, int baseSize){
     iEnv = *sphereMapImage;
     envTexture = iEnv.getTexture();
     textureFormat = GL_RGB;
-    makeCubeMapTextures();
+    generate();
 	bIsAllocated = true;
 }
 
@@ -31,7 +31,7 @@ void ofxPBRCubeMap::load(ofFloatImage * sphereMapImage, int baseSize){
     fEnv = *sphereMapImage;
     envTexture = fEnv.getTexture();
     textureFormat = GL_RGB32F;
-    makeCubeMapTextures();
+    generate();
 	bIsAllocated = true;
 }
 
@@ -39,60 +39,72 @@ void ofxPBRCubeMap::load(string imagePath, int baseSize, bool useCache, string c
 	loadShaders();
     this->baseSize = baseSize;
     maxMipLevel = log2(baseSize) + 1;
+    
     for(int i = 0; i < 6; i++){
         iFilteredImages[i].assign(maxMipLevel, ofImage());
         fFilteredImages[i].assign(maxMipLevel, ofFloatImage());
     }
     
-    bool hasCache = false;
-    ofFilePath path;
-    ofDisableArbTex();
-    
     if(useCache){
+        bool hasCache = false;
+        ofFilePath path;
+        ofDisableArbTex();
+        string cachePath = "";
+
         string fileName = path.getFileName(imagePath);
-        string chacheName = "FCM_Cache_" + ofToString(baseSize) + "_" + path.getFileName(imagePath);
+        string cacheName = "FCM_Cache_" + ofToString(baseSize) + "_" + path.getFileName(imagePath);
         ofDirectory dir;
+        
         if(cacheDirectry == ""){
             dir.open(path.getEnclosingDirectory(imagePath));
         }else{
             dir.open(cacheDirectry);
         }
+        
         for(int i=0; i<dir.getFiles().size(); i++){
-            if(dir.getName(i) == chacheName){
-                loadFromCache(dir.getPath(i));
+            if(dir.getName(i) == cacheName){
+                cachePath = dir.getPath(i);
                 hasCache = true;
             }
         }
-    }
-    
-    if(!hasCache){
-        if(imagePath.find(".hdr", 0) != string::npos || imagePath.find(".exr", 0) != string::npos ){
-            fEnv.load(imagePath);
-            envTexture = fEnv.getTexture();
-            textureFormat = GL_RGB32F;
-        } else {
-            iEnv.load(imagePath);
-            envTexture = iEnv.getTexture();
-            textureFormat = GL_RGB;
-        }
-        makeCubeMapTextures();
         
-        if(useCache){
+        if(hasCache){
+            loadFromCache(cachePath);
+        }else{
+            loadImage(imagePath);
+            generate();
+            
             string directry = "";
             if(cacheDirectry != ""){
                 directry = cacheDirectry + "/";
             }
-            makeCache(directry + "FCM_Cache_" + ofToString(baseSize) + "_" + path.getFileName(imagePath));
+            makeCache(directry + cacheName);
         }
+    }else{
+        loadImage(imagePath);
+        generate();
     }
+    
     ofEnableArbTex();
 	bIsAllocated = true;
+}
+
+void ofxPBRCubeMap::loadImage(string imagePath){
+    if(isHDRImagePath(imagePath)){
+        fEnv.load(imagePath);
+        envTexture = fEnv.getTexture();
+        textureFormat = GL_RGB32F;
+    } else {
+        iEnv.load(imagePath);
+        envTexture = iEnv.getTexture();
+        textureFormat = GL_RGB;
+    }
 }
 
 void ofxPBRCubeMap::loadFromCache(string cachePath){
 	loadShaders();
     ofDisableArbTex();
-    if(cachePath.find(".hdr", 0) != string::npos || cachePath.find(".exr", 0) != string::npos ){
+    if(isHDRImagePath(cachePath)){
         fCacheImage.load(cachePath);
         textureFormat = GL_RGB32F;
         baseSize = fCacheImage.getWidth() / 3;
@@ -176,7 +188,7 @@ void ofxPBRCubeMap::loadShaders()
 	shader.linkProgram();
 }
 
-void ofxPBRCubeMap::makeCubeMapTextures(){
+void ofxPBRCubeMap::generate(){
     cacheWidth = baseSize * 3;
     cacheHeight = baseSize * 3;
     cacheFbo.allocate(cacheWidth, cacheHeight, textureFormat);
@@ -202,6 +214,7 @@ void ofxPBRCubeMap::makeCubeMapTextures(){
         envSphereMesh.setTexCoord(i, ofVec2f(1.0 - envSphereMesh.getTexCoord(i).x, 1.0 - envSphereMesh.getTexCoord(i).y));
     }
     
+    // render raw cubemap faces
     for(int i=0;i<6;i++){
 		envCam[i] = ofCamera();
         envCam[i].setFov(90.0);
@@ -221,24 +234,25 @@ void ofxPBRCubeMap::makeCubeMapTextures(){
         envCam[i].end();
         envFbo[i].end();
         if(textureFormat == GL_RGB32F){
-            ofFloatPixels _pix;
-            envFbo[i].readToPixels(_pix);
-            fEnvMapImages[i].setFromPixels(_pix);
+            ofFloatPixels pix;
+            envFbo[i].readToPixels(pix);
+            fEnvMapImages[i].setFromPixels(pix);
         }else{
-            ofPixels _pix;
-            envFbo[i].readToPixels(_pix);
-            iEnvMapImages[i].setFromPixels(_pix);
+            ofPixels pix;
+            envFbo[i].readToPixels(pix);
+            iEnvMapImages[i].setFromPixels(pix);
         }
     }
     
     ofPopStyle();
     ofDisableDepthTest();
     
-    makeCubeMap();
+    makeRawCubeMap();
     
     ofPushStyle();
     ofEnableDepthTest();
     
+    // render filtered cubemap faces
     for(int i=0; i<6; i++){
         int width = baseSize;
         int height = baseSize;
@@ -259,7 +273,6 @@ void ofxPBRCubeMap::makeCubeMapTextures(){
             sphereMesh.draw();
             shader.end();
             
-            glActiveTexture( GL_TEXTURE0 + 1 );
             glBindTexture(GL_TEXTURE_CUBE_MAP, 0 );
             glDisable( GL_TEXTURE_CUBE_MAP );
             glActiveTexture( GL_TEXTURE0 );
@@ -269,13 +282,13 @@ void ofxPBRCubeMap::makeCubeMapTextures(){
             envFbo[i].end();
             
             if(textureFormat == GL_RGB32F){
-                ofFloatPixels _pix;
-                envFbo[i].readToPixels(_pix);
-                fFilteredImages[i][j].setFromPixels(_pix);
+                ofFloatPixels pix;
+                envFbo[i].readToPixels(pix);
+                fFilteredImages[i][j].setFromPixels(pix);
             }else{
-                ofPixels _pix;
-                envFbo[i].readToPixels(_pix);
-                iFilteredImages[i][j].setFromPixels(_pix);
+                ofPixels pix;
+                envFbo[i].readToPixels(pix);
+                iFilteredImages[i][j].setFromPixels(pix);
             }
             width /= 2;
             height /= 2;
@@ -288,7 +301,7 @@ void ofxPBRCubeMap::makeCubeMapTextures(){
 	ofEnableArbTex();
 }
 
-void ofxPBRCubeMap::makeCubeMap(){
+void ofxPBRCubeMap::makeRawCubeMap(){
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     
     glGenTextures(1, &cubeMapID);
@@ -304,23 +317,14 @@ void ofxPBRCubeMap::makeCubeMap(){
         int width = fEnvMapImages[0].getWidth();
         int height = fEnvMapImages[0].getHeight();
         
-        ofFloatPixels data_px, data_nx, data_py, data_ny, data_pz, data_nz;
+        makeCubeMapFaces(width, height,
+                         fEnvMapImages[0].getPixels(),
+                         fEnvMapImages[2].getPixels(),
+                         fEnvMapImages[4].getPixels(),
+                         fEnvMapImages[1].getPixels(),
+                         fEnvMapImages[3].getPixels(),
+                         fEnvMapImages[5].getPixels());
         
-        data_px = fEnvMapImages[0].getPixels();
-        data_py = fEnvMapImages[2].getPixels();
-        data_pz = fEnvMapImages[4].getPixels();
-        
-        data_nx = fEnvMapImages[1].getPixels();
-        data_ny = fEnvMapImages[3].getPixels();
-        data_nz = fEnvMapImages[5].getPixels();
-        
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, data_px.getData()); // positive x
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, data_py.getData()); // positive y
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, data_pz.getData()); // positive z
-        
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, data_nx.getData()); // negative x
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, data_ny.getData()); // negative y
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, data_nz.getData()); // negative z
 		for (int i = 0; i < 6; i++) {
 			fEnvMapImages[i].clear();
 		}
@@ -328,30 +332,23 @@ void ofxPBRCubeMap::makeCubeMap(){
 	}
 	else {
 		int width = iEnvMapImages[0].getWidth();
-		int height = iEnvMapImages[0].getHeight();
+        int height = iEnvMapImages[0].getHeight();
 
-		ofPixels data_px, data_nx, data_py, data_ny, data_pz, data_nz;
-
-		data_px = iEnvMapImages[0].getPixels();
-		data_py = iEnvMapImages[2].getPixels();
-		data_pz = iEnvMapImages[4].getPixels();
-
-		data_nx = iEnvMapImages[1].getPixels();
-		data_ny = iEnvMapImages[3].getPixels();
-		data_nz = iEnvMapImages[5].getPixels();
-
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_px.getData()); // positive x
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_py.getData()); // positive y
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_pz.getData()); // positive z
-
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_nx.getData()); // negative x
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_ny.getData()); // negative y
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_nz.getData()); // negative z
+        makeCubeMapFaces(width, height,
+                         iEnvMapImages[0].getPixels(),
+                         iEnvMapImages[2].getPixels(),
+                         iEnvMapImages[4].getPixels(),
+                         iEnvMapImages[1].getPixels(),
+                         iEnvMapImages[3].getPixels(),
+                         iEnvMapImages[5].getPixels());
+        
 		for (int i = 0; i < 6; i++) {
 			iEnvMapImages[i].clear();
 		}
 		iEnv.resize(baseSize, baseSize * 0.5);
 	}
+    
+    glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0);
 }
 
 void ofxPBRCubeMap::makeFilteredCubeMap(){
@@ -373,47 +370,55 @@ void ofxPBRCubeMap::makeFilteredCubeMap(){
         if(textureFormat == GL_RGB32F){
             int width = fFilteredImages[0][i].getWidth();
             int height = fFilteredImages[0][i].getHeight();
-            
-            ofFloatPixels data_px, data_nx, data_py, data_ny, data_pz, data_nz;
-            
-            data_px = fFilteredImages[0][i].getPixels();
-            data_py = fFilteredImages[2][i].getPixels();
-            data_pz = fFilteredImages[4][i].getPixels();
-            
-            data_nx = fFilteredImages[1][i].getPixels();
-            data_ny = fFilteredImages[3][i].getPixels();
-            data_nz = fFilteredImages[5][i].getPixels();
-            
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, i, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, data_px.getData()); // positive x
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, i, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, data_py.getData()); // positive y
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, i, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, data_pz.getData()); // positive z
-            
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, i, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, data_nx.getData()); // negative x
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, i, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, data_ny.getData()); // negative y
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, i, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, data_nz.getData()); // negative z
+            makeCubeMapFaces(width, height,
+                             fFilteredImages[0][i].getPixels(),
+                             fFilteredImages[2][i].getPixels(),
+                             fFilteredImages[4][i].getPixels(),
+                             fFilteredImages[1][i].getPixels(),
+                             fFilteredImages[3][i].getPixels(),
+                             fFilteredImages[5][i].getPixels(),
+                             i);
         }else{
             int width = iFilteredImages[0][i].getWidth();
             int height = iFilteredImages[0][i].getHeight();
-            
-            ofPixels data_px, data_nx, data_py, data_ny, data_pz, data_nz;
-            
-            data_px = iFilteredImages[0][i].getPixels();
-            data_py = iFilteredImages[2][i].getPixels();
-            data_pz = iFilteredImages[4][i].getPixels();
-            
-            data_nx = iFilteredImages[1][i].getPixels();
-            data_ny = iFilteredImages[3][i].getPixels();
-            data_nz = iFilteredImages[5][i].getPixels();
-            
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, i, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_px.getData()); // positive x
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, i, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_py.getData()); // positive y
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, i, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_pz.getData()); // positive z
-            
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, i, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_nx.getData()); // negative x
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, i, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_ny.getData()); // negative y
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, i, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_nz.getData()); // negative z
+            makeCubeMapFaces(width, height,
+                             iFilteredImages[0][i].getPixels(),
+                             iFilteredImages[2][i].getPixels(),
+                             iFilteredImages[4][i].getPixels(),
+                             iFilteredImages[1][i].getPixels(),
+                             iFilteredImages[3][i].getPixels(),
+                             iFilteredImages[5][i].getPixels(),
+                             i);
 		}
     }
+    
+    glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0);
+}
+
+void ofxPBRCubeMap::makeCubeMapFaces(int width, int height,
+                                     ofPixels& px, ofPixels& py, ofPixels& pz,
+                                     ofPixels& nx, ofPixels& ny, ofPixels& nz,
+                                     int index){
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, index, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, px.getData()); // positive x
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, index, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, py.getData()); // positive y
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, index, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pz.getData()); // positive z
+    
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, index, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nx.getData()); // negative x
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, index, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, ny.getData()); // negative y
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, index, textureFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nz.getData()); // negative z
+}
+
+void ofxPBRCubeMap::makeCubeMapFaces(int width, int height,
+                                     ofFloatPixels& px, ofFloatPixels& py, ofFloatPixels& pz,
+                                     ofFloatPixels& nx, ofFloatPixels& ny, ofFloatPixels& nz,
+                                     int index){
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, index, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, px.getData()); // positive x
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, index, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, py.getData()); // positive y
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, index, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, pz.getData()); // positive z
+    
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, index, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, nx.getData()); // negative x
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, index, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, ny.getData()); // negative y
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, index, textureFormat, width, height, 0, GL_RGB, GL_FLOAT, nz.getData()); // negative z
 }
 
 void ofxPBRCubeMap::makeCache(string chachePath){
@@ -477,6 +482,15 @@ void ofxPBRCubeMap::makeCache(string chachePath){
 			}
 		}
 	}
+}
+
+bool ofxPBRCubeMap::isHDRImagePath(string path){
+    if(path.find(".hdr", 0) != string::npos ||
+       path.find(".exr", 0) != string::npos){
+        return true;
+    }else{
+        return false;
+    }
 }
 
 void ofxPBRCubeMap::bind(int pos){

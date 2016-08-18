@@ -12,10 +12,23 @@ private:
     ofImage iEnv;
     ofImage iEnvMapImages[6];
     vector <ofImage> iFilteredImages[6];
+    ofImage iCacheImage;
     
     ofFloatImage fEnv;
     ofFloatImage fEnvMapImages[6];
     vector <ofFloatImage> fFilteredImages[6];
+    ofFloatImage fCacheImage;
+    
+    template<typename T>
+    struct Texture{
+        T rawTexture;
+        T cubeMap[6];
+        vector<T> filteredCubeMaps[6];
+        T cacheTexture;
+    };
+    
+    Texture<ofImage> iTex;
+    Texture<ofFloatImage> fTex;
     
     ofShader shader;
     ImportanceSampling importanceSampling;
@@ -29,18 +42,26 @@ private:
     ofFbo cacheFbo;
     
     int textureFormat;
-    ofImage iCacheImage;
-    ofFloatImage fCacheImage;
     
     int maxMipLevel;
 
 	bool bIsAllocated = false;
 
 	void loadShaders();
-    void makeCubeMapTextures();
-    void makeCubeMap();
+    void loadImage(string imagePath);
+    void generate();
+    void makeRawCubeMap();
     void makeFilteredCubeMap();
     void makeCache(string cachePath);
+    void makeCubeMapFaces(int width, int height,
+                          ofPixels& px, ofPixels& py, ofPixels& pz,
+                          ofPixels& nx, ofPixels& ny, ofPixels& nz,
+                          int index = 0);
+    void makeCubeMapFaces(int width, int height,
+                          ofFloatPixels& px, ofFloatPixels& py, ofFloatPixels& pz,
+                          ofFloatPixels& nx, ofFloatPixels& ny, ofFloatPixels& nz,
+                          int index = 0);
+    bool isHDRImagePath(string path);
 
 	float rotation = 0.0;
 	float exposure = 1.0;
