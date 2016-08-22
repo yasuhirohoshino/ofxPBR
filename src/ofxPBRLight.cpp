@@ -205,8 +205,8 @@ float ofxPBRLight::getSoftShadowExponent(){
 }
 
 void ofxPBRLight::beginLighting(ofShader * shader, int index){
-	id = index;
-    string lightIndex = ofToString(id);
+	lightId = index;
+    string lightIndex = ofToString(lightId);
     shader->setUniform1i("lights["+ lightIndex +"].isEnabled", isEnabled());
     shader->setUniform3f("lights["+ lightIndex +"].position", getViewSpacePosition(ofGetCurrentViewMatrix()));
 	if (lightType == LightType_Sky) {
@@ -250,12 +250,12 @@ float ofxPBRLight::getSkyLightRadius()
 	return skyLightRadius;
 }
 
-void ofxPBRLight::setId(int id)
+void ofxPBRLight::setId(int lightId)
 {
-	this->id = id;
+	this->lightId = lightId;
 }
 
 int ofxPBRLight::getId()
 {
-	return id;
+	return lightId;
 }

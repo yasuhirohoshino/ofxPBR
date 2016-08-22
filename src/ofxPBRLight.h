@@ -104,7 +104,7 @@ private:
                                                0.5, 0.5, 0.5, 1.0
                                                );
 	string lightIndex;
-	int id;
+	int lightId;
 
 	float skyLightLatitude = 0;
 	float skyLightLongitude = 0;
