@@ -537,14 +537,14 @@ ofTexture * ofxPBRCubeMap::getPanoramaTexture()
 	}
 }
 
-ofImage * ofxPBRCubeMap::getPanoramaImage()
-{
-	return &iTex.rawTexture;
+template<>
+ofImage* ofxPBRCubeMap::getPanorama(){
+    return &iTex.rawTexture;
 }
 
-ofFloatImage * ofxPBRCubeMap::getFloatPanoramaImage()
-{
-	return &fTex.rawTexture;
+template<>
+ofFloatImage* ofxPBRCubeMap::getPanorama(){
+    return &fTex.rawTexture;
 }
 
 ofFloatColor ofxPBRCubeMap::getColor(int x, int y)

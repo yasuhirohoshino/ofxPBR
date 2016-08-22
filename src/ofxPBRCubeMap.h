@@ -35,6 +35,10 @@ private:
     ofFbo cacheFbo;
     
 	bool bIsAllocated = false;
+    
+    float rotation = 0.0;
+    float exposure = 1.0;
+    float envLevel = 0.0;
 
 	void loadShaders();
     void loadImage(string imagePath);
@@ -51,10 +55,6 @@ private:
                           ofFloatPixels& nx, ofFloatPixels& ny, ofFloatPixels& nz,
                           int index = 0);
     bool isHDRImagePath(string path);
-
-	float rotation = 0.0;
-	float exposure = 1.0;
-	float envLevel = 0.0;
     
 public:
     ofxPBRCubeMap();
@@ -69,9 +69,9 @@ public:
 	bool isAllocated();
     int getNumMips();
 	ofTexture* getPanoramaTexture();
-	ofImage* getPanoramaImage();
-	ofFloatImage* getFloatPanoramaImage();
 	ofFloatColor getColor(int x, int y);
+    template<typename T>
+    T* getPanorama();
 
 	void setRotation(float rotation) { this->rotation = rotation; };
 	float getRotation() { return rotation; };
