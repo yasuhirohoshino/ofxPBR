@@ -33,4 +33,23 @@ class ofApp : public ofBaseApp{
     
     ofShader renderShader;
     ofEasyCam cam;
+    
+    ofShader render;
+    ofShader render2;
+
+    GLuint depthMap, depthMapFbo;
+    ofMatrix4x4 shadowProjMatrix;
+    int shadowMapRes = 1024 * 2;
+    
+    int numShadows;
+    vector<ofCamera> camera;
+    vector<ofVec3f> lightPos;
+    vector<ofMatrix4x4> viewMat;
+    vector<ofMatrix4x4> shadowMatrix;
+    const ofMatrix4x4 biasMatrix = ofMatrix4x4(
+                                               0.5, 0.0, 0.0, 0.0,
+                                               0.0, 0.5, 0.0, 0.0,
+                                               0.0, 0.0, 0.5, 0.0,
+                                               0.5, 0.5, 0.5, 1.0
+                                               );
 };
