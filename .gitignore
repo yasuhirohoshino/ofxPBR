@@ -134,6 +134,19 @@ Desktop.ini
 /apps*/
 
 #########################
+# VC
+#########################
+
+*.sln
+*.VC.db
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.exp
+*.VC.VC.opendb
+icon.rc
+
+#########################
 # ofxPBR
 #########################
 
