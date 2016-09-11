@@ -4,21 +4,21 @@
 void ofApp::setup(){
     ofDisableArbTex();
     
-    cam.setupPerspective(false, 60, 1, 12000);
-    
-    cubeMap.load("Barce_Rooftop_C_3k.jpg", 1024, true, "filteredMapCache");
-    pbr.setup(1024);
-    pbr.setCubeMap(&cubeMap);
+    //cam.setupPerspective(false, 60, 1, 12000);
+    //
+    //cubeMap.load("Barce_Rooftop_C_3k.jpg", 1024, true, "filteredMapCache");
+    //pbr.setup(1024);
+    //pbr.setCubeMap(&cubeMap);
     
     scene = bind(&ofApp::renderScene, this);
     
-    light.setLightType(LightType_Directional);
-    light.setPosition(-1500, 1000, 1500);
-    light.lookAt(ofVec3f(0));
-    light.setScale(1.5);
-    light.setColor(ofFloatColor(1.0));
-    light.setShadowType(ShadowType_Hard);
-    pbr.addLight(&light);
+    //light.setLightType(LightType_Directional);
+    //light.setPosition(-1500, 1000, 1500);
+    //light.lookAt(ofVec3f(0));
+    //light.setScale(1.5);
+    //light.setColor(ofFloatColor(1.0));
+    //light.setShadowType(ShadowType_Hard);
+    //pbr.addLight(&light);
     
     cubeMap.setEnvLevel(0.3);
     
@@ -89,17 +89,23 @@ void ofApp::draw(){
     render.begin();
     render.setUniform1i("envMap", 1);
     render.setUniform1i("numLights", numShadows);
-    GLuint shadowIndex = glGetSubroutineIndex(render.getProgram(), GL_FRAGMENT_SHADER, "shadow");
-    GLuint renderIndex = glGetSubroutineIndex(render.getProgram(), GL_FRAGMENT_SHADER, "render");
+	GLuint shadowIndexVert = glGetSubroutineIndex(render.getProgram(), GL_VERTEX_SHADER, "shadow");
+	GLuint renderIndexVert = glGetSubroutineIndex(render.getProgram(), GL_VERTEX_SHADER, "render");
+	GLuint shadowIndexGeom = glGetSubroutineIndex(render.getProgram(), GL_GEOMETRY_SHADER, "shadow");
+	GLuint renderIndexGeom = glGetSubroutineIndex(render.getProgram(), GL_GEOMETRY_SHADER, "render");
+    GLuint shadowIndexFrag = glGetSubroutineIndex(render.getProgram(), GL_FRAGMENT_SHADER, "shadow");
+    GLuint renderIndexFrag = glGetSubroutineIndex(render.getProgram(), GL_FRAGMENT_SHADER, "render");
     
-    GLuint indexArray[] = { shadowIndex };
+    GLuint indexArrayVert[] = { shadowIndexFrag };
+	GLuint indexArrayGeom[] = { shadowIndexGeom };
+	GLuint indexArrayFrag[] = { shadowIndexFrag }; 
     
-    glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, indexArray);
-    glUniformSubroutinesuiv(GL_VERTEX_SHADER, 1, indexArray);
-    glUniformSubroutinesuiv(GL_GEOMETRY_SHADER, 1, indexArray);
     render.setUniform1i("renderForDepthMap", true);
     glUniform3fv(glGetUniformLocation(render.getProgram(), "light"), numShadows, &lightPos[0].x);
     glUniformMatrix4fv(glGetUniformLocation(render.getProgram(), "viewMat"), numShadows, GL_FALSE, viewMat[0].getPtr());
+	glUniformSubroutinesuiv(GL_VERTEX_SHADER, 1, indexArrayVert);
+	glUniformSubroutinesuiv(GL_GEOMETRY_SHADER, 1, indexArrayGeom);
+	glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, indexArrayFrag);
     renderScene();
     render.end();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

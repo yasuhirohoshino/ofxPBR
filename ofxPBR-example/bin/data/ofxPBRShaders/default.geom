@@ -1,4 +1,4 @@
-#version 400
+#version 410
 
 #define MAX_LIGHTS 8
 
@@ -29,10 +29,21 @@ out vec4 colorVarying;
 out float layer;
 out mat4 normalMatrix;
 
-subroutine void renderType();
-subroutine uniform renderType renderModel;
+uniform bool renderForDepthMap;
 
-subroutine(renderType)
+void render(){
+    for(int i=0;i<3;i++){
+        texCoordVarying = geomTexcoord[i];
+        normalMatrix = inverse(transpose((modelViewMatrix)));
+        normalVarying = geomNormal[i];
+        positionVarying = geomPosition[i];
+        colorVarying = geomColor[i];
+        gl_Position = gl_in[i].gl_Position;
+        EmitVertex();
+    }
+    EndPrimitive();
+}
+
 void shadow(){
     for(int i=0; i<MAX_LIGHTS; i++){
         if(i < numLights){
@@ -50,20 +61,10 @@ void shadow(){
     }
 }
 
-subroutine(renderType)
-void render(){
-    for(int i=0;i<3;i++){
-        texCoordVarying = geomTexcoord[i];
-        normalMatrix = inverse(transpose((modelViewMatrix)));
-        normalVarying = geomNormal[i];
-        positionVarying = geomPosition[i];
-        colorVarying = geomColor[i];
-        gl_Position = gl_in[i].gl_Position;
-        EmitVertex();
-    }
-    EndPrimitive();
-}
-
 void main() {
-    renderModel();
+	if(renderForDepthMap == true){
+		shadow();
+	}else{
+		render();
+	}
 }

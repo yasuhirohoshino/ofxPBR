@@ -1,4 +1,4 @@
-#version 400
+#version 410
 
 #define MAX_LIGHTS 8
 
