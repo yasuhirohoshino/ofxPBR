@@ -40,6 +40,7 @@ public:
     ofVec3f getViewSpacePosition(ofMatrix4x4 viewMatrix);
     ofMatrix4x4 getShadowMatrix(ofMatrix4x4 cameraModelViewMatrix);
     ofVec3f getViewSpaceDirection(ofMatrix4x4 viewMatrix);
+    ofMatrix4x4 getViewProjectionMatrix();
     
     // color
     void setColor(ofFloatColor color);

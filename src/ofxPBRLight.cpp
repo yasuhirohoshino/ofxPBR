@@ -95,6 +95,17 @@ ofVec3f ofxPBRLight::getViewSpaceDirection(ofMatrix4x4 viewMatrix){
     return ofVec3f(dir * viewMatrix).getNormalized();
 }
 
+ofMatrix4x4 ofxPBRLight::getViewProjectionMatrix(){
+    ofMatrix4x4 viewMatrix, projectionMatrix;
+    viewMatrix = this->getModelViewMatrix();
+    if(lightType == LightType_Directional || lightType == LightType_Sky){
+        projectionMatrix.makeOrthoMatrix(-depthMapRes * 0.5, depthMapRes * 0.5, -depthMapRes * 0.5, depthMapRes * 0.5, this->getNearClip(), this->getFarClip());
+    }else{
+        projectionMatrix = this->getProjectionMatrix();
+    }
+    return viewMatrix * projectionMatrix;
+}
+
 // color
 void ofxPBRLight::setColor(ofFloatColor color){
     this->color = color;

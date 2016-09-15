@@ -36,6 +36,7 @@ private:
     ofShader * PBRShader;
     ofMesh sphereMesh;
     ofxPBRCubeMap * cubeMap;
+    vector<ofMatrix4x4> lightViewProjMatrix;
     vector<ofMatrix4x4> shadowMatrix;
 	bool depthMapMode;
 	vector<ofxPBRLight *> lights;

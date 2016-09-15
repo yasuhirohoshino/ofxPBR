@@ -1,10 +1,8 @@
 #version 410
 
-#define MAX_LIGHTS 8
-
-#define PI 3.14159265358979
-#define TwoPI 6.28318530718
-
+const int MAX_LIGHTS = 8;
+const float PI = 3.14159265358979;
+const float TwoPI = 6.28318530718;
 uniform mat4 projectionMatrix;
 uniform mat4 modelViewMatrix;
 uniform mat4 textureMatrix;
@@ -45,7 +43,7 @@ uniform float cameraNear;
 uniform float cameraFar;
 
 // Shadows
-uniform sampler2D shadowMap;
+uniform sampler2DArray shadowMap;
 uniform vec2 depthMapAtrasRes;
 uniform vec2 depthTexMag;
 uniform mat4 shadowMatrix[MAX_LIGHTS];
@@ -122,9 +120,7 @@ vec3 PrefilterEnvMap(float Roughness, vec3 R) {
     float rot = cubeMapRotation;
     mat3 rotationMatrix = mat3(cos(rot), 0, sin(rot), 0, 1, 0, -sin(rot), 0, cos(rot));
     vec3 rotatedVector = rotationMatrix * R;
-    vec4 env1 = textureLod( envMap, rotatedVector, int(Roughness * numMips) );
-    vec4 env2 = textureLod( envMap, rotatedVector, min(int(Roughness * numMips) + 1, numMips) );
-    vec4 color = mix(env1, env2, fract(Roughness * numMips));
+    vec4 color = mix(textureLod( envMap, rotatedVector, int(Roughness * numMips) ), textureLod( envMap, rotatedVector, min(int(Roughness * numMips) + 1, numMips)), fract(Roughness * numMips));
     return  color.rgb * cubeMapExposure;
 }
 
@@ -264,7 +260,7 @@ float CalcSoftShadow(int index, float expo){
     vec3 projCoords = v_shadowCoord[index].xyz / v_shadowCoord[index].w;
     float currentDepth = projCoords.z;
     vec2 offset = vec2(depthTexMag.x * (index % 4), depthTexMag.y * floor(float(index) / 4));
-    float depth = texture(shadowMap, offset + projCoords.xy * depthTexMag).r;
+    float depth = 0.0;//texture(shadowMap, offset + projCoords.xy * depthTexMag).r;
     visiblity = exp(expo * depth) * exp(-expo * currentDepth);
     if(projCoords.x >= 1.0 || projCoords.x <= 0.0 ||
        projCoords.y >= 1.0 || projCoords.y <= 0.0 ||
@@ -278,13 +274,12 @@ float CalcHardShadow(int index){
     float visiblity = 1.0;
     vec3 projCoords = v_shadowCoord[index].xyz / v_shadowCoord[index].w;
     float currentDepth = projCoords.z;
-    vec2 offset = vec2(depthTexMag.x * (index % 4), depthTexMag.y * floor(float(index) / 4));
-    if(currentDepth - lights[index].bias > texture(shadowMap, offset + projCoords.xy * depthTexMag).r){
-        visiblity -= 0.2;
+    if(currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy, index)).r){
+        visiblity -= 1.0 / 9.0;
     }
     for(int j=0;j<8;j++){
-        if(currentDepth - lights[index].bias > texture(shadowMap, offset + (projCoords.xy + (poissonDisk[j] / depthMapAtrasRes)) * depthTexMag).r){
-            visiblity -= 0.1;
+        if(currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy + poissonDisk[j] * (1.0 / (1024.0 * 2)), index)).r){
+            visiblity -= 1.0 / 9.0;
         }
     }
     if(projCoords.x >= 1.0 || projCoords.x <= 0.0 ||
@@ -456,53 +451,43 @@ vec3 DetectEmission(vec3 color, vec3 emissionColor) {
         return color;
     }
 }
-
-subroutine vec4 renderType();
-subroutine uniform renderType renderModel;
-
-subroutine(renderType)
-vec4 shadow(){
-    return vec4(1.0);
-}
-
-subroutine(renderType)
-vec4 render(){
-    vec3 baseColor = vec3(0.0);
-    float roughness = 0.0;
-    float metallic = 0.0;
-    vec3 normal = vec3(0.0);
-    vec3 reflectDir = vec3(0.0);
-    float occlusion = 1.0;
-    vec3 color = vec3(0.0);
-    vec3 emissionColor = vec3(0.0);
-    
-    SetParams();
-    // Set Gamma from cubemap
-    SetGamma();
-    // Set BaseColor
-    baseColor = GetBaseColor(colorVarying, texCoordVarying);
-    // Set Roughness
-    roughness = GetRoughness(texCoordVarying);
-    // Set Metallic
-    metallic = GetMetallic(texCoordVarying);
-    // Set Normal and Reflection
-    normal = vec3(0.0);
-    reflectDir = vec3(0.0);
-    CalcNormal(normal, reflectDir, texCoordVarying);
-    // Set Occlusion
-    occlusion = GetOcclusion(texCoordVarying);
-    // Set Color
-    color = CalcColor(baseColor, roughness, metallic, normal, reflectDir, occlusion);
-    // Set Emission color
-    emissionColor = GetEmissionColor(texCoordVarying);
-    // Apply Emission or not
-    color = DetectEmission(color, emissionColor);
-    
-    return vec4(color, 1.0);
-}
-
 out vec4 fragColor;
 
+vec3 baseColor = vec3(0.0);
+float roughness = 0.0;
+float metallic = 0.0;
+vec3 normal = vec3(0.0);
+vec3 reflectDir = vec3(0.0);
+float occlusion = 1.0;
+vec3 color = vec3(0.0);
+vec3 emissionColor = vec3(0.0);
+
 void main (void) {
-    fragColor = renderModel();
+    if(renderForDepthMap == true){
+        fragColor = vec4(1.0);
+    } else {
+        SetParams();
+        // Set Gamma from cubemap
+        SetGamma();
+        // Set BaseColor
+        baseColor = GetBaseColor(colorVarying, texCoordVarying);
+        // Set Roughness
+        roughness = GetRoughness(texCoordVarying);
+        // Set Metallic
+        metallic = GetMetallic(texCoordVarying);
+        // Set Normal and Reflection
+        normal = vec3(0.0);
+        reflectDir = vec3(0.0);
+        CalcNormal(normal, reflectDir, texCoordVarying);
+        // Set Occlusion
+        occlusion = GetOcclusion(texCoordVarying);
+        // Set Color
+        color = CalcColor(baseColor, roughness, metallic, normal, reflectDir, occlusion);
+        // Set Emission color
+        emissionColor = GetEmissionColor(texCoordVarying);
+        // Apply Emission or not
+        color = DetectEmission(color, emissionColor);
+        fragColor = vec4(color, 1.0);
+//        fragColor = vec4(texture(shadowMap, vec3(texCoordVarying.x,texCoordVarying.y, 0)).r, 0.0, 0.0, 1.0);
+    }
 }

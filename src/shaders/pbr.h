@@ -16,6 +16,10 @@ public:
                                    uniform mat4 textureMatrix;
                                    uniform mat4 modelViewProjectionMatrix;
                                    uniform vec4 globalColor;
+                                   uniform mat4 viewMatrix;
+                                   
+                                   uniform mat4 viewMat;
+                                   uniform bool renderForDepthMap;
                                    
                                    // passThrough
                                    // in
@@ -32,12 +36,16 @@ public:
                                    out mat4 normalMatrix;
                                    
                                    void main(){
-                                       normalMatrix = inverse(transpose(modelViewMatrix));
-                                       normalVarying = normal;
-                                       positionVarying = position;
-                                       texCoordVarying = texcoord;
-                                       colorVarying = color;
-                                       gl_Position = modelViewProjectionMatrix * position;
+                                       if(renderForDepthMap == true){
+                                           gl_Position = viewMat * (inverse(viewMatrix) * modelViewMatrix) * position;
+                                       }else{
+                                           normalMatrix = inverse(transpose(modelViewMatrix));
+                                           normalVarying = normal;
+                                           positionVarying = position;
+                                           texCoordVarying = texcoord;
+                                           colorVarying = color;
+                                           gl_Position = modelViewProjectionMatrix * position;
+                                       }
                                    }
                                    );
         
@@ -85,7 +93,7 @@ public:
                                    uniform float cameraFar;
                                    
                                    // Shadows
-                                   uniform sampler2D shadowMap;
+                                   uniform sampler2DArray shadowMap;
                                    uniform vec2 depthMapAtrasRes;
                                    uniform vec2 depthTexMag;
                                    uniform mat4 shadowMatrix[MAX_LIGHTS];
@@ -302,7 +310,7 @@ public:
                                        vec3 projCoords = v_shadowCoord[index].xyz / v_shadowCoord[index].w;
                                        float currentDepth = projCoords.z;
                                        vec2 offset = vec2(depthTexMag.x * (index % 4), depthTexMag.y * floor(float(index) / 4));
-                                       float depth = texture(shadowMap, offset + projCoords.xy * depthTexMag).r;
+                                       float depth = 0.0;//texture(shadowMap, offset + projCoords.xy * depthTexMag).r;
                                        visiblity = exp(expo * depth) * exp(-expo * currentDepth);
                                        if(projCoords.x >= 1.0 || projCoords.x <= 0.0 ||
                                           projCoords.y >= 1.0 || projCoords.y <= 0.0 ||
@@ -316,13 +324,12 @@ public:
                                        float visiblity = 1.0;
                                        vec3 projCoords = v_shadowCoord[index].xyz / v_shadowCoord[index].w;
                                        float currentDepth = projCoords.z;
-                                       vec2 offset = vec2(depthTexMag.x * (index % 4), depthTexMag.y * floor(float(index) / 4));
-                                       if(currentDepth - lights[index].bias > texture(shadowMap, offset + projCoords.xy * depthTexMag).r){
-                                           visiblity -= 0.2;
+                                       if(currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy, index)).r){
+                                           visiblity -= 1.0 / 9.0;
                                        }
                                        for(int j=0;j<8;j++){
-                                           if(currentDepth - lights[index].bias > texture(shadowMap, offset + (projCoords.xy + (poissonDisk[j] / depthMapAtrasRes)) * depthTexMag).r){
-                                               visiblity -= 0.1;
+                                           if(currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy + poissonDisk[j] * (1.0 / (1024.0 * 2)), index)).r){
+                                               visiblity -= 1.0 / 9.0;
                                            }
                                        }
                                        if(projCoords.x >= 1.0 || projCoords.x <= 0.0 ||
@@ -531,6 +538,7 @@ public:
                                            // Apply Emission or not
                                            color = DetectEmission(color, emissionColor);
                                            fragColor = vec4(color, 1.0);
+                                           fragColor = vec4(texture(shadowMap, vec3(texCoordVarying.x,texCoordVarying.y, 0)).r, 0.0, 0.0, 1.0);
                                        }
                                    });
     }
