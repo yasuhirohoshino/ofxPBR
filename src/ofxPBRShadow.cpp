@@ -76,14 +76,11 @@ void ofxPBRShadow::setShadowMap(){
 void ofxPBRShadow::beginDepthMap(ofxPBRLight * pbrLight, int index){
     this->pbrLight = pbrLight;
 	currentLightIndex = index;
-//    depthMap.begin();
-//    ofClear(255, 0, 0, 255);
     
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
-//    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMapIndex, 0, index);
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMapIndex, 0, index);
     glViewport(0, 0, depthMapRes, depthMapRes);
     ofClear(0);
-//    pbrLight->beginDepthCamera();
 }
 
 void ofxPBRShadow::beginDepthMap(){
@@ -93,9 +90,7 @@ void ofxPBRShadow::beginDepthMap(){
 }
 
 void ofxPBRShadow::endDepthMap(){
-//    pbrLight->endDepthCamera();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//    depthMap.end();
     
 //    if(pbrLight->getShadowType() == ShadowType_Soft){
 //        blurVFbo.begin();

@@ -538,7 +538,7 @@ public:
                                            // Apply Emission or not
                                            color = DetectEmission(color, emissionColor);
                                            fragColor = vec4(color, 1.0);
-                                           fragColor = vec4(texture(shadowMap, vec3(texCoordVarying.x,texCoordVarying.y, 0)).r, 0.0, 0.0, 1.0);
+//                                           fragColor = vec4(texture(shadowMap, vec3(texCoordVarying.x,texCoordVarying.y, 0)).r, 0.0, 0.0, 1.0);
                                        }
                                    });
     }

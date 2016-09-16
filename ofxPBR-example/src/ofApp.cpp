@@ -21,7 +21,7 @@ void ofApp::setup(){
     pbr.addLight(&light);
     
     light2.setLightType(LightType_Directional);
-    light2.setPosition(1500, 1000, 1500);
+    light2.setPosition(1500, 500, 1500);
     light2.lookAt(ofVec3f(0));
     light2.setScale(1.5);
     light2.setColor(ofFloatColor(1.0));
@@ -32,10 +32,10 @@ void ofApp::setup(){
     
 //    numShadows = 8;
     
-    render.setGeometryInputType(GL_TRIANGLES);
-    render.setGeometryOutputType(GL_TRIANGLE_STRIP);
-    render.setGeometryOutputCount(int(fmaxf(3 * 6, 3)));
-    render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag", "ofxPBRShaders/default.geom");
+//    render.setGeometryInputType(GL_TRIANGLES);
+//    render.setGeometryOutputType(GL_TRIANGLE_STRIP);
+//    render.setGeometryOutputCount(int(fmaxf(3 * 6, 3)));
+//    render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag", "ofxPBRShaders/default.geom");
 //
 //    render2.load("shaders/render");
     
@@ -156,7 +156,7 @@ void ofApp::draw(){
 void ofApp::renderScene(){
     ofEnableDepthTest();
     ofPushMatrix();
-    pbr.begin(&cam, &render);
+    pbr.begin(&cam);
     {
         material.roughness = 0.0;
         material.metallic = 0.0;

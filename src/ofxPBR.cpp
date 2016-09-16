@@ -34,11 +34,8 @@ void ofxPBR::begin(ofCamera * camera, ofShader * shader){
 	if (depthMapMode) {
 		PBRShader->begin();
 		PBRShader->setUniform1i("renderForDepthMap", true);
-        for (int i = 0; i<lights.size(); i++) {
-            lightViewProjMatrix[i] = lights[i]->getViewProjectionMatrix();
-        }
         PBRShader->setUniform1i("numLights", lights.size());
-        glUniformMatrix4fv(PBRShader->getUniformLocation("viewMat"), lights.size(), false, lightViewProjMatrix[0].getPtr());
+        PBRShader->setUniformMatrix4f("viewMat", lights[lightIndex]->getViewProjectionMatrix());
 	}else{
 		PBRShader->begin();
 		PBRShader->setUniform1i("renderForDepthMap", false);
@@ -67,9 +64,6 @@ void ofxPBR::begin(ofCamera * camera, ofShader * shader){
 			lights[i]->beginLighting(PBRShader, i);
 		}
 		if (lights.size() != 0) {
-//			PBRShader->setUniformTexture("shadowMap", *shadow.getDepthMap(), 10);
-//			PBRShader->setUniform2f("depthMapAtrasRes", shadow.getDepthMapAtrasRes());
-//			PBRShader->setUniform2f("depthTexMag", shadow.getDepthTexMag());
             shadow.bind(10);
             PBRShader->setUniform1i("shadowMap", 10);
 			glUniformMatrix4fv(PBRShader->getUniformLocation("shadowMatrix"), lights.size(), false, shadowMatrix[0].getPtr());
@@ -147,16 +141,17 @@ ofTexture * ofxPBR::getDepthMap(){
 
 void ofxPBR::makeDepthMap(function<void()> scene)
 {
-//	for (int i = 0; i<lights.size(); i++) {
-//		if (lights[i]->getShadowType() != ShadowType_None && lights[i]->isEnabled()) {
-//			if (lights[i]->getLightType() == LightType_Sky && cubeMap != nullptr) lights[i]->setSkyLightRotation(cubeMap->getRotation());
+	for (int i = 0; i<lights.size(); i++) {
+		if (lights[i]->getShadowType() != ShadowType_None && lights[i]->isEnabled()) {
+			if (lights[i]->getLightType() == LightType_Sky && cubeMap != nullptr) lights[i]->setSkyLightRotation(cubeMap->getRotation());
 			depthMapMode = true;
-			shadow.beginDepthMap();
+            lightIndex = i;
+			shadow.beginDepthMap(lights[i], i);
 			scene();
 			shadow.endDepthMap();
 			depthMapMode = false;
-//		}
-//	}
+		}
+	}
 }
 
 void ofxPBR::addLight(ofxPBRLight * light) {
@@ -190,7 +185,6 @@ int getLastTextureIndex(){
 void ofxPBR::setNumLights(int numLights) {
 	shadow.setNumLights(numLights);
 	shadowMatrix.assign(numLights, ofMatrix4x4());
-    lightViewProjMatrix.assign(numLights, ofMatrix4x4());
 	for (int i = 0; i < lights.size(); i++) {
 		lights[i]->setId(i);
 	}
