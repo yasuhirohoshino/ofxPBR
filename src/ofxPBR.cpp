@@ -12,12 +12,14 @@ void ofxPBR::setup(int depthMapResolution) {
 	depthMapMode = false;
 	enableCubemap = false;
     
+    // load env shader
     envShader = new ofShader();
     envShader->setupShaderFromSource(GL_VERTEX_SHADER, environment.gl3VertShader);
     envShader->setupShaderFromSource(GL_FRAGMENT_SHADER, environment.gl3FragShader);
     envShader->bindDefaults();
     envShader->linkProgram();
     
+    // load defalut pbr shader
     defaultShader = ofShader();
     defaultShader.setupShaderFromSource(GL_VERTEX_SHADER, pbr.gl3VertShader);
     defaultShader.setupShaderFromSource(GL_FRAGMENT_SHADER, pbr.gl3FragShader);
@@ -31,56 +33,19 @@ void ofxPBR::begin(ofCamera * camera, ofShader * shader){
     }else{
         PBRShader = &defaultShader;
     }
+    
 	if (depthMapMode) {
-		PBRShader->begin();
-		PBRShader->setUniform1i("renderForDepthMap", true);
-        PBRShader->setUniform1i("numLights", lights.size());
-        PBRShader->setUniformMatrix4f("viewMat", lights[lightIndex]->getViewProjectionMatrix());
+        beginDepthMap();
 	}else{
-		PBRShader->begin();
-		PBRShader->setUniform1i("renderForDepthMap", false);
-		PBRShader->setUniform1f("cameraNear", camera->getNearClip());
-		PBRShader->setUniform1f("cameraFar", camera->getFarClip());
-		if (enableCubemap && cubeMap != nullptr && cubeMap->isAllocated()) {
-            cubeMap->bind(1);
-            PBRShader->setUniform1i("enableEnv", true);
-			PBRShader->setUniform1i("numMips", cubeMap->getNumMips());
-			PBRShader->setUniform1f("cubeMapExposure", cubeMap->getExposure());
-			PBRShader->setUniform1f("cubeMapRotation", cubeMap->getRotation());
-			PBRShader->setUniform1i("isHDR", cubeMap->isHDR());
-		}else{
-            PBRShader->setUniform1i("enableEnv", false);
-            PBRShader->setUniform1i("isHDR", false);
-		}
-        PBRShader->setUniform1i("envMap", 1);
-		PBRShader->setUniformMatrix4f("viewTranspose", ofMatrix4x4::getTransposedOf(camera->getModelViewMatrix()));
-		PBRShader->setUniformMatrix4f("viewMatrix", ofGetCurrentViewMatrix());
-		PBRShader->setUniform1i("numLights", lights.size());
-		for (int i = 0; i<lights.size(); i++) {
-            if (cubeMap != nullptr && lights[i]->getLightType() == LightType_Sky && lights[i]->getShadowType() != ShadowType_None){
-                lights[i]->setSkyLightRotation(cubeMap->getRotation());
-            }
-			shadowMatrix[i] = lights[i]->getShadowMatrix(camera->getModelViewMatrix());
-			lights[i]->beginLighting(PBRShader, i);
-		}
-		if (lights.size() != 0) {
-            shadow.bind(10);
-            PBRShader->setUniform1i("shadowMap", 10);
-			glUniformMatrix4fv(PBRShader->getUniformLocation("shadowMatrix"), lights.size(), false, shadowMatrix[0].getPtr());
-		}
+        beginPBR(camera);
 	}
 }
 
 void ofxPBR::end(){
-	for (int i = 0; i<lights.size(); i++) {
-		lights[i]->endLighting(PBRShader);
-	}
-    if (enableCubemap && cubeMap !=nullptr && cubeMap->isAllocated()) {
-        cubeMap->unbind();
-    }
-    PBRShader->end();
-    if (lights.size() != 0) {
-        shadow.unbind();
+    if (depthMapMode) {
+        endDepthMap();
+    }else{
+        endPBR();
     }
 }
 
@@ -135,15 +100,13 @@ int ofxPBR::getDepthMapResolution(){
     return shadow.getDepthMapResolution();
 }
 
-ofTexture * ofxPBR::getDepthMap(){
-    return shadow.getDepthMap();
-}
-
 void ofxPBR::makeDepthMap(function<void()> scene)
 {
 	for (int i = 0; i<lights.size(); i++) {
 		if (lights[i]->getShadowType() != ShadowType_None && lights[i]->isEnabled()) {
-			if (lights[i]->getLightType() == LightType_Sky && cubeMap != nullptr) lights[i]->setSkyLightRotation(cubeMap->getRotation());
+            if (lights[i]->getLightType() == LightType_Sky && cubeMap != nullptr){
+                lights[i]->setSkyLightRotation(cubeMap->getRotation());
+            }
 			depthMapMode = true;
             lightIndex = i;
 			shadow.beginDepthMap(lights[i], i);
@@ -181,6 +144,82 @@ int getLastTextureIndex(){
 }
 
 // private
+
+void ofxPBR::beginPBR(ofCamera * camera){
+    // pbr
+    PBRShader->begin();
+    PBRShader->setUniform1i("renderForDepthMap", false);
+    PBRShader->setUniform1f("cameraNear", camera->getNearClip());
+    PBRShader->setUniform1f("cameraFar", camera->getFarClip());
+    
+    // cube map settings
+    if (enableCubemap && cubeMap != nullptr && cubeMap->isAllocated()) {
+        // enable cubemap
+        cubeMap->bind(1);
+        PBRShader->setUniform1i("enableEnv", true);
+        PBRShader->setUniform1i("numMips", cubeMap->getNumMips());
+        PBRShader->setUniform1f("cubeMapExposure", cubeMap->getExposure());
+        PBRShader->setUniform1f("cubeMapRotation", cubeMap->getRotation());
+        PBRShader->setUniform1i("isHDR", cubeMap->isHDR());
+    }else{
+        // disable cubemap
+        PBRShader->setUniform1i("enableEnv", false);
+        PBRShader->setUniform1i("isHDR", false);
+    }
+    PBRShader->setUniform1i("envMap", 1);
+    
+    // send common matricies
+    PBRShader->setUniformMatrix4f("viewTranspose", ofMatrix4x4::getTransposedOf(camera->getModelViewMatrix()));
+    PBRShader->setUniformMatrix4f("viewMatrix", ofGetCurrentViewMatrix());
+    
+    // enable lights
+    PBRShader->setUniform1i("numLights", lights.size());
+    for (int i = 0; i<lights.size(); i++) {
+        if (cubeMap != nullptr && lights[i]->getLightType() == LightType_Sky && lights[i]->getShadowType() != ShadowType_None){
+            lights[i]->setSkyLightRotation(cubeMap->getRotation());
+        }
+        shadowMatrix[i] = lights[i]->getShadowMatrix(camera->getModelViewMatrix());
+        lights[i]->beginLighting(PBRShader, i);
+    }
+    
+    // send depth maps
+    if (lights.size() != 0) {
+        shadow.bind(10);
+        PBRShader->setUniform1i("shadowMap", 10);
+        glUniformMatrix4fv(PBRShader->getUniformLocation("shadowMatrix"), lights.size(), false, shadowMatrix[0].getPtr());
+    }
+}
+
+void ofxPBR::endPBR(){
+    // end lighting
+    for (int i = 0; i<lights.size(); i++) {
+        lights[i]->endLighting(PBRShader);
+    }
+    
+    PBRShader->end();
+    
+    // unbind cube map
+    if (enableCubemap && cubeMap !=nullptr && cubeMap->isAllocated()) {
+        cubeMap->unbind();
+    }
+    
+    // unbind depth map
+    if (lights.size() != 0) {
+        shadow.unbind();
+    }
+}
+
+void ofxPBR::beginDepthMap(){
+    // render depth maps for shadows
+    PBRShader->begin();
+    PBRShader->setUniform1i("renderForDepthMap", true);
+    PBRShader->setUniform1i("numLights", lights.size());
+    PBRShader->setUniformMatrix4f("viewMat", lights[lightIndex]->getViewProjectionMatrix());
+}
+
+void ofxPBR::endDepthMap(){
+    PBRShader->end();
+}
 
 void ofxPBR::setNumLights(int numLights) {
 	shadow.setNumLights(numLights);

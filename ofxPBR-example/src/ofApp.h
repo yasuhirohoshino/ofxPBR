@@ -39,7 +39,9 @@ class ofApp : public ofBaseApp{
 
     GLuint depthMap, depthMapFbo;
     ofMatrix4x4 shadowProjMatrix;
-    int shadowMapRes = 1024 * 2;
+    int shadowMapRes = 1024;
+    
+    
     
     int numShadows;
     vector<ofCamera> camera;

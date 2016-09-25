@@ -14,6 +14,7 @@ public:
 	void setup(int depthMapResolution);
     void begin(ofCamera * camera, ofShader * shader = nullptr);
     void end();
+    
 	void setCubeMap(ofxPBRCubeMap * cubeMap);
 	void enableCubeMap(bool enable);
 	bool isCubeMapEnable();
@@ -21,7 +22,6 @@ public:
     void drawEnvironment(ofCamera * camera);
     void resizeDepthMap(int resolution);
     int getDepthMapResolution();
-    ofTexture * getDepthMap();
 	void makeDepthMap(function<void()> scene);
 	void addLight(ofxPBRLight* light);
 	void removeLight(int index);
@@ -31,6 +31,12 @@ public:
     
 private:
 	void setNumLights(int numLights);
+    
+    void beginPBR(ofCamera * camera);
+    void endPBR();
+    
+    void beginDepthMap();
+    void endDepthMap();
 
     ofxPBRShadow shadow;
     ofShader * PBRShader;

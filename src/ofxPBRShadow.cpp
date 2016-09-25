@@ -1,12 +1,11 @@
 #include "ofxPBRShadow.h"
 
 void ofxPBRShadow::setup(int resolution){
-//    blurShader.setupShaderFromSource(GL_VERTEX_SHADER, blur.gl3VertShader);
-//    blurShader.setupShaderFromSource(GL_FRAGMENT_SHADER, blur.gl3FragShader);
-//    blurShader.bindDefaults();
-//    blurShader.linkProgram();
+    blurShader.setupShaderFromSource(GL_VERTEX_SHADER, blur.gl3VertShader);
+    blurShader.setupShaderFromSource(GL_FRAGMENT_SHADER, blur.gl3FragShader);
+    blurShader.bindDefaults();
+    blurShader.linkProgram();
     depthMapRes = resolution;
-    
 }
 
 void ofxPBRShadow::resizeDepthMap(int resolution){
@@ -21,37 +20,20 @@ void ofxPBRShadow::setNumLights(int numLights){
 
 void ofxPBRShadow::setShadowMap(){
 //    if(depthMapRes != 0 && numLights != 0){
-//        depthMapAtrasWidth = depthMapRes * min(numLights, 4);
-//        depthMapAtrasHeight = depthMapRes * (floor(numLights / 5) + 1);
-//        
-//        depthTexMag.x = float(depthMapRes) / float(depthMapAtrasWidth);
-//        depthTexMag.y = float(depthMapRes) / float(depthMapAtrasHeight);
-//        
 //        settings.width  = depthMapRes;
 //        settings.height = depthMapRes;
 //        settings.textureTarget = GL_TEXTURE_2D;
-//        settings.internalformat = GL_R8;
-//        settings.useDepth = true;
-//        settings.depthStencilAsTexture = true;
-//        settings.useStencil = true;
+//        settings.useDepth = false;
+//        settings.depthStencilAsTexture = false;
+//        settings.useStencil = false;
 //        settings.minFilter = GL_LINEAR;
 //        settings.maxFilter = GL_LINEAR;
 //        settings.wrapModeHorizontal = GL_CLAMP_TO_EDGE;
 //        settings.wrapModeVertical = GL_CLAMP_TO_EDGE;
 //        
-//        depthMap.allocate(settings);
-//        
 //        settings.internalformat = GL_R32F;
 //        blurHFbo.allocate(settings);
 //        blurVFbo.allocate(settings);
-//        
-//        settings.width  = depthMapAtrasWidth;
-//        settings.height = depthMapAtrasHeight;
-//        
-//        depthSumFbo.allocate(settings);
-//        depthSumFbo.begin();
-//        ofClear(255, 0, 0);
-//        depthSumFbo.end();
 //    }
     
     glGenTextures(1, &depthMapIndex);
@@ -73,6 +55,33 @@ void ofxPBRShadow::setShadowMap(){
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void ofxPBRShadow::setOmniShadowMap(int numOmniShadowMaps){
+    depthCubeMapIndex.assign(numOmniShadowMaps, 0);
+    depthCubeMapFbo.assign(numOmniShadowMaps, 0);
+    for(int i=0;i<depthCubeMapIndex.size();i++){
+        // generate cubemap fbo
+        glGenFramebuffers(1, &depthCubeMapFbo[i]);
+        glGenTextures(1, &depthCubeMapIndex[i]);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMapIndex[i]);
+        for (GLuint j = 0; j < 6; ++j){
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, 0, GL_DEPTH_COMPONENT32F, depthMapRes, depthMapRes, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+        }
+        
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+        
+        glBindFramebuffer(GL_FRAMEBUFFER, depthCubeMapFbo[i]);
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubeMapIndex[i], 0);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+}
+
 void ofxPBRShadow::beginDepthMap(ofxPBRLight * pbrLight, int index){
     this->pbrLight = pbrLight;
 	currentLightIndex = index;
@@ -83,30 +92,29 @@ void ofxPBRShadow::beginDepthMap(ofxPBRLight * pbrLight, int index){
     ofClear(0);
 }
 
-void ofxPBRShadow::beginDepthMap(){
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
-    glViewport(0, 0, depthMapRes, depthMapRes);
-    ofClear(0);
-}
-
 void ofxPBRShadow::endDepthMap(){
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
 //    if(pbrLight->getShadowType() == ShadowType_Soft){
 //        blurVFbo.begin();
 //        ofClear(255, 0, 0, 255);
+//        bind(1);
 //        blurShader.begin();
+//        blurShader.setUniform1i("index", currentLightIndex);
+//        blurShader.setUniform1i("isFirstPass", true);
 //        blurShader.setUniform2f("resolution", blurHFbo.getWidth(), blurHFbo.getHeight());
 //        blurShader.setUniform1f("sigma", 2.0);
-//        blurShader.setUniformTexture("blurSampler", depthMap.getDepthTexture(), 1);
+//        blurShader.setUniform1i("rawSampler", 1);
 //        blurShader.setUniform1i("horizontal", 0);
-//        depthMap.getDepthTexture().draw(0, 0);
+//        ofDrawPlane(0, 0, blurHFbo.getWidth(), blurHFbo.getHeight());
 //        blurShader.end();
 //        blurVFbo.end();
+//        unbind();
 //        
 //        blurHFbo.begin();
 //        ofClear(255, 0, 0, 255);
 //        blurShader.begin();
+//        blurShader.setUniform1i("isFirstPass", false);
 //        blurShader.setUniform2f("resolution", blurHFbo.getWidth(), blurHFbo.getHeight());
 //        blurShader.setUniform1f("sigma", 2.0);
 //        blurShader.setUniformTexture("blurSampler", blurVFbo.getTexture(), 1);
@@ -114,20 +122,14 @@ void ofxPBRShadow::endDepthMap(){
 //        blurVFbo.draw(0, 0);
 //        blurShader.end();
 //        blurHFbo.end();
+//        
+//        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
+//        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMapIndex, 0, currentLightIndex);
+//        glViewport(0, 0, depthMapRes, depthMapRes);
+//        ofClear(0);
+//        blurHFbo.draw(0, 0);
+//        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 //    }
-    
-//	int index = currentLightIndex;
-//    depthSumFbo.begin();
-//    if(pbrLight->getShadowType() == ShadowType_Hard){
-//        depthMap.getDepthTexture().draw((index % 4) * depthMapRes, floor(float(index) / 4) * depthMapRes);
-//    }else if(pbrLight->getShadowType() == ShadowType_Soft){
-//        blurHFbo.draw((index % 4) * depthMapRes, floor(float(index) / 4) * depthMapRes);
-//    }
-//    depthSumFbo.end();
-}
-
-ofTexture * ofxPBRShadow::getDepthMap(){
-    return &depthSumFbo.getTexture();
 }
 
 int ofxPBRShadow::getDepthMapResolution(){

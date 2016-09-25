@@ -278,7 +278,7 @@ float CalcHardShadow(int index){
         visiblity -= 1.0 / 9.0;
     }
     for(int j=0;j<8;j++){
-        if(currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy + poissonDisk[j] * (1.0 / (1024.0 * 2)), index)).r){
+        if(currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy + poissonDisk[j] * (1.0 / (1024.0)), index)).r){
             visiblity -= 1.0 / 9.0;
         }
     }
@@ -488,6 +488,5 @@ void main (void) {
         // Apply Emission or not
         color = DetectEmission(color, emissionColor);
         fragColor = vec4(color, 1.0);
-//        fragColor = vec4(texture(shadowMap, vec3(texCoordVarying.x,texCoordVarying.y, 0)).r, 0.0, 0.0, 1.0);
     }
 }

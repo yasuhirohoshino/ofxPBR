@@ -62,9 +62,9 @@ void shadow(){
 }
 
 void main() {
-	if(renderForDepthMap == true){
-		shadow();
-	}else{
+//	if(renderForDepthMap == true){
+//		shadow();
+//	}else{
 		render();
-	}
+//	}
 }

@@ -32,6 +32,9 @@ public:
         
         gl3FragShader = "#version 150\n";
         gl3FragShader += STRINGIFY(uniform float sigma;
+                                   uniform sampler2DArray rawSampler;
+                                   uniform bool isFirstPass;
+                                   uniform int index;
                                    uniform sampler2D blurSampler;
                                    uniform vec2 resolution;
                                    uniform int horizontal;
@@ -60,15 +63,26 @@ public:
                                        vec4 avgValue = vec4(0.0, 0.0, 0.0, 0.0);
                                        float coefficientSum = 0.0;
                                        
-                                       avgValue += texture(blurSampler, texCoordVarying) * incrementalGaussian.x;
-                                       coefficientSum += incrementalGaussian.x;
-                                       incrementalGaussian.xy *= incrementalGaussian.yz;
-                                       
-                                       for (float i = 1.0; i <= numBlurPixelsPerSide; i++) {
-                                           avgValue += texture(blurSampler, texCoordVarying - i * blurMultiplyVec) * incrementalGaussian.x;
-                                           avgValue += texture(blurSampler, texCoordVarying + i * blurMultiplyVec) * incrementalGaussian.x;
-                                           coefficientSum += 2.0 * incrementalGaussian.x;
+                                       if(isFirstPass == true){
+                                           avgValue += texture(rawSampler, vec3(texCoordVarying, index)) * incrementalGaussian.x;
+                                           coefficientSum += incrementalGaussian.x;
                                            incrementalGaussian.xy *= incrementalGaussian.yz;
+                                           for (float i = 1.0; i <= numBlurPixelsPerSide; i++) {
+                                               avgValue += texture(rawSampler, vec3(texCoordVarying - i * blurMultiplyVec, index)) * incrementalGaussian.x;
+                                               avgValue += texture(rawSampler, vec3(texCoordVarying + i * blurMultiplyVec, index)) * incrementalGaussian.x;
+                                               coefficientSum += 2.0 * incrementalGaussian.x;
+                                               incrementalGaussian.xy *= incrementalGaussian.yz;
+                                           }
+                                       }else{
+                                           avgValue += texture(blurSampler, texCoordVarying) * incrementalGaussian.x;
+                                           coefficientSum += incrementalGaussian.x;
+                                           incrementalGaussian.xy *= incrementalGaussian.yz;
+                                           for (float i = 1.0; i <= numBlurPixelsPerSide; i++) {
+                                               avgValue += texture(blurSampler, texCoordVarying - i * blurMultiplyVec) * incrementalGaussian.x;
+                                               avgValue += texture(blurSampler, texCoordVarying + i * blurMultiplyVec) * incrementalGaussian.x;
+                                               coefficientSum += 2.0 * incrementalGaussian.x;
+                                               incrementalGaussian.xy *= incrementalGaussian.yz;
+                                           }
                                        }
                                        
                                        avgValue /= coefficientSum;

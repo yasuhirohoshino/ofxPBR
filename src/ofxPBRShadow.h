@@ -11,9 +11,7 @@ public:
     void resizeDepthMap(int resolution);
     void setNumLights(int numLights);
     void beginDepthMap(ofxPBRLight * pbrLight, int index);
-    void beginDepthMap();
     void endDepthMap();
-    ofTexture *getDepthMap();
     int getDepthMapResolution();
     ofVec2f getDepthMapAtrasRes();
     ofVec2f getDepthTexMag();
@@ -23,6 +21,7 @@ public:
     
 private:
     void setShadowMap();
+    void setOmniShadowMap(int numOmniShadowMaps);
     
     ofShader blurShader;
     ofMatrix4x4 inverseCameraMatrix;
@@ -30,7 +29,7 @@ private:
     int depthMapAtrasWidth, depthMapAtrasHeight;
     ofVec2f depthTexMag;
     ofFbo depthMap;
-    ofFbo depthSumFbo, blurVFbo, blurHFbo;
+    ofFbo blurVFbo, blurHFbo;
     ofFbo::Settings settings;
     ofxPBRLight * pbrLight;
     int numLights;
@@ -39,6 +38,10 @@ private:
 	int currentLightIndex;
     
     GLuint depthMapIndex, depthMapFbo;
+    vector<GLuint> depthCubeMapIndex;
+    vector<GLuint> depthCubeMapFbo;
+    
+    int numOmniShadowMaps;
 };
 
 #endif

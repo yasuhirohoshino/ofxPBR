@@ -85,6 +85,35 @@ public:
 private:
 	void begin() { this->::ofCamera::begin(); };
 	void end() { this->::ofCamera::end(); };
+    
+    struct parameters{
+        bool enable = true;
+        ofFloatColor color = ofFloatColor(1.0,1.0,1.0,1.0);
+        float intensity = 1.0;
+        ofVec3f target = ofVec3f::zero();
+        float depthMapRes = 1024;
+        float shadowBias = 0.001;
+        ofMatrix4x4 shadowTransMatrix;
+    };
+    
+    struct spotLightParams{
+        float spotFactor = 1;
+        float cutoff = 45;
+        float radius = 1000;
+    };
+    
+    struct pointLightParams{
+        float radius = 1000;
+    };
+    
+    struct skyLightParams{
+        float latitude = 0;
+        float longitude = 0;
+        float radius = 0;
+        float exposure = 1.0;
+        float angle = 0;
+    };
+    
     ofFloatColor color = ofFloatColor(1.0,1.0,1.0,1.0);
     LightType lightType = LightType_Directional;
     ShadowType shadowType = ShadowType_Soft;
@@ -104,6 +133,7 @@ private:
                                                0.0, 0.0, 0.5, 0.0,
                                                0.5, 0.5, 0.5, 1.0
                                                );
+    
 	string lightIndex;
 	int lightId;
 
