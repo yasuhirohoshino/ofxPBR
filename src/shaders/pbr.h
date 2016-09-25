@@ -71,9 +71,10 @@ public:
                                        int type;
                                        int shadowType;
                                        float intensity;
-                                       float spotFactor;
-                                       float cutoff;
-                                       float radius;
+                                       float spotLightFactor;
+                                       float spotLightCutoff;
+									   float spotLightDistance;
+                                       float pointLightRadius;
                                        float softShadowExponent;
                                        float bias;
                                    };
@@ -273,7 +274,7 @@ public:
                                    void CalcPointLight(vec4 v_positionVarying, vec3 v_normalVarying, vec3 color, Light light, float roughness, out vec3 deffenable, out vec3 specular) {
                                        vec3 s = normalize(light.position - v_positionVarying.xyz);
                                        float dif =  OrenNayarDiffuse(s, -normalize(v_positionVarying.xyz), v_normalVarying, roughness);// max(dot(-light.direction, v_normalVarying), 0.0) / PI;
-                                       float falloff = Falloff(length(light.position - v_positionVarying.xyz), light.radius);
+                                       float falloff = Falloff(length(light.position - v_positionVarying.xyz), light.pointLightRadius);
                                        float spec = CookTorranceSpecular(s, -normalize(v_positionVarying.xyz), v_normalVarying, roughness);
                                        deffenable = light.intensity * (color.rgb * light.color.rgb * dif * falloff);
                                        specular = light.intensity * (color.rgb * light.color.rgb * spec * falloff);
@@ -282,11 +283,11 @@ public:
                                    void CalcSpotLight(vec4 v_positionVarying, vec3 v_normalVarying, vec3 color, Light light, float roughness, out vec3 deffenable, out vec3 specular) {
                                        vec3 s = normalize(light.position - v_positionVarying.xyz);
                                        float angle = acos(dot(-s, light.direction));
-                                       float cutoff1 = radians(clamp(light.cutoff - max(light.spotFactor, 0.01), 0.0, 89.9));
-                                       float cutoff2 = radians(clamp(light.cutoff + max(light.spotFactor, 0.01), 0.0, 90.0));
+                                       float cutoff1 = radians(clamp(light.spotLightCutoff - max(light.spotLightFactor, 0.01), 0.0, 89.9));
+                                       float cutoff2 = radians(clamp(light.spotLightCutoff + max(light.spotLightFactor, 0.01), 0.0, 90.0));
                                        if(angle < cutoff2){
                                            float dif =  OrenNayarDiffuse(s, -normalize(v_positionVarying.xyz), v_normalVarying, roughness);// max(dot(-light.direction, v_normalVarying), 0.0) / PI;
-                                           float falloff = Falloff(length(light.position - v_positionVarying.xyz), light.radius);
+                                           float falloff = Falloff(length(light.position - v_positionVarying.xyz), light.spotLightDistance);
                                            float spec = CookTorranceSpecular(s, -normalize(v_positionVarying.xyz), v_normalVarying, roughness);
                                            deffenable = light.intensity * (color.rgb * light.color.rgb * dif * falloff) * smoothstep(cutoff2, cutoff1, angle);
                                            specular = light.intensity * (color.rgb * light.color.rgb * spec * falloff) * smoothstep(cutoff2, cutoff1, angle);
@@ -330,11 +331,6 @@ public:
                                            if(currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy + poissonDisk[j] * (1.0 / (1024.0)), index)).r){
                                                visiblity -= 1.0 / 9.0;
                                            }
-                                       }
-                                       if(projCoords.x >= 1.0 || projCoords.x <= 0.0 ||
-                                          projCoords.y >= 1.0 || projCoords.y <= 0.0 ||
-                                          projCoords.z >= 1.0 || projCoords.z <= 0.0){
-                                           visiblity = 1.0;
                                        }
                                        return visiblity;
                                    }

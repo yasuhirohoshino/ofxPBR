@@ -18,7 +18,6 @@ public:
 	void setCubeMap(ofxPBRCubeMap * cubeMap);
 	void enableCubeMap(bool enable);
 	bool isCubeMapEnable();
-    void drawEnvironment(float scale, float level);
     void drawEnvironment(ofCamera * camera);
     void resizeDepthMap(int resolution);
     int getDepthMapResolution();
@@ -27,7 +26,6 @@ public:
 	void removeLight(int index);
     void setEnvShader(ofShader* shader);
     ofShader* getShader();
-    int getLastTextureIndex();
     
 private:
 	void setNumLights(int numLights);
