@@ -92,6 +92,12 @@ void ofxPBRShadow::beginDepthMap(ofxPBRLight * pbrLight, int index){
     ofClear(0);
 }
 
+void ofxPBRShadow::beginDepthMap() {
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
+	glViewport(0, 0, depthMapRes, depthMapRes);
+	ofClear(0);
+}
+
 void ofxPBRShadow::endDepthMap(){
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
@@ -134,14 +140,6 @@ void ofxPBRShadow::endDepthMap(){
 
 int ofxPBRShadow::getDepthMapResolution(){
     return depthMapRes;
-}
-
-ofVec2f ofxPBRShadow::getDepthMapAtrasRes(){
-    return ofVec2f(depthMapAtrasWidth, depthMapAtrasHeight);
-}
-
-ofVec2f ofxPBRShadow::getDepthTexMag(){
-    return depthTexMag;
 }
 
 void ofxPBRShadow::bind(GLuint index){

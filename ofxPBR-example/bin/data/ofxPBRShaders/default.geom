@@ -20,21 +20,22 @@ in vec4  geomPosition[3];
 in vec3  geomNormal[3];
 in vec2  geomTexcoord[3];
 in vec4  geomColor[3];
+in mat4 geomNormalMatrix[3];
 
 out vec4 positionVarying;
 out vec3 normalVarying;
 out vec2 texCoordVarying;
 out vec4 colorVarying;
+out mat4 normalMatrix;
 
 out float layer;
-out mat4 normalMatrix;
 
 uniform bool renderForDepthMap;
 
 void render(){
     for(int i=0;i<3;i++){
         texCoordVarying = geomTexcoord[i];
-        normalMatrix = inverse(transpose((modelViewMatrix)));
+        normalMatrix = geomNormalMatrix[i];
         normalVarying = geomNormal[i];
         positionVarying = geomPosition[i];
         colorVarying = geomColor[i];
@@ -62,9 +63,9 @@ void shadow(){
 }
 
 void main() {
-//	if(renderForDepthMap == true){
-//		shadow();
-//	}else{
+	if(renderForDepthMap == true){
+		shadow();
+	}else{
 		render();
-//	}
+	}
 }

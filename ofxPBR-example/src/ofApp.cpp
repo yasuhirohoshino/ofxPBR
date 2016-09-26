@@ -2,6 +2,9 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+	ofSetFrameRate(0);
+	ofSetVerticalSync(false);
+
     ofDisableArbTex();
     
     cam.setupPerspective(false, 60, 1, 12000);
@@ -10,29 +13,41 @@ void ofApp::setup(){
     pbr.setup(1024);
     pbr.setCubeMap(&cubeMap);
     
-//    render.setGeometryInputType(GL_TRIANGLES);
-//    render.setGeometryOutputType(GL_TRIANGLE_STRIP);
-//    render.setGeometryOutputCount(int(fmaxf(3 * 6, 3)));
-//    render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag", "ofxPBRShaders/default.geom");
+    //render.setGeometryInputType(GL_TRIANGLES);
+    //render.setGeometryOutputType(GL_TRIANGLE_STRIP);
+    //render.setGeometryOutputCount(int(fmaxf(3 * 6, 3)));
+    //render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag", "ofxPBRShaders/default.geom");
 
     
     scene = bind(&ofApp::renderScene, this);
     
-    light.setLightType(LightType_Directional);
-    light.setPosition(-1500, 1000, 1500);
-    light.lookAt(ofVec3f(0));
-    light.setScale(1.5);
-    light.setColor(ofFloatColor(1.0));
-    light.setShadowType(ShadowType_Hard);
-    pbr.addLight(&light);
-    
-    light2.setLightType(LightType_Directional);
-    light2.setPosition(1500, 500, 1500);
-    light2.lookAt(ofVec3f(0));
-    light2.setScale(1.5);
-    light2.setColor(ofFloatColor(1.0));
-    light2.setShadowType(ShadowType_Hard);
-    pbr.addLight(&light2);
+    //light.setLightType(LightType_Directional);
+    //light.setPosition(-1500, 1000, 1500);
+    //light.lookAt(ofVec3f(0));
+    //light.setScale(1.5);
+    //light.setColor(ofFloatColor(1.0));
+    //light.setShadowType(ShadowType_Hard);
+    //pbr.addLight(&light);
+    //
+    //light2.setLightType(LightType_Directional);
+    //light2.setPosition(1500, 500, 1500);
+    //light2.lookAt(ofVec3f(0));
+    //light2.setScale(1.5);
+    //light2.setColor(ofFloatColor(1.0));
+    //light2.setShadowType(ShadowType_Hard);
+    //pbr.addLight(&light2);
+
+	float offset = - PI / 2;
+	int numLights = 1;
+	for (int i = 0; i < numLights; i++) {
+		lights[i].setLightType(LightType_Directional);
+		lights[i].setPosition(-1500 * sin(2 * PI * (offset + float(i) / numLights)), 1000, 1500 * cos(2 * PI * (offset + float(i) / numLights)));
+		lights[i].lookAt(ofVec3f(0));
+		lights[i].setScale(1.5);
+		lights[i].setColor(ofFloatColor(1.0));
+		lights[i].setShadowType(ShadowType_Hard);
+		pbr.addLight(&lights[i]);
+	}
     
     cubeMap.setEnvLevel(0.3);
     
@@ -47,6 +62,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+	prevTime = ofGetElapsedTimef();
     pbr.makeDepthMap(scene);
     
     cam.begin();
@@ -55,6 +71,8 @@ void ofApp::draw(){
     cam.end();
     
     ofSetWindowTitle(ofToString(ofGetFrameRate()));
+	prevTime = ofGetElapsedTimef() - prevTime;
+	ofDrawBitmapString(ofToString(prevTime), 20, 20);
 }
 
 //--------------------------------------------------------------
@@ -75,6 +93,7 @@ void ofApp::renderScene(){
             for(int j=0;j<10;j++){
                 material.metallic = float(j) / 9.0;
                 material.begin(&pbr);
+				//ofDrawBox(i * 100 - 450, 0, j * 100 - 450, 70);
                 ofDrawSphere(i * 100 - 450, 0, j * 100 - 450, 35);
                 material.end();
             }

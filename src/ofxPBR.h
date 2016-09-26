@@ -51,4 +51,6 @@ private:
     PBR pbr;
     
     int lightIndex;
+
+	vector<ofMatrix4x4> lightViewProjMatrix;
 };

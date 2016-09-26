@@ -22,14 +22,13 @@ out vec4  geomPosition;
 out vec3  geomNormal;
 out vec2  geomTexcoord;
 out vec4  geomColor;
-
-out mat4 normalMatrix;
+out mat4 geomNormalMatrix;
 
 void main(){
+	geomNormalMatrix = inverse(transpose(modelViewMatrix));
     if(renderForDepthMap == true){
-        gl_Position = viewMat * (inverse(viewMatrix) * modelViewMatrix) * position;
+        gl_Position = (inverse(viewMatrix) * modelViewMatrix) * position;
     }else{
-        normalMatrix = inverse(transpose(modelViewMatrix));
         geomNormal = normal;
         geomPosition = position;
         geomTexcoord = texcoord;

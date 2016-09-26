@@ -11,10 +11,9 @@ public:
     void resizeDepthMap(int resolution);
     void setNumLights(int numLights);
     void beginDepthMap(ofxPBRLight * pbrLight, int index);
+	void beginDepthMap();
     void endDepthMap();
     int getDepthMapResolution();
-    ofVec2f getDepthMapAtrasRes();
-    ofVec2f getDepthTexMag();
     
     void bind(GLuint index);
     void unbind();

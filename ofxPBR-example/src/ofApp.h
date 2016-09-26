@@ -29,6 +29,7 @@ class ofApp : public ofBaseApp{
     ofxPBRCubeMap cubeMap;
     ofxPBRMaterial material;
     ofxPBRLight light, light2;
+	ofxPBRLight lights[8];
     ofxPBR pbr;
     
     ofShader renderShader;
@@ -54,4 +55,6 @@ class ofApp : public ofBaseApp{
                                                0.0, 0.0, 0.5, 0.0,
                                                0.5, 0.5, 0.5, 1.0
                                                );
+
+	float prevTime = 0;
 };
