@@ -122,7 +122,7 @@ private:
     };
 
 	struct OmniShadowParams {
-		int omniShadowIndex = -1;
+		int omniShadowIndex = 0;
 		ofMatrix4x4 viewProjMat[6];
 		ofMatrix4x4 lookAtMat[6];
 		ofMatrix4x4 shadowProjMatrix;

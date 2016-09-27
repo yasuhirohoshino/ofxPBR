@@ -43,16 +43,16 @@ private:
 
     ofxPBRShadow shadow;
 	ofxPBROmniShadow omniShadow;
-    ofShader * PBRShader;
+    ofShader* PBRShader;
     ofMesh sphereMesh;
-    ofxPBRCubeMap * cubeMap;
+    ofxPBRCubeMap* cubeMap;
     vector<ofMatrix4x4> shadowMatrix;
 	
 	enum RenderMode {
 		Mode_PBR = 0,
 		Mode_Shadow = 1,
 		Mode_OmniShadow = 2,
-		num_mode = 3
+		num_Mode = 3
 	};
 	RenderMode renderMode;
 

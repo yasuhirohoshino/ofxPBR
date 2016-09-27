@@ -16,7 +16,7 @@ void ofApp::setup(){
     //render.setGeometryInputType(GL_TRIANGLES);
     //render.setGeometryOutputType(GL_TRIANGLE_STRIP);
     //render.setGeometryOutputCount(int(fmaxf(3 * 6, 3)));
-    //render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag", "ofxPBRShaders/default.geom");
+    render.load("ofxPBRShaders/default2.vert", "ofxPBRShaders/default2.frag");
 
     scene = bind(&ofApp::renderScene, this);
     
@@ -36,13 +36,24 @@ void ofApp::setup(){
     //light2.setShadowType(ShadowType_Hard);
     //pbr.addLight(&light2);
 
-	float offset = 0;// -PI / 2;
-	int numLights = 1;
-	for (int i = 0; i < numLights; i++) {
-		lights[i].setLightType(LightType_Point);
-		lights[i].setPosition(-100 * sin(2 * PI * (offset + float(i) / numLights)), 100, 100 * cos(2 * PI * (offset + float(i) / numLights)));
+	float offset = -PI / 2;
+	int numLights = 4;
+
+	lights[0].setLightType(LightType_Point);
+	lights[0].setPosition(-500 * sin(2 * PI * (offset + float(0) / numLights)), 100, 500 * cos(2 * PI * (offset + float(0) / numLights)));
+	lights[0].lookAt(ofVec3f(0));
+	lights[0].setScale(1.5);
+	lights[0].setColor(ofFloatColor(1, 1, 1, 1.0));
+	lights[0].setShadowType(ShadowType_Hard);
+	lights[0].setRadius(5000);
+	lights[0].setFarClip(5000);
+	pbr.addLight(&lights[0]);
+
+	for (int i = 1; i < numLights; i++) {
+		lights[i].setLightType(LightType_Directional);
+		lights[i].setPosition(-1500 * sin(2 * PI * (offset + float(i) / numLights)), 1000, 1500 * cos(2 * PI * (offset + float(i) / numLights)));
 		lights[i].lookAt(ofVec3f(0));
-		lights[i].setScale(1.0);
+		lights[i].setScale(1.5);
 		lights[i].setColor(ofFloatColor(1, 1, 1, 1.0));
 		lights[i].setShadowType(ShadowType_Hard);
 		lights[i].setRadius(5000);
@@ -83,7 +94,7 @@ void ofApp::draw(){
 void ofApp::renderScene(){
     ofEnableDepthTest();
     ofPushMatrix();
-    pbr.begin(&cam);
+    pbr.begin(&cam, &render);
     {
         material.roughness = 0.0;
         material.metallic = 0.0;

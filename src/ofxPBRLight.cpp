@@ -251,13 +251,15 @@ void ofxPBRLight::beginLighting(ofShader * shader, int index) {
 	lightId = index;
 	string lightIndex = ofToString(lightId);
 	shader->setUniform1i("lights[" + lightIndex + "].isEnabled", isEnabled());
-	shader->setUniform3f("lights[" + lightIndex + "].position", getViewSpacePosition(ofGetCurrentViewMatrix()));
+	shader->setUniform3f("lights[" + lightIndex + "].position", getGlobalPosition());
+	shader->setUniform3f("lights[" + lightIndex + "].vPosition", getViewSpacePosition(ofGetCurrentViewMatrix()));
 	shader->setUniform3f("lights[" + lightIndex + "].direction", getViewSpaceDirection(ofGetCurrentViewMatrix()));
 	shader->setUniform1i("lights[" + lightIndex + "].type", getLightType());
 	shader->setUniform1i("lights[" + lightIndex + "].shadowType", getShadowType());
 	shader->setUniform1f("lights[" + lightIndex + "].intensity", getIntensity());
 	shader->setUniform1i("lights[" + lightIndex + "].shadowIndex", getShadowIndex());
 	shader->setUniform1i("lights[" + lightIndex + "].omniShadowIndex", getOmniShadowIndex());
+	shader->setUniform1f("lights[" + lightIndex + "].farClip", getFarClip());
 	shader->setUniform1f("lights[" + lightIndex + "].softShadowExponent", getSoftShadowExponent());
 	shader->setUniform1f("lights[" + lightIndex + "].bias", getShadowBias());
 
