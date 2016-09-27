@@ -2,45 +2,27 @@
 #define ofxPBRShadow_h
 
 #include "ofMain.h"
-#include "ofxPBRLight.h"
-#include "shaders/blur.h"
 
-class ofxPBRShadow{
+class ofxPBRShadow {
 public:
-    void setup(int resolution);
-    void resizeDepthMap(int resolution);
-    void setNumLights(int numLights);
-    void beginDepthMap(ofxPBRLight * pbrLight, int index);
+	void setup(int resolution);
+	void resizeDepthMap(int resolution);
+	void setNumLights(int numLights);
+	void beginDepthMap(int index);
 	void beginDepthMap();
-    void endDepthMap();
-    int getDepthMapResolution();
-    
-    void bind(GLuint index);
-    void unbind();
-    
-private:
-    void setShadowMap();
-    void setOmniShadowMap(int numOmniShadowMaps);
-    
-    ofShader blurShader;
-    ofMatrix4x4 inverseCameraMatrix;
-    int depthMapRes;
-    int depthMapAtrasWidth, depthMapAtrasHeight;
-    ofVec2f depthTexMag;
-    ofFbo depthMap;
-    ofFbo blurVFbo, blurHFbo;
-    ofFbo::Settings settings;
-    ofxPBRLight * pbrLight;
-    int numLights;
-    Blur blur;
+	void endDepthMap();
+	int getDepthMapResolution();
 
-	int currentLightIndex;
-    
-    GLuint depthMapIndex, depthMapFbo;
-    vector<GLuint> depthCubeMapIndex;
-    vector<GLuint> depthCubeMapFbo;
-    
-    int numOmniShadowMaps;
+	void bind(GLuint index);
+	void unbind();
+
+private:
+	void setShadowMap();
+
+	int depthMapRes;
+	int numLights;
+
+	GLuint depthMapIndex, depthMapFbo;
 };
 
 #endif

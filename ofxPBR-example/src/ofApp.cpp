@@ -18,7 +18,6 @@ void ofApp::setup(){
     //render.setGeometryOutputCount(int(fmaxf(3 * 6, 3)));
     //render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag", "ofxPBRShaders/default.geom");
 
-    
     scene = bind(&ofApp::renderScene, this);
     
     //light.setLightType(LightType_Directional);
@@ -37,15 +36,17 @@ void ofApp::setup(){
     //light2.setShadowType(ShadowType_Hard);
     //pbr.addLight(&light2);
 
-	float offset = - PI / 2;
+	float offset = 0;// -PI / 2;
 	int numLights = 1;
 	for (int i = 0; i < numLights; i++) {
-		lights[i].setLightType(LightType_Directional);
-		lights[i].setPosition(-1500 * sin(2 * PI * (offset + float(i) / numLights)), 1000, 1500 * cos(2 * PI * (offset + float(i) / numLights)));
+		lights[i].setLightType(LightType_Point);
+		lights[i].setPosition(-100 * sin(2 * PI * (offset + float(i) / numLights)), 100, 100 * cos(2 * PI * (offset + float(i) / numLights)));
 		lights[i].lookAt(ofVec3f(0));
-		lights[i].setScale(1.5);
-		lights[i].setColor(ofFloatColor(1.0));
+		lights[i].setScale(1.0);
+		lights[i].setColor(ofFloatColor(1, 1, 1, 1.0));
 		lights[i].setShadowType(ShadowType_Hard);
+		lights[i].setRadius(5000);
+		lights[i].setFarClip(5000);
 		pbr.addLight(&lights[i]);
 	}
     
@@ -63,12 +64,15 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 	prevTime = ofGetElapsedTimef();
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
     pbr.makeDepthMap(scene);
     
-    cam.begin();
-    pbr.drawEnvironment(&cam);
-    scene();
-    cam.end();
+	//glCullFace(GL_FRONT);
+	cam.begin();
+	pbr.drawEnvironment(&cam);
+	scene();
+	cam.end();
     
     ofSetWindowTitle(ofToString(ofGetFrameRate()));
 	prevTime = ofGetElapsedTimef() - prevTime;
@@ -93,7 +97,6 @@ void ofApp::renderScene(){
             for(int j=0;j<10;j++){
                 material.metallic = float(j) / 9.0;
                 material.begin(&pbr);
-				//ofDrawBox(i * 100 - 450, 0, j * 100 - 450, 70);
                 ofDrawSphere(i * 100 - 450, 0, j * 100 - 450, 35);
                 material.end();
             }

@@ -9,7 +9,8 @@ void ofxPBR::setup(int depthMapResolution) {
 		sphereMesh.setNormal(i, ofVec3f(1.0, 1.0, -1.0) * sphereMesh.getVertex(i).normalize());
 	}
 	shadow.setup(depthMapResolution);
-	depthMapMode = false;
+	omniShadow.setup(depthMapResolution);
+	renderMode = Mode_PBR;
 	enableCubemap = false;
     
     // load env shader
@@ -33,21 +34,47 @@ void ofxPBR::begin(ofCamera * camera, ofShader * shader){
     }else{
         PBRShader = &defaultShader;
     }
-    
-	if (depthMapMode) {
-        beginDepthMap();
-	}else{
-        beginPBR(camera);
+
+	switch (renderMode)
+	{
+	case Mode_PBR:
+		beginPBR(camera);
+		break;
+
+	case Mode_Shadow:
+		beginDepthMap(lightIndex);
+		break;
+
+	case Mode_OmniShadow:
+		beginDepthCubeMap(pointLightIndex, faceIndex);
+		break;
+
+	default:
+		break;
 	}
 }
 
 void ofxPBR::end(){
-    if (depthMapMode) {
-        endDepthMap();
-    }else{
-        endPBR();
-    }
+	switch (renderMode)
+	{
+	case Mode_PBR:
+		endPBR();
+		break;
+
+	case Mode_Shadow:
+		endDepthMap();
+		break;
+
+	case Mode_OmniShadow:
+		endDepthCubeMap();
+		break;
+
+	default:
+		break;
+	}
 }
+
+
 
 void ofxPBR::setCubeMap(ofxPBRCubeMap * cubeMap)
 {
@@ -102,19 +129,33 @@ int ofxPBR::getDepthMapResolution(){
 
 void ofxPBR::makeDepthMap(function<void()> scene)
 {
-	for (int i = 0; i<lights.size(); i++) {
-		if (lights[i]->getShadowType() != ShadowType_None && lights[i]->isEnabled()) {
-            if (lights[i]->getLightType() == LightType_Sky && cubeMap != nullptr){
-                lights[i]->setSkyLightRotation(cubeMap->getRotation());
+	renderMode = Mode_Shadow;
+	for (int i = 0; i<normalLights.size(); i++) {
+		if (normalLights[i]->getShadowType() != ShadowType_None && normalLights[i]->isEnabled()) {
+            if (normalLights[i]->getLightType() == LightType_Sky && cubeMap != nullptr){
+				normalLights[i]->setSkyLightRotation(cubeMap->getRotation());
             }
-			depthMapMode = true;
             lightIndex = i;
-			shadow.beginDepthMap(lights[i], i);
+			shadow.beginDepthMap(i);
 			scene();
 			shadow.endDepthMap();
-			depthMapMode = false;
 		}
 	}
+
+	renderMode = Mode_OmniShadow;
+	for (int i = 0; i < pointLights.size(); i++) {
+		if (pointLights[i]->getShadowType() != ShadowType_None && pointLights[i]->isEnabled()) {
+			pointLights[i]->updateOmniShadowParams();
+			pointLightIndex = i;
+			for (int j = 0; j < 6; j++) {
+				faceIndex = j;
+				omniShadow.beginDepthMap(i, j);
+				scene();
+				omniShadow.endDepthMap();
+			}
+		}
+	}
+	renderMode = Mode_PBR;
 }
 
 //void ofxPBR::makeDepthMap(function<void()> scene)
@@ -183,26 +224,39 @@ void ofxPBR::beginPBR(ofCamera * camera){
     
     // enable lights
     PBRShader->setUniform1i("numLights", lights.size());
-    for (int i = 0; i<lights.size(); i++) {
-        if (cubeMap != nullptr && lights[i]->getLightType() == LightType_Sky && lights[i]->getShadowType() != ShadowType_None){
-            lights[i]->setSkyLightRotation(cubeMap->getRotation());
+
+    for (int i = 0; i<normalLights.size(); i++) {
+        if (cubeMap != nullptr && normalLights[i]->getLightType() == LightType_Sky && normalLights[i]->getShadowType() != ShadowType_None){
+			normalLights[i]->setSkyLightRotation(cubeMap->getRotation());
         }
-        shadowMatrix[i] = lights[i]->getShadowMatrix(camera->getModelViewMatrix());
-        lights[i]->beginLighting(PBRShader, i);
+        shadowMatrix[i] = normalLights[i]->getShadowMatrix(camera->getModelViewMatrix());
+		normalLights[i]->beginLighting(PBRShader, i);
     }
+
+	for (int i = 0; i < pointLights.size(); i++) {
+		pointLights[i]->beginLighting(PBRShader, i);
+	}
     
     // send depth maps
-    if (lights.size() != 0) {
+    if (normalLights.size() != 0) {
         shadow.bind(10);
         PBRShader->setUniform1i("shadowMap", 10);
+		PBRShader->setUniform2f("depthMapRes", shadow.getDepthMapResolution(), shadow.getDepthMapResolution());
         glUniformMatrix4fv(PBRShader->getUniformLocation("shadowMatrix"), lights.size(), false, shadowMatrix[0].getPtr());
     }
+
+	if (pointLights.size() != 0) {
+		omniShadow.bind(0, 11);
+		PBRShader->setUniform1i("omniShadowMap", 11);
+		//PBRShader->setUniform2f("omniDepthMapRes", omniShadow.getDepthMapResolution(), omniShadow.getDepthMapResolution());
+		//glUniformMatrix4fv(PBRShader->getUniformLocation("shadowMatrix"), lights.size(), false, shadowMatrix[0].getPtr());
+	}
 }
 
 void ofxPBR::endPBR(){
     // end lighting
-    for (int i = 0; i<lights.size(); i++) {
-        lights[i]->endLighting(PBRShader);
+    for (int i = 0; i<normalLights.size(); i++) {
+		normalLights[i]->endLighting(PBRShader);
     }
     
     PBRShader->end();
@@ -213,17 +267,20 @@ void ofxPBR::endPBR(){
     }
     
     // unbind depth map
-    if (lights.size() != 0) {
+    if (normalLights.size() != 0) {
         shadow.unbind();
-    }
+    } 
+
+	if (pointLights.size() != 0) {
+		omniShadow.unbind(11);
+	}
 }
 
-void ofxPBR::beginDepthMap(){
+void ofxPBR::beginDepthMap(int index){
     // render depth maps for shadows
     PBRShader->begin();
     PBRShader->setUniform1i("renderForDepthMap", true);
-    PBRShader->setUniform1i("numLights", lights.size());
-    PBRShader->setUniformMatrix4f("viewMat", lights[lightIndex]->getViewProjectionMatrix());
+	PBRShader->setUniformMatrix4f("viewMat", normalLights[index]->getViewProjectionMatrix());
 }
 
 //void ofxPBR::beginDepthMap() {
@@ -237,16 +294,49 @@ void ofxPBR::beginDepthMap(){
 //	glUniformMatrix4fv(PBRShader->getUniformLocation("viewMat"), lights.size(), false, lightViewProjMatrix[0].getPtr());
 //}
 
-
 void ofxPBR::endDepthMap(){
     PBRShader->end();
 }
 
+void ofxPBR::beginDepthCubeMap(int index, int face)
+{
+ 	PBRShader->begin();
+	PBRShader->setUniform1i("renderForDepthMap", true);
+	PBRShader->setUniform3f("lightPos", pointLights[index]->getPosition());
+	PBRShader->setUniform1f("farPlane", pointLights[index]->getFarClip());
+	PBRShader->setUniformMatrix4f("viewMat", pointLights[index]->getViewProjectionMatrix(face));
+}
+
+void ofxPBR::endDepthCubeMap()
+{
+	PBRShader->end();
+}
+
 void ofxPBR::setNumLights(int numLights) {
-	shadow.setNumLights(numLights);
-	shadowMatrix.assign(numLights, ofMatrix4x4());
-	lightViewProjMatrix.assign(numLights, ofMatrix4x4());
 	for (int i = 0; i < lights.size(); i++) {
 		lights[i]->setId(i);
 	}
+
+	int omniShadowMapCount = 0;
+	int shadowMapCount = 0;
+	normalLights.clear();
+	pointLights.clear();
+
+	for (auto &light : lights) {
+		if (light->getLightType() == LightType_Point) {
+			light->setOmniShadowIndex(omniShadowMapCount);
+			pointLights.push_back(light);
+			omniShadowMapCount++;
+		}else{
+			light->setShadowIndex(shadowMapCount);
+			normalLights.push_back(light);
+			shadowMapCount++;
+		}
+	}
+	shadow.setNumLights(shadowMapCount);
+	shadowMatrix.assign(shadowMapCount, ofMatrix4x4());
+	lightViewProjMatrix.assign(shadowMapCount, ofMatrix4x4());
+
+	omniShadow.setNumLights(omniShadowMapCount);
+
 }

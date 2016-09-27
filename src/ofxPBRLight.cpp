@@ -31,13 +31,13 @@ void ofxPBRLight::setDepthMapRes(float resolution) {
 	depthMapRes = resolution;
 }
 
-void ofxPBRLight::beginDepthCamera() {
-	this->begin();
-}
-
-void ofxPBRLight::endDepthCamera() {
-	this->end();
-}
+//void ofxPBRLight::beginDepthCamera() {
+//	this->begin();
+//}
+//
+//void ofxPBRLight::endDepthCamera() {
+//	this->end();
+//}
 
 // for rendering shader
 ofVec3f ofxPBRLight::getViewSpacePosition(ofMatrix4x4 viewMatrix) {
@@ -76,6 +76,18 @@ ofMatrix4x4 ofxPBRLight::getViewProjectionMatrix() {
 		projectionMatrix = this->getProjectionMatrix();
 	}
 	return viewMatrix * projectionMatrix;
+}
+
+ofMatrix4x4 ofxPBRLight::getViewProjectionMatrix(int face)
+{
+	return omniShadowParams.viewProjMat[face];
+}
+
+ofMatrix4x4 ofxPBRLight::getOrthoMatrix()
+{
+	ofMatrix4x4 mat;
+	mat.makeOrthoMatrix(-depthMapRes * 0.5, depthMapRes * 0.5, -depthMapRes * 0.5, depthMapRes * 0.5, this->getNearClip(), this->getFarClip());
+	return mat;
 }
 
 // color
@@ -198,6 +210,43 @@ float ofxPBRLight::getSoftShadowExponent() {
 	return softShadowExponent;
 }
 
+void ofxPBRLight::setShadowIndex(int index)
+{
+	shadowIndex = index;
+}
+
+int ofxPBRLight::getShadowIndex()
+{
+	return shadowIndex;
+}
+
+void ofxPBRLight::setOmniShadowIndex(int index)
+{
+	omniShadowParams.omniShadowIndex = index;
+}
+
+int ofxPBRLight::getOmniShadowIndex()
+{
+	return omniShadowParams.omniShadowIndex;
+}
+
+void ofxPBRLight::updateOmniShadowParams()
+{
+	omniShadowParams.shadowProjMatrix.makePerspectiveMatrix(90.0, 1.0, 1.0, getFarClip());
+
+	omniShadowParams.lookAtMat[0].makeLookAtViewMatrix(getGlobalPosition(), getGlobalPosition() + ofVec3f(1, 0, 0), ofVec3f(0, -1, 0));
+	omniShadowParams.lookAtMat[1].makeLookAtViewMatrix(getGlobalPosition(), getGlobalPosition() + ofVec3f(-1, 0, 0), ofVec3f(0, -1, 0));
+	omniShadowParams.lookAtMat[2].makeLookAtViewMatrix(getGlobalPosition(), getGlobalPosition() + ofVec3f(0, 1, 0), ofVec3f(0, 0, 1));
+	omniShadowParams.lookAtMat[3].makeLookAtViewMatrix(getGlobalPosition(), getGlobalPosition() + ofVec3f(0, -1, 0), ofVec3f(0, 0, -1));
+	omniShadowParams.lookAtMat[4].makeLookAtViewMatrix(getGlobalPosition(), getGlobalPosition() + ofVec3f(0, 0, 1), ofVec3f(0, -1, 0));
+	omniShadowParams.lookAtMat[5].makeLookAtViewMatrix(getGlobalPosition(), getGlobalPosition() + ofVec3f(0, 0, -1), ofVec3f(0, -1, 0));
+
+	// make view projection matricies
+	for (int i = 0; i < 6; i++) {
+		omniShadowParams.viewProjMat[i] = omniShadowParams.lookAtMat[i] * omniShadowParams.shadowProjMatrix;
+	}
+}
+
 void ofxPBRLight::beginLighting(ofShader * shader, int index) {
 	lightId = index;
 	string lightIndex = ofToString(lightId);
@@ -207,6 +256,8 @@ void ofxPBRLight::beginLighting(ofShader * shader, int index) {
 	shader->setUniform1i("lights[" + lightIndex + "].type", getLightType());
 	shader->setUniform1i("lights[" + lightIndex + "].shadowType", getShadowType());
 	shader->setUniform1f("lights[" + lightIndex + "].intensity", getIntensity());
+	shader->setUniform1i("lights[" + lightIndex + "].shadowIndex", getShadowIndex());
+	shader->setUniform1i("lights[" + lightIndex + "].omniShadowIndex", getOmniShadowIndex());
 	shader->setUniform1f("lights[" + lightIndex + "].softShadowExponent", getSoftShadowExponent());
 	shader->setUniform1f("lights[" + lightIndex + "].bias", getShadowBias());
 
@@ -238,7 +289,6 @@ void ofxPBRLight::endLighting(ofShader * shader) {
 }
 
 // Sky light settings
-
 void ofxPBRLight::setSkyLightCoordinate(float longitude, float latitude, float radius)
 {
 	skyLightParams.latitude = latitude;
@@ -262,13 +312,6 @@ void ofxPBRLight::setSkyLightPos()
 	pos *= skyLightParams.radius;
 	setPosition(pos);
 	this->lookAt(ofVec3f::zero());
-}
-
-ofMatrix4x4 ofxPBRLight::getOrthoMatrix()
-{
-	ofMatrix4x4 mat;
-	mat.makeOrthoMatrix(-depthMapRes * 0.5, depthMapRes * 0.5, -depthMapRes * 0.5, depthMapRes * 0.5, this->getNearClip(), this->getFarClip());
-	return mat;
 }
 
 void ofxPBRLight::setSkyLighExposure(float exposure)

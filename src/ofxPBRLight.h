@@ -21,26 +21,23 @@ class ofxPBRLight : public ofCamera{
 public:
     ofxPBRLight();
     ~ofxPBRLight();
-
-	void setup(float resolution);
     
     void enable(bool isEnabled = true);
     void disable();
     bool isEnabled();
-	void setSkyLightCoordinate(float longitude, float latitude, float radius);
-	void setSkyLightRotation(float angle);
     
     // depth camera
     void lookAt(ofVec3f target);
     void setDepthMapRes(float resolution);
-    void beginDepthCamera();
-    void endDepthCamera();
+    //void beginDepthCamera();
+    //void endDepthCamera();
     
     // for rendering shader
     ofVec3f getViewSpacePosition(ofMatrix4x4 viewMatrix);
     ofMatrix4x4 getShadowMatrix(ofMatrix4x4 cameraModelViewMatrix);
     ofVec3f getViewSpaceDirection(ofMatrix4x4 viewMatrix);
     ofMatrix4x4 getViewProjectionMatrix();
+	ofMatrix4x4 getViewProjectionMatrix(int face);
     
     // color
     void setColor(ofFloatColor color);
@@ -49,11 +46,11 @@ public:
 	void setIntensity(float intensity);
 	float getIntensity();
     
-    // light
+    // light type
     void setLightType(LightType lightType);
     LightType getLightType();
     
-    // spotlight & pointlight
+    // pointLight
     void setRadius(float radius);
     float getRadius();
     
@@ -64,6 +61,14 @@ public:
     float getSpotLightCutoff();
     void setSpotLightFactor(float spotFactor);
     float getSpotLightFactor();
+
+	// skyLight
+	void setSkyLightCoordinate(float longitude, float latitude, float radius);
+	void setSkyLightRotation(float angle);
+	void setSkyLighExposure(float exposure);
+	float getSkyLightLatitude();
+	float getSkyLightLongitude();
+	float getSkyLightRadius();
     
     // shadow
     void setShadowType(ShadowType shadowType);
@@ -72,21 +77,21 @@ public:
     float getShadowBias();
     void setSoftShadowExponent(float softShadowExponent);
     float getSoftShadowExponent();
+	void setShadowIndex(int index);
+	int getShadowIndex();
+	void setOmniShadowIndex(int index);
+	int getOmniShadowIndex();
+	void updateOmniShadowParams();
+
     void beginLighting(ofShader * shader, int index);
     void endLighting(ofShader * shader);
-    
-	void setSkyLighExposure(float exposure);
-
-	float getSkyLightLatitude();
-	float getSkyLightLongitude();
-	float getSkyLightRadius();
 
 	void setId(int id);
 	int getId();
     
 private:
-	void begin() { this->::ofCamera::begin(); };
-	void end() { this->::ofCamera::end(); };
+	//void begin() { this->::ofCamera::begin(); };
+	//void end() { this->::ofCamera::end(); };
 	void setSkyLightPos();
 	ofMatrix4x4 getOrthoMatrix();
     
@@ -116,9 +121,17 @@ private:
         float angle = 0;
     };
 
+	struct OmniShadowParams {
+		int omniShadowIndex = -1;
+		ofMatrix4x4 viewProjMat[6];
+		ofMatrix4x4 lookAtMat[6];
+		ofMatrix4x4 shadowProjMatrix;
+	};
+
 	SpotLightParams spotLightParams;
 	PointLightParams pointLightParams;
 	SkyLightParams skyLightParams;
+	OmniShadowParams omniShadowParams;
 
 	// common
 	bool isLightEnabled = true;
@@ -135,10 +148,12 @@ private:
 
 	// shadow
 	ShadowType shadowType = ShadowType_Hard;
+	int shadowIndex;
     float depthMapRes = 1024;
     float shadowBias = 0.001;
     float softShadowExponent = 75.0;
-    ofMatrix4x4 shadowTransMatrix;
+
+	ofMatrix4x4 shadowTransMatrix;
     const ofMatrix4x4 biasMatrix = ofMatrix4x4(
                                                0.5, 0.0, 0.0, 0.0,
                                                0.0, 0.5, 0.0, 0.0,

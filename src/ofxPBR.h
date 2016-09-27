@@ -3,6 +3,7 @@
 #include "ofxPBRCubeMap.h"
 #include "ofxPBRLight.h"
 #include "ofxPBRShadow.h"
+#include "ofxPBROmniShadow.h"
 #include "ofxPBRMaterial.h"
 #include "shaders/environment.h"
 #include "shaders/pbr.h"
@@ -33,16 +34,31 @@ private:
     void beginPBR(ofCamera * camera);
     void endPBR();
     
-    void beginDepthMap();
+    void beginDepthMap(int index);
+	void beginDepthMap();
     void endDepthMap();
 
+	void beginDepthCubeMap(int index, int face);
+	void endDepthCubeMap();
+
     ofxPBRShadow shadow;
+	ofxPBROmniShadow omniShadow;
     ofShader * PBRShader;
     ofMesh sphereMesh;
     ofxPBRCubeMap * cubeMap;
     vector<ofMatrix4x4> shadowMatrix;
-	bool depthMapMode;
-	vector<ofxPBRLight *> lights;
+	
+	enum RenderMode {
+		Mode_PBR = 0,
+		Mode_Shadow = 1,
+		Mode_OmniShadow = 2,
+		num_mode = 3
+	};
+	RenderMode renderMode;
+
+	vector<ofxPBRLight*> lights;
+	vector<ofxPBRLight*> normalLights;
+	vector<ofxPBRLight*> pointLights;
 	bool enableCubemap;
     
     ofShader* envShader;
@@ -50,7 +66,9 @@ private:
     ofShader defaultShader;
     PBR pbr;
     
-    int lightIndex;
+    int lightIndex = 0;
+	int pointLightIndex = 0;
+	int faceIndex = 0;
 
 	vector<ofMatrix4x4> lightViewProjMatrix;
 };
