@@ -13,17 +13,17 @@ class ofxPBR{
 public:
     ofxPBR();
     
-	void setup(int depthMapResolution);
-    void begin(ofCamera * camera, ofShader * shader = nullptr);
+	void setup(ofCamera* camera, function<void()> scene, int depthMapResolution);
+    void begin(ofShader * shader = nullptr, ofCamera * camera = nullptr);
     void end();
     
 	void setCubeMap(ofxPBRCubeMap * cubeMap);
 	void enableCubeMap(bool enable);
 	bool isCubeMapEnable();
-    void drawEnvironment(ofCamera * camera);
+    void drawEnvironment(ofCamera * camera = nullptr);
     void resizeDepthMap(int resolution);
     int getDepthMapResolution();
-	void makeDepthMap(function<void()> scene);
+	void updateShadowMaps();
 	void addLight(ofxPBRLight* light);
 	void removeLight(int index);
     void setEnvShader(ofShader* shader);
@@ -76,4 +76,7 @@ private:
     DepthThumbnail depthThumbnail;
     ofFbo depthThumbnailFbo;
     ofShader depthThumbnailShader;
+	ofCamera* camera;
+
+	function<void()> scene;
 };

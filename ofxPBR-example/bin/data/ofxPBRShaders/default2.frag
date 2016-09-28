@@ -31,6 +31,7 @@ struct Light {
     int shadowType;
     int shadowIndex;
     int omniShadowIndex;
+	float shadowStrength;
 	float bias;
 };
 
@@ -271,19 +272,22 @@ float CalcShadow(int index) {
 	int shadowIndex = lights[index].shadowIndex;
 	vec3 projCoords = v_shadowCoord[shadowIndex].xyz / v_shadowCoord[shadowIndex].w;
 	float currentDepth = projCoords.z;
-	if (currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy, shadowIndex)).r) {
-        visiblity -= 1.0 / 9.0;
-	}
-	for (int j = 0; j < 8; j++) {
-		if (currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy + poissonDisk[j] * (1.0 / (depthMapRes)), shadowIndex)).r) {
-			visiblity -= 1.0 / 9.0;
-		}
-	}
 	if (projCoords.x >= 1.0 || projCoords.x <= 0.0 ||
 		projCoords.y >= 1.0 || projCoords.y <= 0.0 ||
 		projCoords.z >= 1.0 || projCoords.z <= 0.0) {
 		visiblity = 1.0;
+	}else{
+		if (currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy, shadowIndex)).r) {
+			visiblity -= 1.0 / 9.0;
+		}
+		for (int j = 0; j < 8; j++) {
+			vec2 coord = projCoords.xy + poissonDisk[j] * (1.0 / depthMapRes);
+			if (currentDepth - lights[index].bias > texture(shadowMap, vec3(coord, shadowIndex)).r) {
+				visiblity -= 1.0 / 9.0;
+			}
+		}
 	}
+	visiblity = 1.0 - (1.0 - visiblity) * lights[index].shadowStrength;
 	return visiblity;
 }
 
@@ -298,7 +302,6 @@ float CalcOmniShadow(int index, vec3 fragPos)
 		closestDepth *= (farPlane + farPlane * 0.001 + (farPlane * 0.1 * (currentDepth / farPlane)));
 		shadow = currentDepth < closestDepth ? 1.0 : 0.0;
 	}
-
 	return shadow;
 }
 
