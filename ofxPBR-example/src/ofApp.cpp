@@ -17,14 +17,14 @@ void ofApp::setup(){
 
     scene = bind(&ofApp::renderScene, this);
     
-    //light.setLightType(LightType_Directional);
-    //light.setPosition(-1500, 1000, 1500);
-    //light.lookAt(ofVec3f(0));
-    //light.setScale(1.5);
-    //light.setColor(ofFloatColor(1.0));
-    //light.setShadowType(ShadowType_Hard);
-    //pbr.addLight(&light);
-    //
+    light.setLightType(LightType_Directional);
+    light.setPosition(-1500, 1000, 1500);
+    light.lookAt(ofVec3f(0));
+    light.setScale(1.5);
+    light.setColor(ofFloatColor(1.0));
+    light.setShadowType(ShadowType_Hard);
+    pbr.addLight(&light);
+    
     //light2.setLightType(LightType_Directional);
     //light2.setPosition(1500, 500, 1500);
     //light2.lookAt(ofVec3f(0));
@@ -33,8 +33,8 @@ void ofApp::setup(){
     //light2.setShadowType(ShadowType_Hard);
     //pbr.addLight(&light2);
 
-	float offset = -PI / 2;
-	int numLights = 2;
+//	float offset = -PI / 2;
+//	int numLights = 2;
 
 //	lights[0].setLightType(LightType_Point);
 //	lights[0].setPosition(-500 * sin(2 * PI * (offset + float(0) / numLights)), 100, 500 * cos(2 * PI * (offset + float(0) / numLights)));
@@ -46,22 +46,25 @@ void ofApp::setup(){
 //	lights[0].setFarClip(5000);
 //	pbr.addLight(&lights[0]);
 
-	for (int i = 0; i < numLights; i++) {
-		lights[i].setLightType(LightType_Point);
-		lights[i].setPosition(-250 * sin(2 * PI * (offset + float(i) / numLights)), 100, 250 * cos(2 * PI * (offset + float(i) / numLights)));
-		lights[i].lookAt(ofVec3f(0));
-		lights[i].setScale(1.5);
-		lights[i].setColor(ofFloatColor(1, 1, 1, 1.0));
-		lights[i].setShadowType(ShadowType_Hard);
-		lights[i].setRadius(5000);
-		lights[i].setFarClip(5000);
-		pbr.addLight(&lights[i]);
-	}
+//	for (int i = 0; i < numLights; i++) {
+//		lights[i].setLightType(LightType_Point);
+//		lights[i].setPosition(-250 * sin(2 * PI * (offset + float(i) / numLights)), 100, 250 * cos(2 * PI * (offset + float(i) / numLights)));
+//		lights[i].lookAt(ofVec3f(0));
+//		lights[i].setScale(1.5);
+//		lights[i].setColor(ofFloatColor(1, 1, 1, 1.0));
+//		lights[i].setShadowType(ShadowType_Hard);
+//		lights[i].setRadius(5000);
+//		lights[i].setFarClip(5000);
+//		pbr.addLight(&lights[i]);
+//	}
     
     cubeMap.setEnvLevel(0.3);
     
     cam.setNearClip(0.0);
     cam.setFarClip(10000);
+    
+    ofFbo fbo;
+    fbo.begin();
 }
 
 //--------------------------------------------------------------

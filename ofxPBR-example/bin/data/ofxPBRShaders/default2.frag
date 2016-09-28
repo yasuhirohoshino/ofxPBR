@@ -22,16 +22,15 @@ struct Light {
 	vec4 color;
 	vec3 direction;
 	int type;
-	int shadowType;
-	int shadowIndex;
-	int omniShadowIndex;
 	float farClip;
 	float intensity;
 	float spotLightFactor;
 	float spotLightCutoff;
 	float spotLightDistance;
 	float pointLightRadius;
-	float softShadowExponent;
+    int shadowType;
+    int shadowIndex;
+    int omniShadowIndex;
 	float bias;
 };
 
@@ -267,23 +266,7 @@ void CalcDirectionalLight(vec4 v_positionVarying, vec3 v_normalVarying, vec3 col
 	specular = light.intensity * (color.rgb * light.color.rgb * spec);
 }
 
-// Shadow
-float CalcSoftShadow(int index, float expo) {
-	float visiblity = 0.0;
-	//vec3 projCoords = v_shadowCoord[index].xyz / v_shadowCoord[index].w;
-	//float currentDepth = projCoords.z;
-	//vec2 offset = vec2(depthTexMag.x * (index % 4), depthTexMag.y * floor(float(index) / 4));
-	//float depth = 0.0;//texture(shadowMap, offset + projCoords.xy * depthTexMag).r;
-	//visiblity = exp(expo * depth) * exp(-expo * currentDepth);
-	//if(projCoords.x >= 1.0 || projCoords.x <= 0.0 ||
-	//   projCoords.y >= 1.0 || projCoords.y <= 0.0 ||
-	//   projCoords.z >= 1.0 || projCoords.z <= 0.0){
-	//    visiblity = 1.0;
-	//}
-	return visiblity;
-}
-
-float CalcHardShadow(int index) {
+float CalcShadow(int index) {
 	float visiblity = 1.0;
 	int shadowIndex = lights[index].shadowIndex;
 	vec3 projCoords = v_shadowCoord[shadowIndex].xyz / v_shadowCoord[shadowIndex].w;
@@ -292,7 +275,7 @@ float CalcHardShadow(int index) {
 		visiblity -= 1.0 / 9.0;
 	}
 	for (int j = 0; j < 8; j++) {
-		if (currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy + poissonDisk[j] * (1.0 / (depthMapRes)), shadowIndex)).r) {
+		if (currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy + poissonDisk[j] * (1.0 / depthMapRes), shadowIndex)).r) {
 			visiblity -= 1.0 / 9.0;
 		}
 	}
@@ -304,7 +287,7 @@ float CalcHardShadow(int index) {
 	return visiblity;
 }
 
-float CalsOmniShadow(int index, vec3 fragPos)
+float CalcOmniShadow(int index, vec3 fragPos)
 {
 	float shadow = 0.0;
 	float farPlane = lights[index].farClip;
@@ -333,16 +316,13 @@ void LightWithShadow(vec4 v_positionVarying, vec3 v_normalVarying, vec3 color, f
 
 	float shadow = 1.0;
 	if(lights[index].type == 2){
-		if (lights[index].shadowType == 1) {
-			shadow = CalsOmniShadow(index, mPositionVarying.xyz);
+		if (lights[index].shadowType != 0) {
+			shadow = CalcOmniShadow(index, mPositionVarying.xyz);
 		}
 	}else{
-		if (lights[index].shadowType == 1) {
-			shadow = CalcHardShadow(index);
-		}
-		else if (lights[index].shadowType == 2) {
-			shadow = CalcSoftShadow(index, lights[index].softShadowExponent);
-		}
+        if (lights[index].shadowType != 0) {
+            shadow = CalcShadow(index);
+        }
 	}
 
 	deffuse = vec3(lightDeffuse * clamp(shadow, 0.0, 1.0));

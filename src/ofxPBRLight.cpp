@@ -194,14 +194,6 @@ float ofxPBRLight::getShadowBias() {
 	return shadowBias;
 }
 
-void ofxPBRLight::setSoftShadowExponent(float softShadowExponent) {
-	this->softShadowExponent = softShadowExponent;
-}
-
-float ofxPBRLight::getSoftShadowExponent() {
-	return softShadowExponent;
-}
-
 void ofxPBRLight::setShadowIndex(int index)
 {
 	shadowIndex = index;
@@ -251,7 +243,6 @@ void ofxPBRLight::beginLighting(ofShader * shader) {
 	shader->setUniform1i("lights[" + lightIndex + "].shadowIndex", getShadowIndex());
 	shader->setUniform1i("lights[" + lightIndex + "].omniShadowIndex", getOmniShadowIndex());
 	shader->setUniform1f("lights[" + lightIndex + "].farClip", getFarClip());
-	shader->setUniform1f("lights[" + lightIndex + "].softShadowExponent", getSoftShadowExponent());
 	shader->setUniform1f("lights[" + lightIndex + "].bias", getShadowBias());
 
 	float exposure = 1.0;
