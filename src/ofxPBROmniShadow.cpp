@@ -19,10 +19,11 @@ void ofxPBROmniShadow::setNumLights(int numLights)
 
 void ofxPBROmniShadow::beginDepthMap(int index, int face)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowParams[index].fbo);
-	glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowParams[index].index, 0, face);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texIndex, 0, (index * 6) + face);
 	glViewport(0, 0, depthMapRes, depthMapRes);
 	ofClear(0);
+    glDrawBuffer(GL_NONE);
 }
 
 void ofxPBROmniShadow::endDepthMap()
@@ -35,44 +36,40 @@ int ofxPBROmniShadow::getDepthMapResolution()
 	return depthMapRes;
 }
 
-void ofxPBROmniShadow::bind(int index, GLuint location)
+void ofxPBROmniShadow::bind(GLuint location)
 {
+    this->location = location;
 	glActiveTexture(GL_TEXTURE0 + location);
-	glEnable(GL_TEXTURE_CUBE_MAP);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, shadowParams[index].index);
+	glEnable(GL_TEXTURE_CUBE_MAP_ARRAY);
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, texIndex);
 }
 
-void ofxPBROmniShadow::unbind(GLuint location)
+void ofxPBROmniShadow::unbind()
 {
 	glActiveTexture(GL_TEXTURE0 + location);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-	glDisable(GL_TEXTURE_CUBE_MAP);
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
+	glDisable(GL_TEXTURE_CUBE_MAP_ARRAY);
 	glActiveTexture(GL_TEXTURE0);
 }
 
 void ofxPBROmniShadow::setOmniShadowMap(int numOmniShadowMaps)
 {
-	shadowParams.assign(numOmniShadowMaps, OmniShadowParams());
-	for (int i = 0; i < shadowParams.size(); i++) {
-		// generate cubemap fbo
-		glGenFramebuffers(1, &shadowParams[i].fbo);
-		glGenTextures(1, &shadowParams[i].index);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, shadowParams[i].index);
-		for (GLuint j = 0; j < 6; ++j) {
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, 0, GL_DEPTH_COMPONENT32F, depthMapRes, depthMapRes, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-		}
+    // generate cubemap fbo
+    glGenFramebuffers(1, &fbo);
+    glGenTextures(1, &texIndex);
+    glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, texIndex);
 
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_DEPTH_COMPONENT32F, depthMapRes, depthMapRes, (numOmniShadowMaps + 1) * 6, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, shadowParams[i].fbo);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowParams[i].index, 0);
-		glDrawBuffer(GL_NONE);
-		glReadBuffer(GL_NONE);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texIndex, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

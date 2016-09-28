@@ -29,8 +29,6 @@ public:
     // depth camera
     void lookAt(ofVec3f target);
     void setDepthMapRes(float resolution);
-    //void beginDepthCamera();
-    //void endDepthCamera();
     
     // for rendering shader
     ofVec3f getViewSpacePosition(ofMatrix4x4 viewMatrix);
@@ -83,7 +81,7 @@ public:
 	int getOmniShadowIndex();
 	void updateOmniShadowParams();
 
-    void beginLighting(ofShader * shader, int index);
+    void beginLighting(ofShader * shader);
     void endLighting(ofShader * shader);
 
 	void setId(int id);

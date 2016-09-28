@@ -22,6 +22,7 @@
 		E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4B69E1D0A3A1BDC003C02F2 /* main.cpp */; };
 		E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */; };
 		F285EB3169F1566CA3D93C20 /* ofxPanel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E112B3AEBEA2C091BF2B40AE /* ofxPanel.cpp */; };
+		F66DB2F484643DB141FD86FA /* ofxPBROmniShadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 15E605E367B23C3668C03C45 /* ofxPBROmniShadow.cpp */; };
 		F8831EB0D009EE61CC9B2ABB /* ofxPBR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C7044D369D76DA73ED74A536 /* ofxPBR.cpp */; };
 /* End PBXBuildFile section */
 
@@ -56,33 +57,34 @@
 
 /* Begin PBXFileReference section */
 		0A1DAC09F322AE313A40706D /* ofxToggle.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxToggle.h; path = ../../../addons/ofxGui/src/ofxToggle.h; sourceTree = SOURCE_ROOT; };
+		15E605E367B23C3668C03C45 /* ofxPBROmniShadow.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxPBROmniShadow.cpp; path = ../../../addons/ofxPBR/src/ofxPBROmniShadow.cpp; sourceTree = SOURCE_ROOT; };
 		15F2C6477A769C03A56D1401 /* ofxSlider.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxSlider.cpp; path = ../../../addons/ofxGui/src/ofxSlider.cpp; sourceTree = SOURCE_ROOT; };
 		17E65988300FBD9AAA2CD0CA /* ofxGui.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxGui.h; path = ../../../addons/ofxGui/src/ofxGui.h; sourceTree = SOURCE_ROOT; };
 		181726E3B538AC828CDC433B /* blur.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = blur.h; path = ../../../addons/ofxPBR/src/shaders/blur.h; sourceTree = SOURCE_ROOT; };
 		1C0DA2561397A7DE0246858B /* ofxGuiGroup.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxGuiGroup.h; path = ../../../addons/ofxGui/src/ofxGuiGroup.h; sourceTree = SOURCE_ROOT; };
 		21B9B65ED0F38DEE18B3C644 /* ofxPBRLight.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxPBRLight.cpp; path = ../../../addons/ofxPBR/src/ofxPBRLight.cpp; sourceTree = SOURCE_ROOT; };
-		262BC2FB79F81289725C46A0 /* ofxPBRMaterial.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxPBRMaterial.h; path = ../../../addons/ofxPBR/src/ofxPBRMaterial.h; sourceTree = SOURCE_ROOT; };
+		262BC2FB79F81289725C46A0 /* ofxPBRMaterial.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxPBRMaterial.h; path = ../../../addons/ofxPBR/src/ofxPBRMaterial.h; sourceTree = SOURCE_ROOT; };
 		2834D88A62CD23F3DE2C47D1 /* ofxButton.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxButton.h; path = ../../../addons/ofxGui/src/ofxButton.h; sourceTree = SOURCE_ROOT; };
-		28AE3A48FACA03F4C41D57A2 /* ofxPBR.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = ofxPBR.h; path = ../../../addons/ofxPBR/src/ofxPBR.h; sourceTree = SOURCE_ROOT; };
+		28AE3A48FACA03F4C41D57A2 /* ofxPBR.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxPBR.h; path = ../../../addons/ofxPBR/src/ofxPBR.h; sourceTree = SOURCE_ROOT; };
 		3AC9D9D167D90650147488D9 /* ofxPBRShadow.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxPBRShadow.h; path = ../../../addons/ofxPBR/src/ofxPBRShadow.h; sourceTree = SOURCE_ROOT; };
 		3BF4998CFA697ED4846632F5 /* ofxPBRShadow.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxPBRShadow.cpp; path = ../../../addons/ofxPBR/src/ofxPBRShadow.cpp; sourceTree = SOURCE_ROOT; };
 		49EDBEBC749DE11469A47851 /* ofxPBRMaterial.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxPBRMaterial.cpp; path = ../../../addons/ofxPBR/src/ofxPBRMaterial.cpp; sourceTree = SOURCE_ROOT; };
 		51E31FB725D29221C7C8A823 /* environment.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = environment.h; path = ../../../addons/ofxPBR/src/shaders/environment.h; sourceTree = SOURCE_ROOT; };
 		52AFA1F08C420992CAAAE648 /* ofxSlider.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxSlider.h; path = ../../../addons/ofxGui/src/ofxSlider.h; sourceTree = SOURCE_ROOT; };
-		6F52B4C5E393921BF7613B54 /* ofxPBRCubeMap.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxPBRCubeMap.cpp; path = ../../../addons/ofxPBR/src/ofxPBRCubeMap.cpp; sourceTree = SOURCE_ROOT; };
+		5DD910CAF12518A7921DF223 /* pbr.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = pbr.h; path = ../../../addons/ofxPBR/src/shaders/pbr.h; sourceTree = SOURCE_ROOT; };
+		6F52B4C5E393921BF7613B54 /* ofxPBRCubeMap.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxPBRCubeMap.cpp; path = ../../../addons/ofxPBR/src/ofxPBRCubeMap.cpp; sourceTree = SOURCE_ROOT; };
 		739A34E9D9E34E0064EC820F /* ofxPBRLight.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxPBRLight.h; path = ../../../addons/ofxPBR/src/ofxPBRLight.h; sourceTree = SOURCE_ROOT; };
 		78D67A00EB899FAC09430597 /* ofxLabel.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxLabel.cpp; path = ../../../addons/ofxGui/src/ofxLabel.cpp; sourceTree = SOURCE_ROOT; };
 		802251BAF1B35B1D67B32FD0 /* ofxSliderGroup.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxSliderGroup.cpp; path = ../../../addons/ofxGui/src/ofxSliderGroup.cpp; sourceTree = SOURCE_ROOT; };
 		87F26B4B24CBD428AD9EEBAA /* ofxBaseGui.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxBaseGui.h; path = ../../../addons/ofxGui/src/ofxBaseGui.h; sourceTree = SOURCE_ROOT; };
 		89449E3044D456F7DE7BEA14 /* ofxPanel.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxPanel.h; path = ../../../addons/ofxGui/src/ofxPanel.h; sourceTree = SOURCE_ROOT; };
 		907C5B5E104864A2D3A25745 /* ofxToggle.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxToggle.cpp; path = ../../../addons/ofxGui/src/ofxToggle.cpp; sourceTree = SOURCE_ROOT; };
-		9347875C1D6B7C88008598FD /* ofxPBRShaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ofxPBRShaders; path = bin/data/ofxPBRShaders; sourceTree = "<group>"; };
-		93D4B9CE1D6C18CB004EC7C1 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = shaders; path = bin/data/shaders; sourceTree = "<group>"; };
-		93FD291E1D3555F400AC70B4 /* pbr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pbr.h; path = ../../../addons/ofxPBR/src/shaders/pbr.h; sourceTree = "<group>"; };
+		931742691D9AAA25006ECBE4 /* ofxPBRShaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ofxPBRShaders; path = bin/data/ofxPBRShaders; sourceTree = "<group>"; };
 		9604B925D32EE39065747725 /* ofxBaseGui.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxBaseGui.cpp; path = ../../../addons/ofxGui/src/ofxBaseGui.cpp; sourceTree = SOURCE_ROOT; };
+		A30D68A1CE9DCAF26F8583BC /* ofxPBROmniShadow.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxPBROmniShadow.h; path = ../../../addons/ofxPBR/src/ofxPBROmniShadow.h; sourceTree = SOURCE_ROOT; };
 		AD9230031092B611D01A632A /* importanceSampling.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = importanceSampling.h; path = ../../../addons/ofxPBR/src/shaders/importanceSampling.h; sourceTree = SOURCE_ROOT; };
 		B87C60311EC1FE841C1ECD89 /* ofxLabel.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxLabel.h; path = ../../../addons/ofxGui/src/ofxLabel.h; sourceTree = SOURCE_ROOT; };
-		C7044D369D76DA73ED74A536 /* ofxPBR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofxPBR.cpp; path = ../../../addons/ofxPBR/src/ofxPBR.cpp; sourceTree = SOURCE_ROOT; };
+		C7044D369D76DA73ED74A536 /* ofxPBR.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxPBR.cpp; path = ../../../addons/ofxPBR/src/ofxPBR.cpp; sourceTree = SOURCE_ROOT; };
 		C70D8946940288799E82131E /* ofxSliderGroup.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxSliderGroup.h; path = ../../../addons/ofxGui/src/ofxSliderGroup.h; sourceTree = SOURCE_ROOT; };
 		C88333E71C9457E441C33474 /* ofxButton.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxButton.cpp; path = ../../../addons/ofxGui/src/ofxButton.cpp; sourceTree = SOURCE_ROOT; };
 		E112B3AEBEA2C091BF2B40AE /* ofxPanel.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxPanel.cpp; path = ../../../addons/ofxGui/src/ofxPanel.cpp; sourceTree = SOURCE_ROOT; };
@@ -90,8 +92,8 @@
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E4B69B5B0A3A1756003C02F2 /* ofxPBR-exampleDebug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ofxPBR-exampleDebug.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4B69E1D0A3A1BDC003C02F2 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = src/main.cpp; sourceTree = SOURCE_ROOT; };
-		E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = ofApp.cpp; path = src/ofApp.cpp; sourceTree = SOURCE_ROOT; };
-		E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofApp.h; path = src/ofApp.h; sourceTree = SOURCE_ROOT; };
+		E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofApp.cpp; path = src/ofApp.cpp; sourceTree = SOURCE_ROOT; };
+		E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ofApp.h; path = src/ofApp.h; sourceTree = SOURCE_ROOT; };
 		E4B6FCAD0C3E899E008CF71C /* openFrameworks-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "openFrameworks-Info.plist"; sourceTree = "<group>"; };
 		E4EB691F138AFCF100A09F29 /* CoreOF.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = CoreOF.xcconfig; path = ../../../libs/openFrameworksCompiled/project/osx/CoreOF.xcconfig; sourceTree = SOURCE_ROOT; };
 		E4EB6923138AFD0F00A09F29 /* Project.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Project.xcconfig; sourceTree = "<group>"; };
@@ -116,7 +118,7 @@
 				181726E3B538AC828CDC433B /* blur.h */,
 				51E31FB725D29221C7C8A823 /* environment.h */,
 				AD9230031092B611D01A632A /* importanceSampling.h */,
-				93FD291E1D3555F400AC70B4 /* pbr.h */,
+				5DD910CAF12518A7921DF223 /* pbr.h */,
 			);
 			name = shaders;
 			sourceTree = "<group>";
@@ -155,6 +157,8 @@
 				739A34E9D9E34E0064EC820F /* ofxPBRLight.h */,
 				49EDBEBC749DE11469A47851 /* ofxPBRMaterial.cpp */,
 				262BC2FB79F81289725C46A0 /* ofxPBRMaterial.h */,
+				15E605E367B23C3668C03C45 /* ofxPBROmniShadow.cpp */,
+				A30D68A1CE9DCAF26F8583BC /* ofxPBROmniShadow.h */,
 				3BF4998CFA697ED4846632F5 /* ofxPBRShadow.cpp */,
 				3AC9D9D167D90650147488D9 /* ofxPBRShadow.h */,
 				13FCF680EF6D86324C4A2EC9 /* shaders */,
@@ -208,8 +212,7 @@
 			children = (
 				E4B6FCAD0C3E899E008CF71C /* openFrameworks-Info.plist */,
 				E4EB6923138AFD0F00A09F29 /* Project.xcconfig */,
-				93D4B9CE1D6C18CB004EC7C1 /* shaders */,
-				9347875C1D6B7C88008598FD /* ofxPBRShaders */,
+				931742691D9AAA25006ECBE4 /* ofxPBRShaders */,
 				E4B69E1C0A3A1BDC003C02F2 /* src */,
 				E4EEC9E9138DF44700A80321 /* openFrameworks */,
 				BB4B014C10F69532006C3DED /* addons */,
@@ -338,6 +341,7 @@
 				24F539A6EBB964EBC5433C98 /* ofxPBRCubeMap.cpp in Sources */,
 				DCF344B29E26D3285C9727B3 /* ofxPBRLight.cpp in Sources */,
 				815F42D6B579CE9EFB87C085 /* ofxPBRMaterial.cpp in Sources */,
+				F66DB2F484643DB141FD86FA /* ofxPBROmniShadow.cpp in Sources */,
 				8AFE53EE9F2D9E61CC02AD81 /* ofxPBRShadow.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

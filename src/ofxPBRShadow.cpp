@@ -34,7 +34,7 @@ void ofxPBRShadow::setShadowMap(){
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void ofxPBRShadow::beginDepthMap(int index){    
+void ofxPBRShadow::beginDepthMap(int index){
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
     glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMapIndex, 0, index);
     glViewport(0, 0, depthMapRes, depthMapRes);
@@ -45,6 +45,7 @@ void ofxPBRShadow::beginDepthMap() {
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
 	glViewport(0, 0, depthMapRes, depthMapRes);
 	ofClear(0);
+    glDrawBuffer(GL_NONE);
 }
 
 void ofxPBRShadow::endDepthMap(){

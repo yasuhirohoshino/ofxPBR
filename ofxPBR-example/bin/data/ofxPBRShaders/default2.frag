@@ -54,7 +54,7 @@ uniform vec2 depthMapRes;
 uniform mat4 shadowMatrix[MAX_LIGHTS];
 vec4 v_shadowCoord[MAX_LIGHTS];
 
-uniform samplerCube omniShadowMap[MAX_LIGHTS];
+uniform samplerCubeArray omniShadowMap;
 
 // IBL
 uniform samplerCube envMap;
@@ -309,7 +309,7 @@ float CalsOmniShadow(int index, vec3 fragPos)
 	float shadow = 0.0;
 	float farPlane = lights[index].farClip;
 	vec3 fragToLight = fragPos - lights[index].position;
-	float closestDepth = texture(omniShadowMap[lights[index].omniShadowIndex], fragToLight).r;
+	float closestDepth = texture(omniShadowMap, vec4(fragToLight, lights[index].omniShadowIndex)).r;
 	if (closestDepth < 1.0) {
 		float currentDepth = length(fragToLight);
 		closestDepth *= (farPlane + farPlane * 0.001 + (farPlane * 0.1 * (currentDepth / farPlane)));
@@ -546,8 +546,8 @@ void main(void) {
 		// Apply Emission or not
 		color = DetectEmission(color, emissionColor);
 		fragColor = vec4(color, 1.0);
-		//float shadow = CalsOmniShadow(0, mPositionVarying.xyz);
-		//fragColor = vec4(vec3(shadow), 1.0);
+//        float shadow = CalsOmniShadow(0, mPositionVarying.xyz);
+//		fragColor = vec4(vec3(shadow), 1.0);
 		gl_FragDepth = gl_FragCoord.z;
 	}
 }

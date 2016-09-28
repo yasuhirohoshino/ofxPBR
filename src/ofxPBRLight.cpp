@@ -31,14 +31,6 @@ void ofxPBRLight::setDepthMapRes(float resolution) {
 	depthMapRes = resolution;
 }
 
-//void ofxPBRLight::beginDepthCamera() {
-//	this->begin();
-//}
-//
-//void ofxPBRLight::endDepthCamera() {
-//	this->end();
-//}
-
 // for rendering shader
 ofVec3f ofxPBRLight::getViewSpacePosition(ofMatrix4x4 viewMatrix) {
 	float w = 1.0;
@@ -247,8 +239,7 @@ void ofxPBRLight::updateOmniShadowParams()
 	}
 }
 
-void ofxPBRLight::beginLighting(ofShader * shader, int index) {
-	lightId = index;
+void ofxPBRLight::beginLighting(ofShader * shader) {
 	string lightIndex = ofToString(lightId);
 	shader->setUniform1i("lights[" + lightIndex + "].isEnabled", isEnabled());
 	shader->setUniform3f("lights[" + lightIndex + "].position", getGlobalPosition());

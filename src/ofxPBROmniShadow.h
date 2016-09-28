@@ -11,16 +11,14 @@ public:
 	void endDepthMap();
 	int getDepthMapResolution();
 
-	void bind(int index, GLuint location);
-	void unbind(GLuint location);
+	void bind(GLuint location);
+	void unbind();
 
 private:
 	void setOmniShadowMap(int numOmniShadowMaps);
 	int depthMapRes = 1024;
 	int numOmniShadowMaps = 0;
-	struct OmniShadowParams {
-		GLuint index;
-		GLuint fbo;
-	};
-	vector<OmniShadowParams> shadowParams;
+    GLuint location;
+    GLuint texIndex;
+    GLuint fbo;
 };

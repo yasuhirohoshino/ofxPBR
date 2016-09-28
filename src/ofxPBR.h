@@ -35,7 +35,6 @@ private:
     void endPBR();
     
     void beginDepthMap(int index);
-	void beginDepthMap();
     void endDepthMap();
 
 	void beginDepthCubeMap(int index, int face);
