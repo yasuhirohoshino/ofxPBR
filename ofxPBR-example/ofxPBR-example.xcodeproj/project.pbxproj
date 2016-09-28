@@ -80,6 +80,7 @@
 		89449E3044D456F7DE7BEA14 /* ofxPanel.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxPanel.h; path = ../../../addons/ofxGui/src/ofxPanel.h; sourceTree = SOURCE_ROOT; };
 		907C5B5E104864A2D3A25745 /* ofxToggle.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxToggle.cpp; path = ../../../addons/ofxGui/src/ofxToggle.cpp; sourceTree = SOURCE_ROOT; };
 		931742691D9AAA25006ECBE4 /* ofxPBRShaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ofxPBRShaders; path = bin/data/ofxPBRShaders; sourceTree = "<group>"; };
+		931742701D9C0B65006ECBE4 /* depthThumbnail.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = depthThumbnail.h; sourceTree = "<group>"; };
 		9604B925D32EE39065747725 /* ofxBaseGui.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxBaseGui.cpp; path = ../../../addons/ofxGui/src/ofxBaseGui.cpp; sourceTree = SOURCE_ROOT; };
 		A30D68A1CE9DCAF26F8583BC /* ofxPBROmniShadow.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxPBROmniShadow.h; path = ../../../addons/ofxPBR/src/ofxPBROmniShadow.h; sourceTree = SOURCE_ROOT; };
 		AD9230031092B611D01A632A /* importanceSampling.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = importanceSampling.h; path = ../../../addons/ofxPBR/src/shaders/importanceSampling.h; sourceTree = SOURCE_ROOT; };
@@ -119,6 +120,7 @@
 				51E31FB725D29221C7C8A823 /* environment.h */,
 				AD9230031092B611D01A632A /* importanceSampling.h */,
 				5DD910CAF12518A7921DF223 /* pbr.h */,
+				931742701D9C0B65006ECBE4 /* depthThumbnail.h */,
 			);
 			name = shaders;
 			sourceTree = "<group>";

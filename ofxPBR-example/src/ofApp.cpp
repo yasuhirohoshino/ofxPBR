@@ -33,8 +33,8 @@ void ofApp::setup(){
     //light2.setShadowType(ShadowType_Hard);
     //pbr.addLight(&light2);
 
-//	float offset = -PI / 2;
-//	int numLights = 2;
+	float offset = -PI / 2;
+	int numLights = 2;
 
 //	lights[0].setLightType(LightType_Point);
 //	lights[0].setPosition(-500 * sin(2 * PI * (offset + float(0) / numLights)), 100, 500 * cos(2 * PI * (offset + float(0) / numLights)));
@@ -42,7 +42,7 @@ void ofApp::setup(){
 //	lights[0].setScale(1.5);
 //	lights[0].setColor(ofFloatColor(1, 0, 1, 1.0));
 //	lights[0].setShadowType(ShadowType_Hard);
-//	lights[0].setRadius(1000);
+//	lights[0].setRadius(5000);
 //	lights[0].setFarClip(5000);
 //	pbr.addLight(&lights[0]);
 
@@ -87,6 +87,9 @@ void ofApp::draw(){
     
     ofSetWindowTitle(ofToString(ofGetFrameRate()));
 	prevTime = ofGetElapsedTimef() - prevTime;
+    
+//    pbr.getDepthMap(0)->draw(0, 0);
+    
 	ofDrawBitmapString(ofToString(prevTime), 20, 20);
 }
 
@@ -109,6 +112,7 @@ void ofApp::renderScene(){
                 material.metallic = float(j) / 9.0;
                 material.begin(&pbr);
                 ofDrawSphere(i * 100 - 450, 0, j * 100 - 450, 35);
+//                ofDrawBox(i * 100 - 450, 0, j * 100 - 450, 35, 100, 35);
                 material.end();
             }
         }

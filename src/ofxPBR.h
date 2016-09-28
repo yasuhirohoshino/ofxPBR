@@ -7,6 +7,7 @@
 #include "ofxPBRMaterial.h"
 #include "shaders/environment.h"
 #include "shaders/pbr.h"
+#include "shaders/depthThumbnail.h"
 
 class ofxPBR{
 public:
@@ -27,6 +28,7 @@ public:
 	void removeLight(int index);
     void setEnvShader(ofShader* shader);
     ofShader* getShader();
+    ofTexture* getDepthMap(int index);
     
 private:
 	void setNumLights(int numLights);
@@ -70,4 +72,8 @@ private:
 	int faceIndex = 0;
 
 	vector<ofMatrix4x4> lightViewProjMatrix;
+    
+    DepthThumbnail depthThumbnail;
+    ofFbo depthThumbnailFbo;
+    ofShader depthThumbnailShader;
 };

@@ -146,7 +146,7 @@ private:
 	ShadowType shadowType = ShadowType_Hard;
 	int shadowIndex;
     float depthMapRes = 1024;
-    float shadowBias = 0.001;
+    float shadowBias = 0.0005;
 
 	ofMatrix4x4 shadowTransMatrix;
     const ofMatrix4x4 biasMatrix = ofMatrix4x4(

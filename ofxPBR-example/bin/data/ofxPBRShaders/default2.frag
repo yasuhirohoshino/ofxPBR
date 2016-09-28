@@ -99,15 +99,15 @@ float gamma = 1.0;
 
 // Poisson Disk for Shadow
 vec2 poissonDisk[8] = vec2[](
-	vec2(0.9265977740287781, 0.36850881576538086),
-	vec2(0.20805540680885315, 0.2816232442855835),
-	vec2(0.4912513196468353, 0.8650672435760498),
-	vec2(-0.3647611141204834, 0.7251957058906555),
-	vec2(-0.6926340460777283, 0.036871228367090225),
-	vec2(-0.0503573939204216, -0.4144868552684784),
-	vec2(-0.5594532489776611, -0.8005858063697815),
-	vec2(0.6502251625061035, -0.2589254677295685)
-	);
+                             vec2(0.9265977740287781, 0.36850881576538086),
+                             vec2(0.20805540680885315, 0.2816232442855835),
+                             vec2(0.4912513196468353, 0.8650672435760498),
+                             vec2(-0.3647611141204834, 0.7251957058906555),
+                             vec2(-0.6926340460777283, 0.036871228367090225),
+                             vec2(-0.0503573939204216, -0.4144868552684784),
+                             vec2(-0.5594532489776611, -0.8005858063697815),
+                             vec2(0.6502251625061035, -0.2589254677295685)
+                             );
 
 void SetParams() {
 	v_positionVarying = modelViewMatrix * positionVarying;
@@ -272,10 +272,10 @@ float CalcShadow(int index) {
 	vec3 projCoords = v_shadowCoord[shadowIndex].xyz / v_shadowCoord[shadowIndex].w;
 	float currentDepth = projCoords.z;
 	if (currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy, shadowIndex)).r) {
-		visiblity -= 1.0 / 9.0;
+        visiblity -= 1.0 / 9.0;
 	}
 	for (int j = 0; j < 8; j++) {
-		if (currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy + poissonDisk[j] * (1.0 / depthMapRes), shadowIndex)).r) {
+		if (currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy + poissonDisk[j] * (1.0 / (depthMapRes)), shadowIndex)).r) {
 			visiblity -= 1.0 / 9.0;
 		}
 	}
@@ -298,6 +298,7 @@ float CalcOmniShadow(int index, vec3 fragPos)
 		closestDepth *= (farPlane + farPlane * 0.001 + (farPlane * 0.1 * (currentDepth / farPlane)));
 		shadow = currentDepth < closestDepth ? 1.0 : 0.0;
 	}
+
 	return shadow;
 }
 
@@ -382,7 +383,7 @@ float GetMetallic(vec2 texCoordVarying) {
 // normal
 // http://www.geeks3d.com/20130122/normal-mapping-without-precomputed-tangent-space-vectors/
 // http://www.thetenthplanet.de/archives/1180
-mat3 cotangent_frame(vec3 N, vec3 p, vec2 uv) {
+mat3 CotangentFrame(vec3 N, vec3 p, vec2 uv) {
 	// get edge vectors of the pixel triangle
 	vec3 dp1 = dFdx(p);
 	vec3 dp2 = dFdy(p);
@@ -400,11 +401,11 @@ mat3 cotangent_frame(vec3 N, vec3 p, vec2 uv) {
 	return mat3(T * invmax, B * invmax, N);
 }
 
-vec3 perturb_normal(vec3 normalMap, vec3 N, vec3 V, vec2 texcoord) {
+vec3 PerturbNormal(vec3 normalMap, vec3 N, vec3 V, vec2 texcoord) {
 	// assume N, the interpolated vertex normal and 
 	// V, the view vector (vertex to eye)
 	vec3 map = normalMap * 255. / 127. - 128. / 127.;
-	mat3 TBN = cotangent_frame(N, -V, texcoord);
+	mat3 TBN = CotangentFrame(N, -V, texcoord);
 	return normalize(TBN * map);
 }
 
@@ -415,7 +416,7 @@ void CalcNormal(out vec3 normal, out vec3 reflectDir, vec2 texCoordVarying) {
 			vec3 detailNormalMapVec = texture(detailNormalMap, mod(texCoordVarying * detailTextureRepeatTimes, 1.0)).rgb;
 			normalMapVec = BlendSoftLight(normalMapVec, detailNormalMapVec);
 		}
-		normal = mix(v_normalVarying, perturb_normal(normalMapVec, v_normalVarying, v_positionVarying.xyz, texCoordVarying), vec3(normalValUniform));
+		normal = mix(v_normalVarying, PerturbNormal(normalMapVec, v_normalVarying, v_positionVarying.xyz, texCoordVarying), vec3(normalValUniform));
 		vec3 relfect0 = reflect(normalize(v_positionVarying.xyz), normal);
 		reflectDir = vec3(viewTranspose * vec4(relfect0, 0.0)) * vec3(1, 1, -1);
 	}

@@ -26,6 +26,14 @@ void ofxPBR::setup(int depthMapResolution) {
     defaultShader.setupShaderFromSource(GL_FRAGMENT_SHADER, pbr.gl3FragShader);
     defaultShader.bindDefaults();
     defaultShader.linkProgram();
+    
+    depthThumbnailFbo.allocate(depthMapResolution, depthMapResolution, GL_R32F);
+    
+    depthThumbnailShader = ofShader();
+    depthThumbnailShader.setupShaderFromSource(GL_VERTEX_SHADER, depthThumbnail.gl3VertShader);
+    depthThumbnailShader.setupShaderFromSource(GL_FRAGMENT_SHADER, depthThumbnail.gl3FragShader);
+    depthThumbnailShader.bindDefaults();
+    depthThumbnailShader.linkProgram();
 }
 
 void ofxPBR::begin(ofCamera * camera, ofShader * shader){
@@ -320,4 +328,18 @@ void ofxPBR::setNumLights(int numLights) {
 	lightViewProjMatrix.assign(shadowMapCount, ofMatrix4x4());
 
 	omniShadow.setNumLights(omniShadowMapCount);
+}
+
+ofTexture* ofxPBR::getDepthMap(int index){
+    shadow.bind(0);
+    depthThumbnailFbo.begin();
+    ofClear(0);
+    depthThumbnailShader.begin();
+    depthThumbnailShader.setUniform1i("rawSampler", 0);
+    depthThumbnailShader.setUniform1i("index", index);
+    ofDrawPlane(depthThumbnailFbo.getWidth() / 2, depthThumbnailFbo.getHeight() / 2, depthThumbnailFbo.getWidth(), depthThumbnailFbo.getHeight());
+    depthThumbnailShader.end();
+    depthThumbnailFbo.end();
+    shadow.unbind();
+    return &depthThumbnailFbo.getTexture();
 }
