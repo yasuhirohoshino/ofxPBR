@@ -42,8 +42,6 @@ class ofApp : public ofBaseApp{
     ofMatrix4x4 shadowProjMatrix;
     int shadowMapRes = 1024;
     
-    
-    
     int numShadows;
     vector<ofCamera> camera;
     vector<ofVec3f> lightPos;

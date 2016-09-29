@@ -23,7 +23,7 @@ public:
     void drawEnvironment(ofCamera * camera = nullptr);
     void resizeDepthMap(int resolution);
     int getDepthMapResolution();
-	void updateShadowMaps();
+	void updateDepthMaps();
 	void addLight(ofxPBRLight* light);
 	void removeLight(int index);
     void setEnvShader(ofShader* shader);
