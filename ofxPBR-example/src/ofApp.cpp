@@ -75,6 +75,7 @@ void ofApp::draw(){
 	ofEnableDepthTest();
 
 	pbr.updateShadowMaps();
+
 	cam.begin();
 	pbr.drawEnvironment();
 	scene();
