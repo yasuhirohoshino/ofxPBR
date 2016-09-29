@@ -75,6 +75,8 @@ public:
     float getShadowBias();
 	void setShadowIndex(int index);
 	int getShadowIndex();
+	void setShadowStrength(float strength);
+	float getShadowStrength();
 	void setOmniShadowIndex(int index);
 	int getOmniShadowIndex();
 	void updateOmniShadowParams();
@@ -147,6 +149,7 @@ private:
 	int shadowIndex;
     float depthMapRes = 1024;
     float shadowBias = 0.0005;
+	float strength = 1.0;
 
 	ofMatrix4x4 shadowTransMatrix;
     const ofMatrix4x4 biasMatrix = ofMatrix4x4(

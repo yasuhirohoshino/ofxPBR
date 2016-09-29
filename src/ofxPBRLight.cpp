@@ -204,6 +204,16 @@ int ofxPBRLight::getShadowIndex()
 	return shadowIndex;
 }
 
+void ofxPBRLight::setShadowStrength(float strength)
+{
+	this->strength = strength;
+}
+
+float ofxPBRLight::getShadowStrength()
+{
+	return strength;
+}
+
 void ofxPBRLight::setOmniShadowIndex(int index)
 {
 	omniShadowParams.omniShadowIndex = index;
@@ -242,6 +252,7 @@ void ofxPBRLight::beginLighting(ofShader * shader) {
 	shader->setUniform1f("lights[" + lightIndex + "].intensity", getIntensity());
 	shader->setUniform1i("lights[" + lightIndex + "].shadowIndex", getShadowIndex());
 	shader->setUniform1i("lights[" + lightIndex + "].omniShadowIndex", getOmniShadowIndex());
+	shader->setUniform1f("lights[" + lightIndex + "].shadowStrength", getShadowStrength());
 	shader->setUniform1f("lights[" + lightIndex + "].farClip", getFarClip());
 	shader->setUniform1f("lights[" + lightIndex + "].bias", getShadowBias());
 

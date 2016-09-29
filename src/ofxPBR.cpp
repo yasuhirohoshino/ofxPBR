@@ -3,7 +3,9 @@
 ofxPBR::ofxPBR(){
 }
 
-void ofxPBR::setup(int depthMapResolution) {
+void ofxPBR::setup(ofCamera* camera, function<void()> scene, int depthMapResolution) {
+	this->camera = camera;
+	this->scene = scene;
 	sphereMesh = ofSpherePrimitive(1, 100).getMesh();
 	for (int i = 0; i<sphereMesh.getNormals().size(); i++) {
 		sphereMesh.setNormal(i, ofVec3f(1.0, 1.0, -1.0) * sphereMesh.getVertex(i).normalize());
@@ -36,7 +38,13 @@ void ofxPBR::setup(int depthMapResolution) {
     depthThumbnailShader.linkProgram();
 }
 
-void ofxPBR::begin(ofCamera * camera, ofShader * shader){
+void ofxPBR::begin(ofShader * shader, ofCamera * camera){
+	ofCamera* cam;
+	if (camera != nullptr) {
+		cam = camera;
+	}else{
+		cam = this->camera;
+	}
     if(shader != nullptr){
         PBRShader = shader;
     }else{
@@ -46,7 +54,7 @@ void ofxPBR::begin(ofCamera * camera, ofShader * shader){
 	switch (renderMode)
 	{
 	case Mode_PBR:
-		beginPBR(camera);
+		beginPBR(cam);
 		break;
 
 	case Mode_Shadow:
@@ -99,11 +107,18 @@ bool ofxPBR::isCubeMapEnable()
 }
 
 void ofxPBR::drawEnvironment(ofCamera * camera){
+	ofCamera* cam;
+	if (camera != nullptr) {
+		cam = camera;
+	}
+	else {
+		cam = this->camera;
+	}
     if (enableCubemap && cubeMap != nullptr && cubeMap->isAllocated()) {
-        float scale = (camera->getFarClip() - camera->getNearClip()) / 2;
+        float scale = (cam->getFarClip() - cam->getNearClip()) / 2;
         ofDisableDepthTest();
         ofPushMatrix();
-        ofTranslate(camera->getPosition());
+        ofTranslate(cam->getPosition());
         cubeMap->bind(1);
         envShader->begin();
         envShader->setUniform1f("envLevel", cubeMap->getEnvLevel());
@@ -133,7 +148,7 @@ int ofxPBR::getDepthMapResolution(){
     return shadow.getDepthMapResolution();
 }
 
-void ofxPBR::makeDepthMap(function<void()> scene)
+void ofxPBR::updateShadowMaps()
 {
 	renderMode = Mode_Shadow;
 	for (int i = 0; i<normalLights.size(); i++) {
