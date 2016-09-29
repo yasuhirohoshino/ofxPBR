@@ -148,7 +148,7 @@ int ofxPBR::getDepthMapResolution(){
     return shadow.getDepthMapResolution();
 }
 
-void ofxPBR::updateShadowMaps()
+void ofxPBR::updateDepthMaps()
 {
 	renderMode = Mode_Shadow;
 	for (int i = 0; i<normalLights.size(); i++) {
@@ -211,7 +211,7 @@ int getLastTextureIndex(){
 void ofxPBR::beginPBR(ofCamera * camera){
     // pbr
     PBRShader->begin();
-    PBRShader->setUniform1i("renderForDepthMap", false);
+    PBRShader->setUniform1i("renderDepthMap", false);
     PBRShader->setUniform1f("cameraNear", camera->getNearClip());
     PBRShader->setUniform1f("cameraFar", camera->getFarClip());
     
@@ -293,9 +293,9 @@ void ofxPBR::endPBR(){
 void ofxPBR::beginDepthMap(int index){
     // render depth maps for shadows
     PBRShader->begin();
-    PBRShader->setUniform1i("renderForDepthMap", true);
-	PBRShader->setUniform1i("renderForDepthCubeMap", false);
-	PBRShader->setUniformMatrix4f("viewMat", normalLights[index]->getViewProjectionMatrix());
+    PBRShader->setUniform1i("renderDepthMap", true);
+	PBRShader->setUniform1i("renderDepthCubeMap", false);
+	PBRShader->setUniformMatrix4f("lightsViewProjectionMatrix", normalLights[index]->getViewProjectionMatrix());
 }
 
 void ofxPBR::endDepthMap(){
@@ -305,11 +305,11 @@ void ofxPBR::endDepthMap(){
 void ofxPBR::beginDepthCubeMap(int index, int face)
 {
  	PBRShader->begin();
-	PBRShader->setUniform1i("renderForDepthMap", true);
-	PBRShader->setUniform1i("renderForDepthCubeMap", true);
+	PBRShader->setUniform1i("renderDepthMap", true);
+	PBRShader->setUniform1i("renderDepthCubeMap", true);
 	PBRShader->setUniform3f("lightPos", pointLights[index]->getPosition());
 	PBRShader->setUniform1f("farPlane", pointLights[index]->getFarClip());
-	PBRShader->setUniformMatrix4f("viewMat", pointLights[index]->getViewProjectionMatrix(face));
+	PBRShader->setUniformMatrix4f("lightsViewProjectionMatrix", pointLights[index]->getViewProjectionMatrix(face));
 }
 
 void ofxPBR::endDepthCubeMap()

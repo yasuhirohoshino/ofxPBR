@@ -24,29 +24,29 @@ void ofApp::setup(){
     light.lookAt(ofVec3f(0));
     light.setScale(1.5);
     light.setColor(ofFloatColor(1.0));
-    light.setShadowType(ShadowType_Hard);
+    light.setShadowType(ShadowType_Soft);
     pbr.addLight(&light);
     
-    light2.setLightType(LightType_Directional);
-    light2.setPosition(1500, 1000, 1500);
-    light2.lookAt(ofVec3f(0));
-    light2.setScale(1.5);
-    light2.setColor(ofFloatColor(1.0));
-    light2.setShadowType(ShadowType_Hard);
-    pbr.addLight(&light2);
+//    light2.setLightType(LightType_Directional);
+//    light2.setPosition(1500, 1000, 1500);
+//    light2.lookAt(ofVec3f(0));
+//    light2.setScale(1.5);
+//    light2.setColor(ofFloatColor(1.0));
+//    light2.setShadowType(ShadowType_Hard);
+//    pbr.addLight(&light2);
 
-	float offset = -PI / 2;
-	int numLights = 2;
-
-	//lights[0].setLightType(LightType_Point);
-	//lights[0].setPosition(-500 * sin(2 * PI * (offset + float(0) / numLights)), 100, 500 * cos(2 * PI * (offset + float(0) / numLights)));
-	//lights[0].lookAt(ofVec3f(0));
-	//lights[0].setScale(1.5);
-	//lights[0].setColor(ofFloatColor(1, 1, 1, 1.0));
-	//lights[0].setShadowType(ShadowType_Hard);
-	//lights[0].setRadius(5000);
-	//lights[0].setFarClip(5000);
-	//pbr.addLight(&lights[0]);
+//	float offset = -PI / 2;
+//	int numLights = 2;
+//
+//	lights[0].setLightType(LightType_Point);
+//	lights[0].setPosition(-500 * sin(2 * PI * (offset + float(0) / numLights)), 100, 500 * cos(2 * PI * (offset + float(0) / numLights)));
+//	lights[0].lookAt(ofVec3f(0));
+//	lights[0].setScale(1.5);
+//	lights[0].setColor(ofFloatColor(1, 1, 1, 1.0));
+//	lights[0].setShadowType(ShadowType_Hard);
+//	lights[0].setRadius(5000);
+//	lights[0].setFarClip(5000);
+//	pbr.addLight(&lights[0]);
 
 //	for (int i = 0; i < numLights; i++) {
 //		lights[i].setLightType(LightType_Point);
@@ -65,7 +65,8 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-
+    light.setPosition(-1500 * sin(ofGetElapsedTimef()), 1000, 1500 * cos(ofGetElapsedTimef()));
+    light.lookAt(ofVec3f(0));
 }
 
 //--------------------------------------------------------------
@@ -74,7 +75,7 @@ void ofApp::draw(){
 
 	ofEnableDepthTest();
 
-	pbr.updateShadowMaps();
+	pbr.updateDepthMaps();
 	cam.begin();
 	pbr.drawEnvironment();
 	scene();
@@ -90,7 +91,7 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::renderScene(){
 	glEnable(GL_CULL_FACE);
-    pbr.begin(&render);
+    pbr.begin();
     {
         material.roughness = 0.25;
         material.metallic = 0.0;
@@ -106,6 +107,7 @@ void ofApp::renderScene(){
                 material.metallic = float(j) / 9.0;
                 material.begin(&pbr);
                 ofDrawSphere(i * 100 - 450, 0, j * 100 - 450, 35);
+//                ofDrawBox(i * 100 - 450, 0, j * 100 - 450, 35, 100, 35);
                 material.end();
             }
         }
