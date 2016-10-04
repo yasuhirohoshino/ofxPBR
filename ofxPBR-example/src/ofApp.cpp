@@ -14,17 +14,23 @@ void ofApp::setup(){
 	scene = bind(&ofApp::renderScene, this);
 
     cubeMap.load("Barce_Rooftop_C_3k.jpg", 1024, true, "filteredMapCache");
-    pbr.setup(&cam, scene, 1024);
+    pbr.setup(&cam, scene, 2048);
     pbr.setCubeMap(&cubeMap);
     
     render.load("ofxPBRShaders/default2.vert", "ofxPBRShaders/default2.frag");
     
-    light.setLightType(LightType_Directional);
+    light.setLightType(LightType_Spot);
     light.setPosition(-1500, 1000, 1500);
     light.lookAt(ofVec3f(0));
-    light.setScale(1.5);
+    light.setScale(1.0);
     light.setColor(ofFloatColor(1.0));
     light.setShadowType(ShadowType_Soft);
+    light.setSpotLightDistance(5000);
+    light.setSpotLightCutoff(45);
+    light.setSpotLightFactor(5.0);
+//    light.setPointLightRadius(5000);
+    light.setNearClip(100.0);
+    light.setFarClip(5000);
     pbr.addLight(&light);
     
 //    light2.setLightType(LightType_Directional);
@@ -65,7 +71,7 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    light.setPosition(-1500 * sin(ofGetElapsedTimef()), 1000, 1500 * cos(ofGetElapsedTimef()));
+    light.setPosition(-1000 * sin(ofGetElapsedTimef()), 1500, 1000 * cos(ofGetElapsedTimef()));
     light.lookAt(ofVec3f(0));
 }
 

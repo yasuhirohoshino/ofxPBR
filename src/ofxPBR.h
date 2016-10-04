@@ -31,7 +31,7 @@ public:
     ofTexture* getDepthMap(int index);
     
 private:
-	void setNumLights(int numLights);
+	void setLights();
     
     void beginPBR(ofCamera * camera);
     void endPBR();
@@ -79,4 +79,6 @@ private:
 	ofCamera* camera;
 
 	function<void()> scene;
+    
+    function<void()> setLightFunc;
 };

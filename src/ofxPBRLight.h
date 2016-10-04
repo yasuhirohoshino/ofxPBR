@@ -22,6 +22,8 @@ public:
     ofxPBRLight();
     ~ofxPBRLight();
     
+    void setLightFunction(function<void()> func);
+    
     void enable(bool isEnabled = true);
     void disable();
     bool isEnabled();
@@ -49,8 +51,8 @@ public:
     LightType getLightType();
     
     // pointLight
-    void setRadius(float radius);
-    float getRadius();
+    void setPointLightRadius(float radius);
+    float getPointLightRadius();
     
     // spotLight
 	void setSpotLightDistance(float distance);
@@ -158,4 +160,5 @@ private:
                                                0.0, 0.0, 0.5, 0.0,
                                                0.5, 0.5, 0.5, 1.0
                                                );
+    function<void()> resetLights;
 };

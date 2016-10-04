@@ -314,6 +314,8 @@ public:
                                            deffenable = vec3(0.0);
                                            specular = vec3(0.0);
                                        }
+//                                       deffenable = vec3(1.0);
+//                                       specular = vec3(1.0);
                                    }
                                    
                                    void CalcDirectionalLight(vec3 normal, vec3 color, int index, float roughness, out vec3 deffenable, out vec3 specular) {
@@ -338,7 +340,7 @@ public:
                                                    visiblity -= 1.0 / 9.0;
                                                }
                                                for (int j = 0; j < 8; j++) {
-                                                   vec2 coord = projCoords.xy + poissonDisk[j] * 2 * (1.0 / (depthMapRes));
+                                                   vec2 coord = projCoords.xy + poissonDisk[j] * 0.25 * (1.0 / (depthMapRes));
                                                    if (currentDepth - lights[index].bias * 2 > texture(shadowMap, vec3(coord, shadowIndex)).r) {
                                                        visiblity -= 1.0 / 9.0;
                                                    }
@@ -353,19 +355,18 @@ public:
                                        return visiblity;
                                    }
                                    
-                                   float CalcOmniShadow(int index, vec3 fragPos)
-        {
-            float shadow = 0.0;
-            float farPlane = lights[index].farClip;
-            vec3 fragToLight = fragPos - lights[index].position;
-            float closestDepth = texture(omniShadowMap, vec4(fragToLight, lights[index].omniShadowIndex)).r;
-            if (closestDepth < 1.0) {
-                float currentDepth = length(fragToLight);
-                closestDepth *= (farPlane + farPlane * 0.001 + (farPlane * 0.1 * (currentDepth / farPlane)));
-                shadow = currentDepth < closestDepth ? 1.0 : 0.0;
-            }
-            return shadow;
-        }
+                                   float CalcOmniShadow(int index, vec3 fragPos){
+                                        float shadow = 0.0;
+                                        float farPlane = lights[index].farClip;
+                                        vec3 fragToLight = fragPos - lights[index].position;
+                                        float closestDepth = texture(omniShadowMap, vec4(fragToLight, lights[index].omniShadowIndex)).r;
+                                        if (closestDepth < 1.0) {
+                                            float currentDepth = length(fragToLight);
+                                            closestDepth *= (farPlane + farPlane * 0.001 + (farPlane * 0.1 * (currentDepth / farPlane)));
+                                            shadow = currentDepth < closestDepth ? 1.0 : 0.0;
+                                        }
+                                        return shadow;
+                                   }
                                    
                                    void LightWithShadow(vec3 normal, vec3 color, float roughness, int index, out vec3 deffuse, out vec3 specular) {
                                        vec3 lightDeffuse = vec3(0.0);

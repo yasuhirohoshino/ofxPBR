@@ -9,6 +9,10 @@ ofxPBRLight::ofxPBRLight() {
 ofxPBRLight::~ofxPBRLight() {
 }
 
+void ofxPBRLight::setLightFunction(function<void()> func) {
+    resetLights = func;
+}
+
 void ofxPBRLight::enable(bool isEnabled) {
 	this->isLightEnabled = isEnabled;
 }
@@ -101,12 +105,6 @@ ofFloatColor ofxPBRLight::getColor() {
 // light
 void ofxPBRLight::setLightType(LightType lightType) {
 	this->lightType = lightType;
-	if (lightType == LightType_Directional || lightType == LightType_Sky) {
-		this->enableOrtho();
-	}
-	else {
-		this->disableOrtho();
-	}
 	switch (lightType) {
 	case LightType_Directional:
 	case LightType_Sky:
@@ -126,6 +124,7 @@ void ofxPBRLight::setLightType(LightType lightType) {
 	default:
 		break;
 	}
+    resetLights();
 }
 
 LightType ofxPBRLight::getLightType() {
@@ -141,11 +140,11 @@ float ofxPBRLight::getIntensity() {
 }
 
 // spotlight & pointlight
-void ofxPBRLight::setRadius(float radius) {
+void ofxPBRLight::setPointLightRadius(float radius) {
 	pointLightParams.radius = radius;
 }
 
-float ofxPBRLight::getRadius() {
+float ofxPBRLight::getPointLightRadius() {
 	return pointLightParams.radius;
 }
 
@@ -264,12 +263,13 @@ void ofxPBRLight::beginLighting(ofShader * shader) {
 		break;
 
 	case LightType_Point:
-		shader->setUniform1f("lights[" + lightIndex + "].pointLightRadius", getRadius());
+		shader->setUniform1f("lights[" + lightIndex + "].pointLightRadius", getPointLightRadius());
 		break;
 
 	case LightType_Spot:
 		shader->setUniform1f("lights[" + lightIndex + "].spotLightFactor", getSpotLightFactor());
 		shader->setUniform1f("lights[" + lightIndex + "].spotLightCutoff", getSpotLightCutoff());
+        shader->setUniform1f("lights[" + lightIndex + "].spotLightDistance", getSpotLightDistance());
 		break;
 
 	default:

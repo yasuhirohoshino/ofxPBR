@@ -186,12 +186,13 @@ void ofxPBR::addLight(ofxPBRLight * light) {
 	}
 	lights.push_back(light);
 	light->setDepthMapRes(getDepthMapResolution());
-	setNumLights(lights.size());
+    light->setLightFunction(bind(&ofxPBR::setLights, this));
+	setLights();
 }
 
 void ofxPBR::removeLight(int index) {
 	lights.erase(lights.begin() + index);
-	setNumLights(lights.size());
+	setLights();
 }
 
 void ofxPBR::setEnvShader(ofShader* shader){
@@ -317,7 +318,7 @@ void ofxPBR::endDepthCubeMap()
 	PBRShader->end();
 }
 
-void ofxPBR::setNumLights(int numLights) {
+void ofxPBR::setLights() {
 	for (int i = 0; i < lights.size(); i++) {
 		lights[i]->setId(i);
 	}
