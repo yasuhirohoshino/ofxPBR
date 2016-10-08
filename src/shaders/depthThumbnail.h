@@ -36,7 +36,7 @@ public:
                                    out vec4 fragColor;
                                    
                                    void main() {
-                                       fragColor = vec4(texture(rawSampler, vec3(texCoordVarying.xy, index)).r, 0, 0, 1);
+                                       fragColor = vec4(texture(rawSampler, vec3(texCoordVarying.x, 1.0 - texCoordVarying.y, index)).r, 0, 0, 1);
                                    });
     }
 };

@@ -314,8 +314,6 @@ public:
                                            deffenable = vec3(0.0);
                                            specular = vec3(0.0);
                                        }
-//                                       deffenable = vec3(1.0);
-//                                       specular = vec3(1.0);
                                    }
                                    
                                    void CalcDirectionalLight(vec3 normal, vec3 color, int index, float roughness, out vec3 deffenable, out vec3 specular) {
@@ -340,7 +338,7 @@ public:
                                                    visiblity -= 1.0 / 9.0;
                                                }
                                                for (int j = 0; j < 8; j++) {
-                                                   vec2 coord = projCoords.xy + poissonDisk[j] * 0.25 * (1.0 / (depthMapRes));
+                                                   vec2 coord = projCoords.xy + poissonDisk[j] * 1 * (1.0 / (depthMapRes));
                                                    if (currentDepth - lights[index].bias * 2 > texture(shadowMap, vec3(coord, shadowIndex)).r) {
                                                        visiblity -= 1.0 / 9.0;
                                                    }

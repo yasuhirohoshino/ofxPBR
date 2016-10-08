@@ -17,6 +17,43 @@ enum ShadowType{
     NumShadowTypes = 3
 };
 
+struct SpotLight{
+    float spotFactor = 1;
+    float cutoff = 45;
+    float distance = 1000;
+};
+
+struct PointLight{
+    float radius = 1000;
+    int index = 0;
+    ofMatrix4x4 viewProjMat[6];
+    ofMatrix4x4 lookAtMat[6];
+    ofMatrix4x4 shadowProjMatrix;
+};
+
+struct SkyLight{
+    float latitude = 0;
+    float longitude = 0;
+    float radius = 0;
+    float exposure = 1.0;
+    float angle = 0;
+};
+
+struct LightParameters{
+    LightType lightType = LightType_Directional;
+    ShadowType shadowType = ShadowType_Hard;
+    
+    ofFloatColor color = ofFloatColor(1.0,1.0,1.0,1.0);
+    float intensity = 1.0;
+    float depthMapRes = 1024;
+    float shadowBias = 0.001;
+    ofMatrix4x4 shadowTransMatrix;
+    
+    SpotLight spotLight;
+    PointLight pointLight;
+    SkyLight skyLight;
+};
+
 class ofxPBRLight : public ofCamera{
 public:
     ofxPBRLight();
@@ -90,18 +127,8 @@ public:
 	int getId();
     
 private:
-	//void begin() { this->::ofCamera::begin(); };
-	//void end() { this->::ofCamera::end(); };
 	void setSkyLightPos();
 	ofMatrix4x4 getOrthoMatrix();
-    
-    struct parameters{
-        ofFloatColor color = ofFloatColor(1.0,1.0,1.0,1.0);
-        float intensity = 1.0;
-        float depthMapRes = 1024;
-        float shadowBias = 0.001;
-        ofMatrix4x4 shadowTransMatrix;
-    };
     
     struct SpotLightParams{
         float spotFactor = 1;
