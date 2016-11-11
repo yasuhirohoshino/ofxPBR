@@ -39,7 +39,7 @@ struct SkyLight{
     float angle = 0;
 };
 
-struct LightParameters{
+struct ofxPBRLightParams{
     LightType lightType = LightType_Directional;
     ShadowType shadowType = ShadowType_Hard;
     
@@ -127,12 +127,15 @@ public:
 
 	void setId(int id);
 	int getId();
+
+	void setParameters(ofxPBRLightParams params);
+	ofxPBRLightParams getParameters();
     
 private:
 	void setSkyLightPos();
 	ofMatrix4x4 getOrthoMatrix();
 
-	LightParameters lightParams;
+	ofxPBRLightParams lightParams;
 
 	ofMatrix4x4 shadowTransMatrix;
     const ofMatrix4x4 biasMatrix = ofMatrix4x4(

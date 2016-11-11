@@ -26,7 +26,6 @@ bool ofxPBRLight::isEnabled() {
 }
 
 // depth camera
-
 void ofxPBRLight::setDepthMapRes(float resolution) {
 	lightParams.depthMapRes = resolution;
 }
@@ -333,4 +332,18 @@ void ofxPBRLight::setId(int lightId)
 int ofxPBRLight::getId()
 {
 	return lightParams.lightId;
+}
+
+ofxPBRLightParams ofxPBRLight::getParameters()
+{
+	return lightParams;
+}
+
+void ofxPBRLight::setParameters(ofxPBRLightParams params)
+{
+	lightParams = params;
+	setLightType(lightParams.lightType);
+	if (lightParams.lightType == LightType_Sky) {
+		setSkyLightPos();
+	}
 }
