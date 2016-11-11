@@ -469,7 +469,7 @@ public:
                                        // assume N, the interpolated vertex normal and 
                                        // V, the view vector (vertex to eye)
                                        vec3 map = normalMap * 255. / 127. - 128. / 127.;
-                                       mat3 TBN = CotangentFrame(N, -V, texcoord);
+                                       mat3 TBN = CotangentFrame(N, V, texcoord);
                                        return normalize(TBN * map);
                                    }
                                    

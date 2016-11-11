@@ -43,11 +43,14 @@ struct LightParameters{
     LightType lightType = LightType_Directional;
     ShadowType shadowType = ShadowType_Hard;
     
+	bool enable = true;
+	int lightId = 0;
     ofFloatColor color = ofFloatColor(1.0,1.0,1.0,1.0);
     float intensity = 1.0;
+	int shadowIndex = 0;
     float depthMapRes = 1024;
     float shadowBias = 0.001;
-    ofMatrix4x4 shadowTransMatrix;
+	float strength = 1.0;
     
     SpotLight spotLight;
     PointLight pointLight;
@@ -66,7 +69,6 @@ public:
     bool isEnabled();
     
     // depth camera
-    void lookAt(ofVec3f target);
     void setDepthMapRes(float resolution);
     
     // for rendering shader
@@ -129,56 +131,8 @@ public:
 private:
 	void setSkyLightPos();
 	ofMatrix4x4 getOrthoMatrix();
-    
-    struct SpotLightParams{
-        float spotFactor = 1;
-        float cutoff = 45;
-        float distance = 1000;
-    };
-    
-    struct PointLightParams{
-        float radius = 1000;
-    };
-    
-    struct SkyLightParams{
-        float latitude = 0;
-        float longitude = 0;
-        float radius = 0;
-        float exposure = 1.0;
-        float angle = 0;
-    };
 
-	struct OmniShadowParams {
-		int omniShadowIndex = 0;
-		ofMatrix4x4 viewProjMat[6];
-		ofMatrix4x4 lookAtMat[6];
-		ofMatrix4x4 shadowProjMatrix;
-	};
-
-	SpotLightParams spotLightParams;
-	PointLightParams pointLightParams;
-	SkyLightParams skyLightParams;
-	OmniShadowParams omniShadowParams;
-
-	// common
-	bool isLightEnabled = true;
-	string lightIndex;
-	int lightId;
-	LightType lightType = LightType_Directional;
-
-	// color
-    ofFloatColor color = ofFloatColor(1.0,1.0,1.0,1.0);
-	float intensity = 1.0;
-
-	// target
-	ofVec3f target = ofVec3f::zero();
-
-	// shadow
-	ShadowType shadowType = ShadowType_Hard;
-	int shadowIndex;
-    float depthMapRes = 1024;
-    float shadowBias = 0.0005;
-	float strength = 1.0;
+	LightParameters lightParams;
 
 	ofMatrix4x4 shadowTransMatrix;
     const ofMatrix4x4 biasMatrix = ofMatrix4x4(

@@ -33,13 +33,13 @@ void ofApp::setup(){
     light.setFarClip(5000);
     pbr.addLight(&light);
     
-//    light2.setLightType(LightType_Directional);
-//    light2.setPosition(1500, 1000, 1500);
-//    light2.lookAt(ofVec3f(0));
-//    light2.setScale(1.5);
-//    light2.setColor(ofFloatColor(1.0));
-//    light2.setShadowType(ShadowType_Hard);
-//    pbr.addLight(&light2);
+    light2.setLightType(LightType_Directional);
+    light2.setPosition(1500, 1000, 1500);
+    light2.lookAt(ofVec3f(0));
+    light2.setScale(1.5);
+    light2.setColor(ofFloatColor(1.0));
+    light2.setShadowType(ShadowType_Hard);
+    pbr.addLight(&light2);
 
 //	float offset = -PI / 2;
 //	int numLights = 2;
