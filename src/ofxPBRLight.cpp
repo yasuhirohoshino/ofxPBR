@@ -200,12 +200,12 @@ int ofxPBRLight::getShadowIndex()
 
 void ofxPBRLight::setShadowStrength(float strength)
 {
-	this->lightParams.strength = strength;
+	this->lightParams.shadowStrength = strength;
 }
 
 float ofxPBRLight::getShadowStrength()
 {
-	return lightParams.strength;
+	return lightParams.shadowStrength;
 }
 
 void ofxPBRLight::setOmniShadowIndex(int index)
@@ -279,11 +279,11 @@ void ofxPBRLight::endLighting(ofShader * shader) {
 }
 
 // Sky light settings
-void ofxPBRLight::setSkyLightCoordinate(float longitude, float latitude, float radius)
+void ofxPBRLight::setSkyLightCoordinate(float longitude, float latitude, float distance)
 {
-	lightParams.skyLight.latitude = latitude;
 	lightParams.skyLight.longitude = longitude;
-	lightParams.skyLight.radius = radius;
+	lightParams.skyLight.latitude = latitude;
+	lightParams.skyLight.distance = distance;
 	setSkyLightPos();
 }
 
@@ -299,7 +299,7 @@ void ofxPBRLight::setSkyLightPos()
 	pos.x = sin(lightParams.skyLight.latitude) * cos(lightParams.skyLight.longitude + lightParams.skyLight.angle);
 	pos.z = sin(lightParams.skyLight.latitude) * sin(lightParams.skyLight.longitude + lightParams.skyLight.angle);
 	pos.y = cos(lightParams.skyLight.latitude);
-	pos *= lightParams.skyLight.radius;
+	pos *= lightParams.skyLight.distance;
 	setPosition(pos);
 	this->lookAt(ofVec3f::zero());
 }
@@ -307,6 +307,12 @@ void ofxPBRLight::setSkyLightPos()
 void ofxPBRLight::setSkyLighExposure(float exposure)
 {
 	lightParams.skyLight.exposure = exposure;
+}
+
+void ofxPBRLight::setSkyLightDistance(float distance)
+{
+	lightParams.skyLight.distance = distance;
+	setSkyLightPos();
 }
 
 float ofxPBRLight::getSkyLightLatitude()
@@ -319,9 +325,9 @@ float ofxPBRLight::getSkyLightLongitude()
 	return lightParams.skyLight.longitude;
 }
 
-float ofxPBRLight::getSkyLightRadius()
+float ofxPBRLight::getSkyLightDistance()
 {
-	return lightParams.skyLight.radius;
+	return lightParams.skyLight.distance;
 }
 
 void ofxPBRLight::setId(int lightId)

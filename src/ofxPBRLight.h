@@ -34,7 +34,7 @@ struct PointLight{
 struct SkyLight{
     float latitude = 0;
     float longitude = 0;
-    float radius = 0;
+    float distance = 2000;
     float exposure = 1.0;
     float angle = 0;
 };
@@ -50,7 +50,7 @@ struct ofxPBRLightParams{
 	int shadowIndex = 0;
     float depthMapRes = 1024;
     float shadowBias = 0.001;
-	float strength = 1.0;
+	float shadowStrength = 1.0;
     
     SpotLight spotLight;
     PointLight pointLight;
@@ -102,12 +102,13 @@ public:
     float getSpotLightFactor();
 
 	// skyLight
-	void setSkyLightCoordinate(float longitude, float latitude, float radius);
+	void setSkyLightCoordinate(float longitude, float latitude, float distance);
 	void setSkyLightRotation(float angle);
 	void setSkyLighExposure(float exposure);
+	void setSkyLightDistance(float distance);
 	float getSkyLightLatitude();
 	float getSkyLightLongitude();
-	float getSkyLightRadius();
+	float getSkyLightDistance();
     
     // shadow
     void setShadowType(ShadowType shadowType);
