@@ -25,7 +25,7 @@ struct ofxPBRLightData{
 
 	// shadow
 	ShadowType shadowType = ShadowType_Hard;
-	float shadowBias = 0.001;
+	float shadowBias = 0.005;
 	float shadowStrength = 1.0;
 
 	// pointLight
@@ -75,6 +75,7 @@ public:
 	void setShadowIndex(int index);
 	void setOmniShadowIndex(int index);
 	void setCascadeShadowIndex(int index);
+	void setDirectionalShadowIndex(int index);
 
 	// paremeters
 	void setParameters(ofxPBRLightData params);
@@ -102,6 +103,7 @@ public:
 	int getShadowIndex() { return shadowIndex; }
 	int getOmniShadowIndex() { return pointLightIndex; }
 	int getCascadeShadowIndex() { return cascadeShadowIndex; }
+	int getDirectionalShadowIndex() { return directionalShadowIndex; }
 
 	ofxPBRLightData getParameters() { return lightData; }
 
@@ -116,4 +118,5 @@ private:
 	int shadowIndex = 0;
 	int pointLightIndex = 0;
 	int cascadeShadowIndex = 0;
+	int directionalShadowIndex = 0;
 };

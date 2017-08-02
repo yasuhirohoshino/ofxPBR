@@ -2,9 +2,10 @@
 #include "ofMain.h"
 #include "ofxPBRCubeMap.h"
 #include "ofxPBRLight.h"
-#include "ofxPBRShadow.h"
+#include "ofxPBRSpotShadow.h"
 #include "ofxPBROmniShadow.h"
 #include "ofxPBRCascadeShadow.h"
+#include "ofxPBRDirectionalShadow.h"
 #include "ofxPBRMaterial.h"
 #include "shaders/environment.h"
 #include "shaders/pbr.h"
@@ -15,7 +16,8 @@ enum RenderMode {
 	Mode_SpotShadow = 1,
 	Mode_OmniShadow = 2,
 	Mode_CascadeShadow = 3,
-	num_Mode = 4
+	Mode_DirectionalShadow = 4,
+	num_Mode = 5
 };
 
 class ofxPBR{
@@ -48,7 +50,10 @@ public:
 	void setMaxShadow(int maxShadow);
 	void setMaxOmniShadow(int maxOmniShadow);
 	void setMaxCascadeShadow(int maxCascadeShadow);
+	void setMaxDirectionalShadow(int maxDirectionalShadow);
 	void resizeDepthMap(int resolution);
+	void setDirectionalShadowBB(float x, float y, float z, float width, float height, float depth);
+	void setUsingCameraFrustom(bool usingCameraFrustom);
 
 	// light
 	void addLight(ofxPBRLight* light);
@@ -58,12 +63,13 @@ public:
 	RenderMode getRenderMode() { return renderMode; }
 	bool isCubeMapEnabled() { return enableCubemap; }
 
-	int getMaxShadow() { return shadow.getMaxShadow(); }
+	int getMaxShadow() { return spotShadow.getMaxShadow(); }
 	int getMaxOmniShadow() { return omniShadow.getMaxShadow(); }
 	int getMaxCascadeShadow() { return 0; }
 	int getNumCascade() { return numCascade; }
+	int getMaxDirectionalShadow() { return directionalShadow.getMaxShadow(); }
 
-	int getDepthMapResolution() { return shadow.getDepthMapResolution(); }
+	int getDepthMapResolution() { return spotShadow.getDepthMapResolution(); }
 	ofTexture* getDepthMap(int index);
 
 	ofShader* getShader() { return PBRShader; }
@@ -76,12 +82,10 @@ private:
     void beginPBR();
     void endPBR();
     
-    void beginDepthMap();
-    void endDepthMap();
+    void beginSpotDepthMap();
 	void beginDepthCubeMap();
-	void endDepthCubeMap();
 	void beginCascadeDepthMap();
-	void endCascadeDepthMap();
+	void beginDirectionalDepthMap();
 
     ofMesh sphereMesh;
 	bool enableDrawEnvironment = false;
@@ -105,15 +109,18 @@ private:
     Environment environmentShaderSource;
     
 	// shadow
-	ofxPBRShadow shadow;
+	ofxPBRSpotShadow spotShadow;
 	ofxPBROmniShadow omniShadow;
 	ofxPBRCascadeShadow cascadeShadow;
-    int shadowIndex = 0;
+	ofxPBRDirectionalShadow directionalShadow;
+
+    int spotShadowIndex = 0;
 	int omniShadowIndex = 0;
 	int omniShadowFace = 0;
+	int directionalShadowIndex = 0;
+
 	int cascadeShadowIndex = 0;
 	int currentCascade = 0;
-
 	vector<float> cascadeDistances;
 	int numCascade = 3;
     

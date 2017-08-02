@@ -16,7 +16,7 @@ public:
 	ofMatrix4x4 getViewProjMatrix(int index) { return viewProjMatrix[index]; }
 	vector<ofMatrix4x4> getShadowMatrix() { return shadowMatrix; }
 
-private:
+protected:
 	void initFbo();
 
 	int depthMapRes;

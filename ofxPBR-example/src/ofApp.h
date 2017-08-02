@@ -29,7 +29,6 @@ class ofApp : public ofBaseApp{
     ofxPBRCubeMap cubeMap;
     ofxPBRMaterial material;
     ofxPBRLight light, light2;
-	ofxPBRLight lights[8];
     ofxPBR pbr;
     
     ofShader renderShader;
@@ -37,22 +36,6 @@ class ofApp : public ofBaseApp{
     
     ofShader render;
     ofShader render2;
-
-    GLuint depthMap, depthMapFbo;
-    ofMatrix4x4 shadowProjMatrix;
-    int shadowMapRes = 1024;
-    
-    int numShadows;
-    vector<ofCamera> camera;
-    vector<ofVec3f> lightPos;
-    vector<ofMatrix4x4> viewMat;
-    vector<ofMatrix4x4> shadowMatrix;
-    const ofMatrix4x4 biasMatrix = ofMatrix4x4(
-                                               0.5, 0.0, 0.0, 0.0,
-                                               0.0, 0.5, 0.0, 0.0,
-                                               0.0, 0.0, 0.5, 0.0,
-                                               0.5, 0.5, 0.5, 1.0
-                                               );
 
 	float prevTime = 0;
 };

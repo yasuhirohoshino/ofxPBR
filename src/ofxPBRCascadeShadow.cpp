@@ -132,7 +132,7 @@ void ofxPBRCascadeShadow::updateLightMatrix(int index, ofCamera * light)
 		cascadeShadowData[index][i].depthCamera.setFarClip(farClip + 100);
 		cascadeShadowData[index][i].depthCamera.setScale(sx * 1.1, sy * 1.1, 1);
 
-		cascadeShadowData[index][i].shadowMatrix = cameraInverseViewMmatrix * cascadeShadowData[index][i].depthCamera.getModelViewProjectionMatrix(ofRectangle(0, 0, depthMapRes, depthMapRes)) * biasMatrix;
+		cascadeShadowData[index][i].shadowMatrix = cascadeShadowData[index][i].depthCamera.getModelViewProjectionMatrix(ofRectangle(0, 0, depthMapRes, depthMapRes)) * biasMatrix;
 		shadowMatrix[index * numCascade + i] = cascadeShadowData[index][i].shadowMatrix;
 	}
 }

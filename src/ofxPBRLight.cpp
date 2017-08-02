@@ -147,6 +147,11 @@ void ofxPBRLight::setCascadeShadowIndex(int index)
 	cascadeShadowIndex = index;
 }
 
+void ofxPBRLight::setDirectionalShadowIndex(int index)
+{
+	directionalShadowIndex = index;
+}
+
 // light paremeters
 
 void ofxPBRLight::setParameters(ofxPBRLightData params)

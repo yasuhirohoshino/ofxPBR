@@ -7,7 +7,7 @@ void ofApp::setup(){
 
     ofDisableArbTex();
     
-    cam.setupPerspective(false, 60, 1, 5000);
+    cam.setupPerspective(false, 60, 1, 3000);
 
 	scene = bind(&ofApp::renderScene, this);
 
@@ -20,12 +20,14 @@ void ofApp::setup(){
     
 	light.setup();
 	//light.setEnable(true);
- //   light.setLightType(LightType_Directional);
+    //light.setLightType(LightType_Spot);
+	//light.setSpotLightDistance(5000);
+	//light.setSpotLightCutoff(15);
  //   light.setPosition(-500, 1000, 500);
  //   light.lookAt(ofVec3f(0));
 	//light.setScale(1.0);
 	//light.setColor(ofFloatColor(1.0));
-	//light.setShadowType(ShadowType_Hard);
+	light.setShadowType(ShadowType_Soft);
 //	//light.setSpotLightDistance(5000);
 //	//light.setSpotLightCutoff(45);
 //	//light.setSpotLightFactor(5.0);
@@ -35,24 +37,24 @@ void ofApp::setup(){
 	pbr.addLight(&light);
 
 	//light2.setup();
-    //light2.setLightType(LightType_Directional);
-    //light2.setPosition(1500, 1000, 1500);
-    //light2.lookAt(ofVec3f(0));
-    //light2.setScale(1.5);
-    //light2.setColor(ofFloatColor(1.0));
-    //light2.setShadowType(ShadowType_Hard);
-    //pbr.addLight(&light2);
+ //   light2.setLightType(LightType_Directional);
+ //   //light2.setPosition(1500, 1000, 1500);
+ //   //light2.lookAt(ofVec3f(0));
+ //   //light2.setScale(1.5);
+ //   //light2.setColor(ofFloatColor(1.0));
+ //   light2.setShadowType(ShadowType_Soft);
+ //   pbr.addLight(&light2);
     
     cubeMap.setEnvLevel(0.3);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	light.setPosition(-1000 * sin(ofGetElapsedTimef()), 1000, 1000 * cos(ofGetElapsedTimef()));
+	light.setPosition(sin(ofGetElapsedTimef()), 1, cos(ofGetElapsedTimef()));
 	light.lookAt(ofVec3f(0));
 
-	light2.setPosition(1000 * sin(ofGetElapsedTimef()), 500, -1000 * cos(ofGetElapsedTimef()));
-	light2.lookAt(ofVec3f(0));
+	//light2.setPosition(-sin(ofGetElapsedTimef()), 1, -cos(ofGetElapsedTimef()));
+	//light2.lookAt(ofVec3f(0));
 }
 
 //--------------------------------------------------------------
@@ -75,30 +77,29 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::renderScene(){
 	ofEnableDepthTest();
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
     pbr.beginCustomRenderer(&render);
     {
         material.roughness = 0.25;
         material.metallic = 0.0;
         material.begin(&pbr);
-		//glCullFace(GL_BACK);
+		glCullFace(GL_BACK);
         ofDrawBox(0, -40, 0, 2000, 10, 2000);
         material.end();
         
-		//glCullFace(GL_FRONT);
+		glCullFace(GL_FRONT);
         for(int i=0;i<10;i++){
             material.roughness = float(i) / 9.0;
             for(int j=0;j<10;j++){
                 material.metallic = float(j) / 9.0;
                 material.begin(&pbr);
                 ofDrawSphere(i * 100 - 450, 0, j * 100 - 450, 35);
-//                ofDrawBox(i * 100 - 450, 0, j * 100 - 450, 35, 100, 35);
                 material.end();
             }
         }
 	}
 	pbr.endCustomRenderer();
-	//glDisable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 	ofDisableDepthTest();
 }
 
@@ -109,7 +110,7 @@ void ofApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-
+	render.load("ofxPBRShaders/default2.vert", "ofxPBRShaders/default2.frag");
 }
 
 //--------------------------------------------------------------
