@@ -7,106 +7,85 @@ void ofApp::setup(){
 
     ofDisableArbTex();
     
-    cam.setupPerspective(false, 60, 1, 12000);
-	cam.setNearClip(0.0);
-	cam.setFarClip(10000);
+    cam.setupPerspective(false, 60, 1, 5000);
 
 	scene = bind(&ofApp::renderScene, this);
 
     cubeMap.load("Barce_Rooftop_C_3k.jpg", 1024, true, "filteredMapCache");
-    pbr.setup(&cam, scene, 2048);
+    pbr.setup(scene, &cam, 2048);
     pbr.setCubeMap(&cubeMap);
+	pbr.setDrawEnvironment(true);
     
     render.load("ofxPBRShaders/default2.vert", "ofxPBRShaders/default2.frag");
     
-    light.setLightType(LightType_Spot);
-    light.setPosition(-1500, 1000, 1500);
-    light.lookAt(ofVec3f(0));
-    light.setScale(1.0);
-    light.setColor(ofFloatColor(1.0));
-    light.setShadowType(ShadowType_Soft);
-    light.setSpotLightDistance(5000);
-    light.setSpotLightCutoff(45);
-    light.setSpotLightFactor(5.0);
-//    light.setPointLightRadius(5000);
-    light.setNearClip(100.0);
-    light.setFarClip(5000);
-    pbr.addLight(&light);
-    
-    light2.setLightType(LightType_Directional);
-    light2.setPosition(1500, 1000, 1500);
-    light2.lookAt(ofVec3f(0));
-    light2.setScale(1.5);
-    light2.setColor(ofFloatColor(1.0));
-    light2.setShadowType(ShadowType_Hard);
-    pbr.addLight(&light2);
+	light.setup();
+	//light.setEnable(true);
+ //   light.setLightType(LightType_Directional);
+ //   light.setPosition(-500, 1000, 500);
+ //   light.lookAt(ofVec3f(0));
+	//light.setScale(1.0);
+	//light.setColor(ofFloatColor(1.0));
+	//light.setShadowType(ShadowType_Hard);
+//	//light.setSpotLightDistance(5000);
+//	//light.setSpotLightCutoff(45);
+//	//light.setSpotLightFactor(5.0);
+////    light.setPointLightRadius(5000);
+//    light.setNearClip(1.0);
+//    light.setFarClip(5000);
+	pbr.addLight(&light);
 
-//	float offset = -PI / 2;
-//	int numLights = 2;
-//
-//	lights[0].setLightType(LightType_Point);
-//	lights[0].setPosition(-500 * sin(2 * PI * (offset + float(0) / numLights)), 100, 500 * cos(2 * PI * (offset + float(0) / numLights)));
-//	lights[0].lookAt(ofVec3f(0));
-//	lights[0].setScale(1.5);
-//	lights[0].setColor(ofFloatColor(1, 1, 1, 1.0));
-//	lights[0].setShadowType(ShadowType_Hard);
-//	lights[0].setRadius(5000);
-//	lights[0].setFarClip(5000);
-//	pbr.addLight(&lights[0]);
-
-//	for (int i = 0; i < numLights; i++) {
-//		lights[i].setLightType(LightType_Point);
-//		lights[i].setPosition(-250 * sin(2 * PI * (offset + float(i) / numLights)), 100, 250 * cos(2 * PI * (offset + float(i) / numLights)));
-//		lights[i].lookAt(ofVec3f(0));
-//		lights[i].setScale(1.5);
-//		lights[i].setColor(ofFloatColor(1, 1, 1, 1.0));
-//		lights[i].setShadowType(ShadowType_Hard);
-//		lights[i].setRadius(5000);
-//		lights[i].setFarClip(5000);
-//		pbr.addLight(&lights[i]);
-//	}
+	//light2.setup();
+    //light2.setLightType(LightType_Directional);
+    //light2.setPosition(1500, 1000, 1500);
+    //light2.lookAt(ofVec3f(0));
+    //light2.setScale(1.5);
+    //light2.setColor(ofFloatColor(1.0));
+    //light2.setShadowType(ShadowType_Hard);
+    //pbr.addLight(&light2);
     
     cubeMap.setEnvLevel(0.3);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    light.setPosition(-1000 * sin(ofGetElapsedTimef()), 1500, 1000 * cos(ofGetElapsedTimef()));
-    light.lookAt(ofVec3f(0));
+	light.setPosition(-1000 * sin(ofGetElapsedTimef()), 1000, 1000 * cos(ofGetElapsedTimef()));
+	light.lookAt(ofVec3f(0));
+
+	light2.setPosition(1000 * sin(ofGetElapsedTimef()), 500, -1000 * cos(ofGetElapsedTimef()));
+	light2.lookAt(ofVec3f(0));
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
 	prevTime = ofGetElapsedTimef();
 
-	ofEnableDepthTest();
-
 	pbr.updateDepthMaps();
+
 	cam.begin();
-	pbr.drawEnvironment();
-	scene();
+	pbr.renderScene();
 	cam.end();
 
-	ofDisableDepthTest();
+	pbr.getDepthMap(0)->draw(0, 0, 256, 256);
 
     ofSetWindowTitle(ofToString(ofGetFrameRate()));
-	prevTime = ofGetElapsedTimef() - prevTime;
-	ofDrawBitmapString(ofToString(prevTime), 20, 20);
+	float t = ofGetElapsedTimef() - prevTime;
+	ofDrawBitmapString(ofToString(t), 20, 20);
 }
 
 //--------------------------------------------------------------
 void ofApp::renderScene(){
-	glEnable(GL_CULL_FACE);
-    pbr.begin();
+	ofEnableDepthTest();
+	//glEnable(GL_CULL_FACE);
+    pbr.beginCustomRenderer(&render);
     {
         material.roughness = 0.25;
         material.metallic = 0.0;
         material.begin(&pbr);
-		glCullFace(GL_BACK);
+		//glCullFace(GL_BACK);
         ofDrawBox(0, -40, 0, 2000, 10, 2000);
         material.end();
         
-		glCullFace(GL_FRONT);
+		//glCullFace(GL_FRONT);
         for(int i=0;i<10;i++){
             material.roughness = float(i) / 9.0;
             for(int j=0;j<10;j++){
@@ -117,9 +96,10 @@ void ofApp::renderScene(){
                 material.end();
             }
         }
-    }
-    pbr.end();
-	glDisable(GL_CULL_FACE);
+	}
+	pbr.endCustomRenderer();
+	//glDisable(GL_CULL_FACE);
+	ofDisableDepthTest();
 }
 
 //--------------------------------------------------------------

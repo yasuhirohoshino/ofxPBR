@@ -4,21 +4,27 @@
 class ofxPBROmniShadow
 {
 public:
-	void setup(int resolution);
+	void setup(int maxShadow, int resolution);
 	void resizeDepthMap(int resolution);
-	void setNumLights(int numLights);
+	void setMaxShadow(int maxShadow);
+	void updateMatrix(int index, ofCamera * lightCam);
 	void beginDepthMap(int index, int face);
 	void endDepthMap();
-	int getDepthMapResolution();
-
 	void bind(GLuint location);
 	void unbind();
 
+	int getMaxShadow() { return maxShadow; }
+	int getDepthMapResolution() { return depthMapRes; }
+	ofMatrix4x4 getViewProjMatrix(int index, int face) { return pointLightViewProjMat[face][index]; }
+
 private:
-	void setOmniShadowMap(int numOmniShadowMaps);
+	void initFbo();
+
 	int depthMapRes = 1024;
-	int numOmniShadowMaps = 0;
+	int maxShadow = 0;
     GLuint location;
     GLuint texIndex;
     GLuint fbo;
+
+	vector<ofMatrix4x4> pointLightViewProjMat[6];
 };

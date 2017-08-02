@@ -1,20 +1,45 @@
 #include "ofxPBROmniShadow.h"
 
-void ofxPBROmniShadow::setup(int resolution)
+void ofxPBROmniShadow::setup(int maxShadow, int resolution)
 {
-	depthMapRes = resolution;
+	this->maxShadow = maxShadow;
+	this->depthMapRes = resolution;
+	for (int i = 0; i < 6; i++) {
+		pointLightViewProjMat[i].assign(maxShadow, ofMatrix4x4());
+	}
+	initFbo();
 }
 
 void ofxPBROmniShadow::resizeDepthMap(int resolution)
 {
-	depthMapRes = resolution;
-	setOmniShadowMap(numOmniShadowMaps);
+	this->depthMapRes = resolution;
+	initFbo();
 }
 
-void ofxPBROmniShadow::setNumLights(int numLights)
+void ofxPBROmniShadow::setMaxShadow(int maxShadow)
 {
-	numOmniShadowMaps = numLights;
-	setOmniShadowMap(numLights);
+	this->maxShadow = maxShadow;
+	pointLightViewProjMat->resize(maxShadow);
+	initFbo();
+}
+
+void ofxPBROmniShadow::updateMatrix(int index, ofCamera * lightCam)
+{
+	ofMatrix4x4 shadowProjMatrix;
+	shadowProjMatrix.makePerspectiveMatrix(90.0, 1.0, 1.0, lightCam->getFarClip());
+
+	ofMatrix4x4 pointLightLookAtMat[6];
+	pointLightLookAtMat[0].makeLookAtViewMatrix(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + ofVec3f(1, 0, 0), ofVec3f(0, -1, 0));
+	pointLightLookAtMat[1].makeLookAtViewMatrix(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + ofVec3f(-1, 0, 0), ofVec3f(0, -1, 0));
+	pointLightLookAtMat[2].makeLookAtViewMatrix(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + ofVec3f(0, 1, 0), ofVec3f(0, 0, 1));
+	pointLightLookAtMat[3].makeLookAtViewMatrix(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + ofVec3f(0, -1, 0), ofVec3f(0, 0, -1));
+	pointLightLookAtMat[4].makeLookAtViewMatrix(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + ofVec3f(0, 0, 1), ofVec3f(0, -1, 0));
+	pointLightLookAtMat[5].makeLookAtViewMatrix(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + ofVec3f(0, 0, -1), ofVec3f(0, -1, 0));
+
+	// make view projection matricies
+	for (int i = 0; i < 6; i++) {
+		pointLightViewProjMat[i][index] = pointLightLookAtMat[i] * shadowProjMatrix;
+	}
 }
 
 void ofxPBROmniShadow::beginDepthMap(int index, int face)
@@ -29,11 +54,6 @@ void ofxPBROmniShadow::beginDepthMap(int index, int face)
 void ofxPBROmniShadow::endDepthMap()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-int ofxPBROmniShadow::getDepthMapResolution()
-{
-	return depthMapRes;
 }
 
 void ofxPBROmniShadow::bind(GLuint location)
@@ -52,7 +72,7 @@ void ofxPBROmniShadow::unbind()
 	glActiveTexture(GL_TEXTURE0);
 }
 
-void ofxPBROmniShadow::setOmniShadowMap(int numOmniShadowMaps)
+void ofxPBROmniShadow::initFbo()
 {
     // generate cubemap fbo
     glGenFramebuffers(1, &fbo);
@@ -64,7 +84,7 @@ void ofxPBROmniShadow::setOmniShadowMap(int numOmniShadowMaps)
     glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_DEPTH_COMPONENT32F, depthMapRes, depthMapRes, (numOmniShadowMaps + 1) * 6, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_DEPTH_COMPONENT32F, depthMapRes, depthMapRes, maxShadow * 6, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);

@@ -201,12 +201,12 @@ void ofxPBRCubeMap::generate(){
     
     ofPushStyle();
     ofVec3f target[6];
-    target[0] = ofVec3f(90,0,0); // posx
-    target[1] = ofVec3f(-90,0,0); //negx
-    target[2] = ofVec3f(0,90,180); //posy
-    target[3] = ofVec3f(0,-90,180); //negy
-    target[4] = ofVec3f(-180,0,0); //posz
-    target[5] = ofVec3f(0,0,0); //negz
+    target[0] = ofVec3f(90,0,0); // pos x
+    target[1] = ofVec3f(-90,0,0); //neg x
+    target[2] = ofVec3f(0,90,180); //pos y
+    target[3] = ofVec3f(0,-90,180); //neg y
+    target[4] = ofVec3f(-180,0,0); //pos z
+    target[5] = ofVec3f(0,0,0); //neg z
     
     ofEnableDepthTest();
     ofDisableArbTex();

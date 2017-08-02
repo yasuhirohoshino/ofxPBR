@@ -144,6 +144,8 @@ Desktop.ini
 *.vcxproj.user
 *.exp
 *.VC.VC.opendb
+*.dll
+*.lib
 icon.rc
 
 #########################

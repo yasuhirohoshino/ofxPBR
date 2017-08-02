@@ -4,81 +4,123 @@
 #include "ofxPBRLight.h"
 #include "ofxPBRShadow.h"
 #include "ofxPBROmniShadow.h"
+#include "ofxPBRCascadeShadow.h"
 #include "ofxPBRMaterial.h"
 #include "shaders/environment.h"
 #include "shaders/pbr.h"
 #include "shaders/depthThumbnail.h"
 
+enum RenderMode {
+	Mode_PBR = 0,
+	Mode_SpotShadow = 1,
+	Mode_OmniShadow = 2,
+	Mode_CascadeShadow = 3,
+	num_Mode = 4
+};
+
 class ofxPBR{
 public:
     ofxPBR();
     
-	void setup(ofCamera* camera, function<void()> scene, int depthMapResolution);
-    void begin(ofShader * shader = nullptr, ofCamera * camera = nullptr);
-    void end();
-    
-	void setCubeMap(ofxPBRCubeMap * cubeMap);
-	void enableCubeMap(bool enable);
-	bool isCubeMapEnable();
-    void drawEnvironment(ofCamera * camera = nullptr);
-    void resizeDepthMap(int resolution);
-    int getDepthMapResolution();
+	void setup(function<void()> scene, ofCamera* camera, int depthMapResolution = 1024);
 	void updateDepthMaps();
+	void renderScene();
+
+	// renderer
+	void beginDefaultRenderer();
+	void endDefaultRenderer();
+	void beginCustomRenderer(ofShader* shader = nullptr);
+	void endCustomRenderer();
+
+	// camera
+	void setCamera(ofCamera* camera);
+
+	// cube map
+	void setCubeMap(ofxPBRCubeMap* cubeMap);
+	void enableCubeMap(bool enable);
+    
+	// environment
+	void setDrawEnvironment(bool enable);
+	void drawEnvironment();
+	void setEnvShader(ofShader* shader);
+
+	// shadow
+	void setMaxShadow(int maxShadow);
+	void setMaxOmniShadow(int maxOmniShadow);
+	void setMaxCascadeShadow(int maxCascadeShadow);
+	void resizeDepthMap(int resolution);
+
+	// light
 	void addLight(ofxPBRLight* light);
 	void removeLight(int index);
-    void setEnvShader(ofShader* shader);
-    ofShader* getShader();
-    ofTexture* getDepthMap(int index);
     
+	// getter
+	RenderMode getRenderMode() { return renderMode; }
+	bool isCubeMapEnabled() { return enableCubemap; }
+
+	int getMaxShadow() { return shadow.getMaxShadow(); }
+	int getMaxOmniShadow() { return omniShadow.getMaxShadow(); }
+	int getMaxCascadeShadow() { return 0; }
+	int getNumCascade() { return numCascade; }
+
+	int getDepthMapResolution() { return shadow.getDepthMapResolution(); }
+	ofTexture* getDepthMap(int index);
+
+	ofShader* getShader() { return PBRShader; }
+	int getLastTextureIndex() { return 12; }
+
 private:
-	void setLights();
+	void begin();
+	void end();
     
-    void beginPBR(ofCamera * camera);
+    void beginPBR();
     void endPBR();
     
-    void beginDepthMap(int index);
+    void beginDepthMap();
     void endDepthMap();
-
-	void beginDepthCubeMap(int index, int face);
+	void beginDepthCubeMap();
 	void endDepthCubeMap();
+	void beginCascadeDepthMap();
+	void endCascadeDepthMap();
 
-    ofxPBRShadow shadow;
-	ofxPBROmniShadow omniShadow;
-    ofShader* PBRShader;
     ofMesh sphereMesh;
-    ofxPBRCubeMap* cubeMap;
-    vector<ofMatrix4x4> shadowMatrix;
-	
-	enum RenderMode {
-		Mode_PBR = 0,
-		Mode_Shadow = 1,
-		Mode_OmniShadow = 2,
-		num_Mode = 3
-	};
+	bool enableDrawEnvironment = false;
+    
+	ofxPBRCubeMap* cubeMap;
+	bool enableCubemap = false;
+
+	ofCamera * camera;
+
 	RenderMode renderMode;
 
 	vector<ofxPBRLight*> lights;
-	vector<ofxPBRLight*> normalLights;
-	vector<ofxPBRLight*> pointLights;
-	bool enableCubemap;
-    
-    ofShader* envShader;
-    Environment environment;
-    ofShader defaultShader;
-    PBR pbr;
-    
-    int lightIndex = 0;
-	int pointLightIndex = 0;
-	int faceIndex = 0;
+	int currentLightIndex = 0;
 
-	vector<ofMatrix4x4> lightViewProjMatrix;
+	// shaders
+	ofShader* PBRShader;
+    ofShader* envShader;
+	ofShader defaultShader;
+
+	PBR pbrShaderSource;
+    Environment environmentShaderSource;
     
+	// shadow
+	ofxPBRShadow shadow;
+	ofxPBROmniShadow omniShadow;
+	ofxPBRCascadeShadow cascadeShadow;
+    int shadowIndex = 0;
+	int omniShadowIndex = 0;
+	int omniShadowFace = 0;
+	int cascadeShadowIndex = 0;
+	int currentCascade = 0;
+
+	vector<float> cascadeDistances;
+	int numCascade = 3;
+    
+	// depth map thumbnail
     DepthThumbnail depthThumbnail;
     ofFbo depthThumbnailFbo;
     ofShader depthThumbnailShader;
-	ofCamera* camera;
 
 	function<void()> scene;
-    
-    function<void()> setLightFunc;
 };

@@ -4,6 +4,22 @@ const int MAX_LIGHTS = 8;
 const float PI = 3.14159265358979;
 const float TwoPI = 6.28318530718;
 
+const int MODE_PBR = 0;
+const int MODE_SHADOW = 1;
+const int MODE_OMNISHADOW = 2;
+const int MODE_CASCADESHADOW = 3;
+
+const int LIGHTTYPE_DIRECTIONAL = 0;
+const int LIGHTTYPE_SPOT = 1;
+const int LIGHTTYPE_POINT = 2;
+const int LIGHTTYPE_SKY = 3;
+
+const int SHADOWTYPE_NONE = 0;
+const int SHADOWTYPE_HARD = 1;
+const int SHADOWTYPE_SOFT = 2;
+
+uniform int renderMode;
+
 struct Light {
     bool isEnabled;
     vec3 position;
@@ -20,21 +36,10 @@ struct Light {
     int shadowType;
     int shadowIndex;
     int omniShadowIndex;
+	int cascadeShadowIndex;
     float shadowStrength;
     float bias;
 };
-
-// Poisson Disk for Shadow
-vec2 poissonDisk[8] = vec2[](
-                             vec2(0.9265977740287781, 0.36850881576538086),
-                             vec2(0.20805540680885315, 0.2816232442855835),
-                             vec2(0.4912513196468353, 0.8650672435760498),
-                             vec2(-0.3647611141204834, 0.7251957058906555),
-                             vec2(-0.6926340460777283, 0.036871228367090225),
-                             vec2(-0.0503573939204216, -0.4144868552684784),
-                             vec2(-0.5594532489776611, -0.8005858063697815),
-                             vec2(0.6502251625061035, -0.2589254677295685)
-                             );
 
 // in
 in vec4 colorVarying;
@@ -61,12 +66,14 @@ uniform float cameraNear;
 uniform float cameraFar;
 
 // Shadows
-uniform bool renderDepthMap;
-uniform bool renderDepthCubeMap;
-uniform sampler2DArray shadowMap;
+uniform sampler2DArrayShadow shadowMap;
 uniform vec2 depthMapRes;
 uniform mat4 shadowMatrix[MAX_LIGHTS];
 uniform samplerCubeArray omniShadowMap;
+uniform sampler2DArrayShadow cascadeShadowMap;
+uniform int numCascade;
+uniform float cascadeClips[5];
+uniform mat4 cascadeShadowMatrix[MAX_LIGHTS * 4];
 
 // IBL
 uniform samplerCube envMap;
@@ -108,14 +115,21 @@ uniform int enableGlobalColor;
 vec3 mv_normal;
 float gamma = 1.0;
 vec4 v_shadowCoord[MAX_LIGHTS];
+vec4 v_cascadeShadowCoord[MAX_LIGHTS * 4];
 
 void SetParams() {
 	mv_normal = normalize(mv_normalVarying);
 	for (int i = 0; i < MAX_LIGHTS; i++) {
 		if (i <= numLights) {
-			if(lights[i].type != 2){
+			if(lights[i].type == LIGHTTYPE_SPOT){
 				int index = lights[i].shadowIndex;
 				v_shadowCoord[index] = shadowMatrix[index] * mv_positionVarying;
+			} 
+			else if(lights[i].type == LIGHTTYPE_DIRECTIONAL || lights[i].type == LIGHTTYPE_SKY){
+				int index = lights[i].cascadeShadowIndex;
+				for(int j = 0; j < numCascade; j++){
+					v_cascadeShadowCoord[index * numCascade + j] = cascadeShadowMatrix[index * numCascade + j] * mv_positionVarying;
+				}
 			}
 		}
 		else {
@@ -274,21 +288,25 @@ float CalcShadow(int index) {
 		projCoords.z >= 1.0 || projCoords.z <= 0.0) {
 		visiblity = 1.0;
 	}else{
-        if(lights[index].shadowType == 2){
-            if (currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy, shadowIndex)).r) {
-                visiblity -= 1.0 / 9.0;
-            }
-            for (int j = 0; j < 8; j++) {
-                vec2 coord = projCoords.xy + poissonDisk[j] * 2 * (1.0 / (depthMapRes));
-                if (currentDepth - lights[index].bias * 2 > texture(shadowMap, vec3(coord, shadowIndex)).r) {
-                    visiblity -= 1.0 / 9.0;
-                }
-            }
-        }else{
-            if (currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy, shadowIndex)).r) {
-                visiblity -= 1.0;
-            }
-        }
+		if(lights[index].shadowType == SHADOWTYPE_SOFT){
+			float offset = 1.0;
+			visiblity = texture(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias));
+			visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(-offset, -offset));
+			visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(-offset, offset));
+			visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(offset, offset));
+			visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(offset, -offset));
+			if(visiblity < 5.0){
+				visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(0, offset));
+				visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(offset, 0));
+				visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(0, -offset));
+				visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(-offset, 0));
+				visiblity /= 9.0;
+			}else{
+				visiblity /= 5.0;
+			}
+		}else{
+			visiblity = texture(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias));
+		}
 	}
 	visiblity = 1.0 - (1.0 - visiblity) * lights[index].shadowStrength;
 	return visiblity;
@@ -308,28 +326,69 @@ float CalcOmniShadow(int index, vec3 fragPos)
 	return shadow;
 }
 
+float CalcCascadeShadow(int index){
+	float depth = -mv_positionVarying.z;
+	float visiblity = 0.0;
+	int shadowIndex = lights[index].cascadeShadowIndex;
+	for(int i = 0; i < numCascade; i++){
+		if(depth > cascadeClips[i] && depth <= cascadeClips[i + 1]){
+			vec3 projCoords = v_cascadeShadowCoord[shadowIndex * numCascade + i].xyz / v_cascadeShadowCoord[shadowIndex * numCascade + i].w;
+			float currentDepth = projCoords.z;
+
+			if (projCoords.x >= 1.0 || projCoords.x <= 0.0 ||
+				projCoords.y >= 1.0 || projCoords.y <= 0.0 ||
+				projCoords.z >= 1.0 || projCoords.z <= 0.0) {
+				visiblity = 1.0;
+			}
+			else {
+				if(lights[index].shadowType == SHADOWTYPE_SOFT){
+					float offset = 1.0;
+					visiblity = texture(cascadeShadowMap, vec4(projCoords.xy, shadowIndex * numCascade + i, projCoords.z - lights[index].bias));
+					visiblity += textureOffset(cascadeShadowMap, vec4(projCoords.xy, shadowIndex * numCascade + i, projCoords.z - lights[index].bias), ivec2(-offset, -offset));
+					visiblity += textureOffset(cascadeShadowMap, vec4(projCoords.xy, shadowIndex * numCascade + i, projCoords.z - lights[index].bias), ivec2(-offset, offset));
+					visiblity += textureOffset(cascadeShadowMap, vec4(projCoords.xy, shadowIndex * numCascade + i, projCoords.z - lights[index].bias), ivec2(offset, offset));
+					visiblity += textureOffset(cascadeShadowMap, vec4(projCoords.xy, shadowIndex * numCascade + i, projCoords.z - lights[index].bias), ivec2(offset, -offset));
+					if(visiblity < 5.0){
+						visiblity += textureOffset(cascadeShadowMap, vec4(projCoords.xy, shadowIndex * numCascade + i, projCoords.z - lights[index].bias), ivec2(0, offset));
+						visiblity += textureOffset(cascadeShadowMap, vec4(projCoords.xy, shadowIndex * numCascade + i, projCoords.z - lights[index].bias), ivec2(offset, 0));
+						visiblity += textureOffset(cascadeShadowMap, vec4(projCoords.xy, shadowIndex * numCascade + i, projCoords.z - lights[index].bias), ivec2(0, -offset));
+						visiblity += textureOffset(cascadeShadowMap, vec4(projCoords.xy, shadowIndex * numCascade + i, projCoords.z - lights[index].bias), ivec2(-offset, 0));
+						visiblity /= 9.0;
+					}else{
+						visiblity /= 5.0;
+					}
+				}else{
+					visiblity = texture(cascadeShadowMap, vec4(projCoords.xy, shadowIndex * numCascade + i, projCoords.z - lights[index].bias));
+				}
+			}
+		}
+	}
+	visiblity = 1.0 - (1.0 - visiblity) * lights[index].shadowStrength;
+	return visiblity;
+}
+
 void LightWithShadow(vec3 normal, vec3 color, float roughness, int index, out vec3 deffuse, out vec3 specular) {
 	vec3 lightDeffuse = vec3(0.0);
 	vec3 lightSpecular = vec3(0.0);
-	if (lights[index].type == 0 || lights[index].type == 3) {
+	if (lights[index].type == LIGHTTYPE_DIRECTIONAL || lights[index].type == LIGHTTYPE_SKY) {
 		CalcDirectionalLight(normal, color, index, roughness, lightDeffuse, lightSpecular);
 	}
-	else if (lights[index].type == 1) {
+	else if (lights[index].type == LIGHTTYPE_SPOT) {
 		CalcSpotLight(normal, color, index, roughness, lightDeffuse, lightSpecular);
 	}
-	else if (lights[index].type == 2) {
+	else if (lights[index].type == LIGHTTYPE_POINT) {
 		CalcPointLight(normal, color, index, roughness, lightDeffuse, lightSpecular);
 	}
 
 	float shadow = 1.0;
-	if(lights[index].type == 2){
-		if (lights[index].shadowType != 0) {
+	if (lights[index].shadowType != SHADOWTYPE_NONE) {
+		if(lights[index].type == LIGHTTYPE_DIRECTIONAL || lights[index].type == LIGHTTYPE_SKY){
+			shadow = CalcCascadeShadow(index);
+		}else if(lights[index].type == LIGHTTYPE_POINT){
 			shadow = CalcOmniShadow(index, m_positionVarying.xyz);
+		}else{
+			shadow = CalcShadow(index);
 		}
-	}else{
-        if (lights[index].shadowType != 0) {
-            shadow = CalcShadow(index);
-        }
 	}
 
 	deffuse = vec3(lightDeffuse * clamp(shadow, 0.0, 1.0));
@@ -500,17 +559,7 @@ uniform vec3 lightPos;
 uniform float farPlane;
 
 void main(void) {
-	if (renderDepthMap == true) {
-		fragColor = vec4(1.0);
-		if(renderDepthCubeMap){
-			float lightDistance = length(m_positionVarying.xyz - lightPos);
-			lightDistance = lightDistance / farPlane;
-			gl_FragDepth = lightDistance;
-		}else{
-			gl_FragDepth = gl_FragCoord.z;
-		}
-	}
-	else {
+	if(renderMode == MODE_PBR){
 		SetParams();
 		// Set Gamma from cubemap
 		SetGamma();
@@ -532,5 +581,16 @@ void main(void) {
 		color = DetectEmission(color, emissionColor);
 		fragColor = vec4(color, 1.0);
 		gl_FragDepth = gl_FragCoord.z;
+	}
+	else if(renderMode == MODE_SHADOW || renderMode == MODE_CASCADESHADOW){
+		fragColor = vec4(1.0);
+		gl_FragDepth = gl_FragCoord.z;
+		fragColor = vec4(gl_FragCoord.z, 0.0, 0.0, 1.0);
+	}
+	else if(renderMode == MODE_OMNISHADOW){
+		float lightDistance = length(m_positionVarying.xyz - lightPos);
+		lightDistance = lightDistance / farPlane;
+		fragColor = vec4(lightDistance, 0.0, 0.0, 1.0);
+		gl_FragDepth = lightDistance;
 	}
 }

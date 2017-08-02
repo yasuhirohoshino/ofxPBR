@@ -335,14 +335,14 @@ public:
                                        }else{
                                            if(lights[index].shadowType == 2){
                                                if (currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy, shadowIndex)).r) {
-                                                   visiblity -= 1.0 / 9.0;
+                                                   visiblity -= 1.0;
                                                }
-                                               for (int j = 0; j < 8; j++) {
+ /*                                              for (int j = 0; j < 8; j++) {
                                                    vec2 coord = projCoords.xy + poissonDisk[j] * 1 * (1.0 / (depthMapRes));
                                                    if (currentDepth - lights[index].bias * 2 > texture(shadowMap, vec3(coord, shadowIndex)).r) {
                                                        visiblity -= 1.0 / 9.0;
                                                    }
-                                               }
+                                               }*/
                                            }else{
                                                if (currentDepth - lights[index].bias > texture(shadowMap, vec3(projCoords.xy, shadowIndex)).r) {
                                                    visiblity -= 1.0;
@@ -391,7 +391,7 @@ public:
                                        }
                                        
                                        deffuse = vec3(lightDeffuse * clamp(shadow, 0.0, 1.0));
-                                       specular = clamp(lightSpecular, 0.0, 1.0) * clamp(shadow, 0.0, 1.0);
+                                       specular = lightSpecular * clamp(shadow, 0.0, 1.0);
                                    }
                                    
                                    void SetGamma() {
@@ -469,7 +469,7 @@ public:
                                        // assume N, the interpolated vertex normal and 
                                        // V, the view vector (vertex to eye)
                                        vec3 map = normalMap * 255. / 127. - 128. / 127.;
-                                       mat3 TBN = CotangentFrame(N, V, texcoord);
+                                       mat3 TBN = CotangentFrame(N, -V, texcoord);
                                        return normalize(TBN * map);
                                    }
                                    
@@ -480,7 +480,7 @@ public:
                                                vec3 detailNormalMapVec = texture(detailNormalMap, mod(texCoordVarying * detailTextureRepeatTimes, 1.0)).rgb;
                                                normalMapVec = BlendSoftLight(normalMapVec, detailNormalMapVec);
                                            }
-                                           normal = mix(mv_normal, PerturbNormal(normalMapVec, mv_normal, mv_positionVarying.xyz, texCoordVarying), vec3(normalValUniform));
+                                           normal = mix(mv_normal, PerturbNormal(normalMapVec, mv_normal, mv_positionVarying.xyz, mod(texCoordVarying * textureRepeatTimes, 1.0)), vec3(normalValUniform));
                                            vec3 relfect0 = reflect(normalize(mv_positionVarying.xyz), normal);
                                            reflectDir = vec3(viewTranspose * vec4(relfect0, 0.0)) * vec3(1, 1, -1);
                                        }
@@ -503,7 +503,7 @@ public:
                                    vec3 CalcColor(vec3 baseColor, float roughnessVal, float metallicVal, vec3 normal, vec3 reflectDir, float occlusion) {
                                        vec3 viewDir = normalize(-mv_positionVarying.xyz);
                                        vec3 diffuseColor = baseColor - baseColor * metallicVal;
-                                       vec3 specularColor = mix(vec3(0.01), baseColor, metallicVal);
+                                       vec3 specularColor =  mix(vec3(0.01), baseColor, metallicVal);
                                        vec3 diffuse = PrefilterEnvMap(int(numMips * 2 / 3), normal) * diffuseColor;
                                        vec3 specular = ApproximateSpecularIBL(specularColor, roughnessVal, normal, viewDir, reflectDir);
                                        vec3 fresnel = Fresnel(normal, normalize(-mv_positionVarying.xyz), roughnessVal, reflectDir, 0.02) * specularColor * metallicVal;
@@ -558,6 +558,14 @@ public:
                                    uniform float farPlane;
                                    
                                    void main(void) {
+
+									   switch (numLights) {
+									   case 0:
+										   break;
+									   default:
+										   break;
+									   }
+
                                        if (renderDepthMap == true) {
                                            fragColor = vec4(1.0);
                                            if(renderDepthCubeMap){
@@ -588,7 +596,7 @@ public:
                                            emissionColor = GetEmissionColor(texCoordVarying);
                                            // Apply Emission or not
                                            color = DetectEmission(color, emissionColor);
-                                           fragColor = vec4(color, 1.0);
+                                           fragColor = vec4(color, baseColorUniform.a);
                                            gl_FragDepth = gl_FragCoord.z;
                                        }
                                    });

@@ -2,6 +2,13 @@
 
 const int MAX_LIGHTS = 8;
 
+const int MODE_PBR = 0;
+const int MODE_SHADOW = 1;
+const int MODE_OMNISHADOW = 2;
+const int MODE_CASCADESHADOW = 3;
+
+uniform int renderMode;
+
 // default uniforms
 uniform mat4 projectionMatrix;
 uniform mat4 modelViewMatrix;
@@ -12,9 +19,6 @@ uniform mat4 viewMatrix;
 
 // depth camera's view projection matrix
 uniform mat4 lightsViewProjectionMatrix;
-
-// render or depth camera mode
-uniform bool renderDepthMap;
 
 // in
 in vec4 position;
@@ -32,18 +36,18 @@ out vec3 mv_normalVarying;
 out vec4 mv_positionVarying;
 
 void main() {
-    if (renderDepthMap == true) {
-        // depth map pass
-        m_positionVarying = (inverse(viewMatrix) * modelViewMatrix) * position;
-        gl_Position = lightsViewProjectionMatrix * m_positionVarying;
-    } else {
-        // render pass
-        m_positionVarying = (inverse(viewMatrix) * modelViewMatrix) * position;
+	if(renderMode == MODE_PBR){
+		// render pass
+		m_positionVarying = (inverse(viewMatrix) * modelViewMatrix) * position;
         mat4 normalMatrix = inverse(transpose(modelViewMatrix));
         mv_positionVarying = modelViewMatrix * position;
         mv_normalVarying = vec3(mat3(normalMatrix) * normal);
         texCoordVarying = texcoord;
         colorVarying = color;
         gl_Position = modelViewProjectionMatrix * position;
-    }
+	}else{
+		// depth map pass
+        m_positionVarying = (inverse(viewMatrix) * modelViewMatrix) * position;
+        gl_Position = lightsViewProjectionMatrix * m_positionVarying;
+	}
 }

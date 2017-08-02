@@ -17,132 +17,103 @@ enum ShadowType{
     NumShadowTypes = 3
 };
 
-struct SpotLight{
-    float spotFactor = 1;
-    float cutoff = 45;
-    float distance = 1000;
-};
-
-struct PointLight{
-    float radius = 1000;
-    int index = 0;
-    ofMatrix4x4 viewProjMat[6];
-    ofMatrix4x4 lookAtMat[6];
-    ofMatrix4x4 shadowProjMatrix;
-};
-
-struct SkyLight{
-    float latitude = 0;
-    float longitude = 0;
-    float radius = 0;
-    float exposure = 1.0;
-    float angle = 0;
-};
-
-struct ofxPBRLightParams{
+struct ofxPBRLightData{
     LightType lightType = LightType_Directional;
-    ShadowType shadowType = ShadowType_Hard;
-    
 	bool enable = true;
-	int lightId = 0;
     ofFloatColor color = ofFloatColor(1.0,1.0,1.0,1.0);
     float intensity = 1.0;
-	int shadowIndex = 0;
-    float depthMapRes = 1024;
-    float shadowBias = 0.001;
-	float strength = 1.0;
-    
-    SpotLight spotLight;
-    PointLight pointLight;
-    SkyLight skyLight;
+
+	// shadow
+	ShadowType shadowType = ShadowType_Hard;
+	float shadowBias = 0.001;
+	float shadowStrength = 1.0;
+
+	// pointLight
+	float pointLightRadius = 1000;
+
+	// spotLight
+	float spotLightGradient = 1;
+	float spotLightCutoff = 45;
+	float spotLightDistance = 1000;
+
+	// skyLight
+	float skyLightLatitude = 0;
+	float skyLightLongitude = 0;
+	float skyLightAngle = 0;
 };
 
 class ofxPBRLight : public ofCamera{
 public:
     ofxPBRLight();
     ~ofxPBRLight();
-    
-    void setLightFunction(function<void()> func);
-    
-    void enable(bool isEnabled = true);
-    void disable();
-    bool isEnabled();
-    
-    // depth camera
-    void setDepthMapRes(float resolution);
-    
-    // for rendering shader
-    ofVec3f getViewSpacePosition(ofMatrix4x4 viewMatrix);
-    ofMatrix4x4 getShadowMatrix(ofMatrix4x4 cameraModelViewMatrix);
-    ofVec3f getViewSpaceDirection(ofMatrix4x4 viewMatrix);
-    ofMatrix4x4 getViewProjectionMatrix();
-	ofMatrix4x4 getViewProjectionMatrix(int face);
-    
+
+	void setup();
+    void setEnable(bool enable);
+	void setLightType(LightType lightType);
+
     // color
     void setColor(ofFloatColor color);
     void setColor(ofColor color);
-    ofFloatColor getColor();
 	void setIntensity(float intensity);
-	float getIntensity();
-    
-    // light type
-    void setLightType(LightType lightType);
-    LightType getLightType();
-    
-    // pointLight
-    void setPointLightRadius(float radius);
-    float getPointLightRadius();
+
+	// pointLight
+	void setPointLightRadius(float radius);
     
     // spotLight
+	void setSpotLightCutoff(float cutoff);
+	void setSpotLightGradient(float spotFactor);
 	void setSpotLightDistance(float distance);
-	float getSpotLightDistance();
-    void setSpotLightCutoff(float cutoff);
-    float getSpotLightCutoff();
-    void setSpotLightFactor(float spotFactor);
-    float getSpotLightFactor();
 
 	// skyLight
-	void setSkyLightCoordinate(float longitude, float latitude, float radius);
+	void setSkyLightCoordinate(float longitude, float latitude);
 	void setSkyLightRotation(float angle);
-	void setSkyLighExposure(float exposure);
-	float getSkyLightLatitude();
-	float getSkyLightLongitude();
-	float getSkyLightRadius();
     
     // shadow
     void setShadowType(ShadowType shadowType);
-    ShadowType getShadowType();
     void setShadowBias(float shadowBias);
-    float getShadowBias();
-	void setShadowIndex(int index);
-	int getShadowIndex();
 	void setShadowStrength(float strength);
-	float getShadowStrength();
+	void setShadowIndex(int index);
 	void setOmniShadowIndex(int index);
-	int getOmniShadowIndex();
-	void updateOmniShadowParams();
+	void setCascadeShadowIndex(int index);
 
-    void beginLighting(ofShader * shader);
-    void endLighting(ofShader * shader);
+	// paremeters
+	void setParameters(ofxPBRLightData params);
 
-	void setId(int id);
-	int getId();
+	// getter
 
-	void setParameters(ofxPBRLightParams params);
-	ofxPBRLightParams getParameters();
-    
+	bool getIsEnabled() { return lightData.enable; }
+	LightType getLightType() { return lightData.lightType; }
+
+	ofFloatColor getColor() { return lightData.color; }
+	float getIntensity() { return lightData.intensity; }
+
+	float getPointLightRadius() { return lightData.pointLightRadius; }
+
+	float getSpotLightCutoff() { return lightData.spotLightCutoff; }
+	float getSpotLightGradient() { return lightData.spotLightGradient; }
+	float getDistance() { return lightData.spotLightDistance; }
+
+	float getSkyLightLatitude() { return lightData.skyLightLatitude; }
+	float getSkyLightLongitude() { return lightData.skyLightLongitude; }
+
+	ShadowType getShadowType() { return lightData.shadowType; }
+	float getShadowBias() { return lightData.shadowBias; }
+	float getShadowStrength() { return lightData.shadowStrength; }
+	int getShadowIndex() { return shadowIndex; }
+	int getOmniShadowIndex() { return pointLightIndex; }
+	int getCascadeShadowIndex() { return cascadeShadowIndex; }
+
+	ofxPBRLightData getParameters() { return lightData; }
+
+	// for rendering shader
+	ofVec3f getViewSpacePosition(ofMatrix4x4 viewMatrix);
+	ofVec3f getViewSpaceDirection(ofMatrix4x4 viewMatrix);
+
 private:
 	void setSkyLightPos();
-	ofMatrix4x4 getOrthoMatrix();
+	ofxPBRLightData lightData;
 
-	ofxPBRLightParams lightParams;
-
-	ofMatrix4x4 shadowTransMatrix;
-    const ofMatrix4x4 biasMatrix = ofMatrix4x4(
-                                               0.5, 0.0, 0.0, 0.0,
-                                               0.0, 0.5, 0.0, 0.0,
-                                               0.0, 0.0, 0.5, 0.0,
-                                               0.5, 0.5, 0.5, 1.0
-                                               );
-    function<void()> resetLights;
+	int shadowIndex = 0;
+	int pointLightIndex = 0;
+	int cascadeShadowIndex = 0;
 };
