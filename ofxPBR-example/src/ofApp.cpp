@@ -67,8 +67,6 @@ void ofApp::draw(){
 	pbr.renderScene();
 	cam.end();
 
-	pbr.getDirectionalDepthMap(0)->draw(0, 0, 256, 256);
-
     ofSetWindowTitle(ofToString(ofGetFrameRate()));
 	float t = ofGetElapsedTimef() - prevTime;
 	ofDrawBitmapString(ofToString(t), 20, 20);
