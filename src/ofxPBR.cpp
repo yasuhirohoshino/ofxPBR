@@ -27,6 +27,9 @@ void ofxPBR::setup(function<void()> scene, ofCamera* camera, int depthMapResolut
 	envShader->linkProgram();
 
 	// load defalut pbr shader
+
+	ofDirectory dir;
+
 	defaultShader = ofShader();
 	defaultShader.setupShaderFromSource(GL_VERTEX_SHADER, pbrShaderSource.gl3VertShader);
 	defaultShader.setupShaderFromSource(GL_FRAGMENT_SHADER, pbrShaderSource.gl3FragShader);

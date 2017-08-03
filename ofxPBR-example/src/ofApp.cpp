@@ -16,7 +16,7 @@ void ofApp::setup(){
     pbr.setCubeMap(&cubeMap);
 	pbr.setDrawEnvironment(true);
     
-    render.load("ofxPBRShaders/default2.vert", "ofxPBRShaders/default2.frag");
+    render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag");
 
 	light2.setup();
 	light2.setLightType(LightType_Directional);
@@ -110,7 +110,7 @@ void ofApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-	render.load("ofxPBRShaders/default2.vert", "ofxPBRShaders/default2.frag");
+	render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag");
 }
 
 //--------------------------------------------------------------
