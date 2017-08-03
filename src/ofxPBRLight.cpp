@@ -4,7 +4,7 @@ ofxPBRLight::ofxPBRLight() {}
 ofxPBRLight::~ofxPBRLight() {}
 
 void ofxPBRLight::setup() {
-	this->setupPerspective(false, 90, 0, 10000);
+	this->setupPerspective(false, 90, 0.0, 10000);
 	this->setForceAspectRatio(1.0);
 	this->setFov(90);
 	this->enableOrtho();
@@ -21,7 +21,7 @@ ofVec3f ofxPBRLight::getViewSpacePosition(ofMatrix4x4 viewMatrix) {
 	if (lightData.lightType == LightType_Directional || lightData.lightType == LightType_Sky) {
 		w = 0.0;
 	}
-	ofVec4f pos = ofVec4f(this->getGlobalPosition().x, this->getGlobalPosition().y, this->getGlobalPosition().z, w);
+	ofVec4f pos = ofVec4f(this->getPosition().x, this->getPosition().y, this->getPosition().z, w);
 	return pos * viewMatrix;
 }
 
@@ -80,7 +80,8 @@ void ofxPBRLight::setLightType(LightType lightType) {
 void ofxPBRLight::setSpotLightDistance(float distance)
 {
 	lightData.spotLightDistance = distance;
-	if(lightData.lightType == LightType_Sky) setSkyLightPos();
+	setFarClip(distance);
+	setNearClip(distance * 0.05);
 }
 
 void ofxPBRLight::setSpotLightCutoff(float cutoff) {
@@ -127,9 +128,9 @@ void ofxPBRLight::setShadowBias(float shadowBias) {
 	this->lightData.shadowBias = shadowBias;
 }
 
-void ofxPBRLight::setShadowIndex(int index)
+void ofxPBRLight::setSpotShadowIndex(int index)
 {
-	shadowIndex = index;
+	spotShadowIndex = index;
 }
 
 void ofxPBRLight::setShadowStrength(float strength)

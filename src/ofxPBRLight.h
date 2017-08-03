@@ -34,7 +34,7 @@ struct ofxPBRLightData{
 	// spotLight
 	float spotLightGradient = 1;
 	float spotLightCutoff = 45;
-	float spotLightDistance = 1000;
+	float spotLightDistance = 5000;
 
 	// skyLight
 	float skyLightLatitude = 0;
@@ -72,7 +72,7 @@ public:
     void setShadowType(ShadowType shadowType);
     void setShadowBias(float shadowBias);
 	void setShadowStrength(float strength);
-	void setShadowIndex(int index);
+	void setSpotShadowIndex(int index);
 	void setOmniShadowIndex(int index);
 	void setCascadeShadowIndex(int index);
 	void setDirectionalShadowIndex(int index);
@@ -92,7 +92,7 @@ public:
 
 	float getSpotLightCutoff() { return lightData.spotLightCutoff; }
 	float getSpotLightGradient() { return lightData.spotLightGradient; }
-	float getDistance() { return lightData.spotLightDistance; }
+	float getSpotLightDistance() { return lightData.spotLightDistance; }
 
 	float getSkyLightLatitude() { return lightData.skyLightLatitude; }
 	float getSkyLightLongitude() { return lightData.skyLightLongitude; }
@@ -100,7 +100,7 @@ public:
 	ShadowType getShadowType() { return lightData.shadowType; }
 	float getShadowBias() { return lightData.shadowBias; }
 	float getShadowStrength() { return lightData.shadowStrength; }
-	int getShadowIndex() { return shadowIndex; }
+	int getSpotShadowIndex() { return spotShadowIndex; }
 	int getOmniShadowIndex() { return pointLightIndex; }
 	int getCascadeShadowIndex() { return cascadeShadowIndex; }
 	int getDirectionalShadowIndex() { return directionalShadowIndex; }
@@ -115,7 +115,7 @@ private:
 	void setSkyLightPos();
 	ofxPBRLightData lightData;
 
-	int shadowIndex = 0;
+	int spotShadowIndex = 0;
 	int pointLightIndex = 0;
 	int cascadeShadowIndex = 0;
 	int directionalShadowIndex = 0;

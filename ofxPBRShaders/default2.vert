@@ -3,9 +3,10 @@
 const int MAX_LIGHTS = 8;
 
 const int MODE_PBR = 0;
-const int MODE_SHADOW = 1;
+const int MODE_SPOTSHADOW = 1;
 const int MODE_OMNISHADOW = 2;
 const int MODE_CASCADESHADOW = 3;
+const int MODE_DIRECTIONALSHADOW = 4;
 
 uniform int renderMode;
 
@@ -38,7 +39,7 @@ out vec4 mv_positionVarying;
 void main() {
 	if(renderMode == MODE_PBR){
 		// render pass
-		m_positionVarying = (inverse(viewMatrix) * modelViewMatrix) * position;
+		m_positionVarying = inverse(viewMatrix) * modelViewMatrix * position;
         mat4 normalMatrix = inverse(transpose(modelViewMatrix));
         mv_positionVarying = modelViewMatrix * position;
         mv_normalVarying = vec3(mat3(normalMatrix) * normal);
@@ -47,7 +48,7 @@ void main() {
         gl_Position = modelViewProjectionMatrix * position;
 	}else{
 		// depth map pass
-        m_positionVarying = (inverse(viewMatrix) * modelViewMatrix) * position;
+        m_positionVarying = inverse(viewMatrix) * modelViewMatrix * position;
         gl_Position = lightsViewProjectionMatrix * m_positionVarying;
 	}
 }

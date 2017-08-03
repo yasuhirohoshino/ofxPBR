@@ -269,7 +269,7 @@ void ofxPBR::updateDepthMaps()
 			{
 				if (spotShadowIndex < spotShadow.getMaxShadow()) {
 					renderMode = Mode_SpotShadow;
-					lights[i]->setShadowIndex(spotShadowIndex);
+					lights[i]->setSpotShadowIndex(spotShadowIndex);
 					spotShadow.beginDepthMap(spotShadowIndex, camera, lights[i]);
 					scene();
 					spotShadow.endDepthMap();
@@ -366,7 +366,7 @@ void ofxPBR::beginPBR(){
 		PBRShader->setUniform3f("lights[" + lightIndex + "].direction", lights[i]->getViewSpaceDirection(camera->getModelViewMatrix()));
 		// shadow
 		PBRShader->setUniform1i("lights[" + lightIndex + "].shadowType", lights[i]->getShadowType());
-		PBRShader->setUniform1i("lights[" + lightIndex + "].shadowIndex", lights[i]->getShadowIndex());
+		PBRShader->setUniform1i("lights[" + lightIndex + "].spotShadowIndex", lights[i]->getSpotShadowIndex());
 		PBRShader->setUniform1i("lights[" + lightIndex + "].omniShadowIndex", lights[i]->getOmniShadowIndex());
 		PBRShader->setUniform1i("lights[" + lightIndex + "].cascadeShadowIndex", lights[i]->getCascadeShadowIndex());
 		PBRShader->setUniform1i("lights[" + lightIndex + "].directionalShadowIndex", lights[i]->getDirectionalShadowIndex());
@@ -374,18 +374,18 @@ void ofxPBR::beginPBR(){
 		PBRShader->setUniform1f("lights[" + lightIndex + "].bias", lights[i]->getShadowBias());
 		PBRShader->setUniform1f("lights[" + lightIndex + "].farClip", lights[i]->getFarClip());
 		// point light
-		PBRShader->setUniform1f("lights[" + lightIndex + "].pointLightRadius", lights[i]->getDistance());
+		PBRShader->setUniform1f("lights[" + lightIndex + "].pointLightRadius", lights[i]->getPointLightRadius());
 		// spot light
 		PBRShader->setUniform1f("lights[" + lightIndex + "].spotLightFactor", lights[i]->getSpotLightGradient());
 		PBRShader->setUniform1f("lights[" + lightIndex + "].spotLightCutoff", lights[i]->getSpotLightCutoff());
-		PBRShader->setUniform1f("lights[" + lightIndex + "].spotLightDistance", lights[i]->getDistance());
+		PBRShader->setUniform1f("lights[" + lightIndex + "].spotLightDistance", lights[i]->getSpotLightDistance());
 	}
     
     // depth map uniforms
     if (spotShadowIndex != 0) {
         spotShadow.bind(10);
-        glUniformMatrix4fv(PBRShader->getUniformLocation("shadowMatrix"), spotShadow.getShadowMatrix().size(), false, spotShadow.getShadowMatrix()[0].getPtr());
-		PBRShader->setUniform1i("shadowMap", 10);
+		PBRShader->setUniform1i("spotShadowMap", 10);
+        glUniformMatrix4fv(PBRShader->getUniformLocation("spotShadowMatrix"), spotShadow.getShadowMatrix().size(), false, spotShadow.getShadowMatrix()[0].getPtr());
 	}
 
 	if (omniShadowIndex != 0) {
@@ -403,8 +403,8 @@ void ofxPBR::beginPBR(){
 
 	if (directionalShadowIndex != 0) {
 		directionalShadow.bind(13);
-		glUniformMatrix4fv(PBRShader->getUniformLocation("shadowMatrix"), directionalShadow.getShadowMatrix().size(), false, directionalShadow.getShadowMatrix()[0].getPtr());
 		PBRShader->setUniform1i("directionalShadowMap", 13);
+		glUniformMatrix4fv(PBRShader->getUniformLocation("directionalShadowMatrix"), directionalShadow.getShadowMatrix().size(), false, directionalShadow.getShadowMatrix()[0].getPtr());
 	}
 }
 
@@ -486,7 +486,7 @@ ofTexture* ofxPBR::getDepthMap(int index){
  //   //shadow.unbind();
 	//cascadeShadow.unbind();
 
-	directionalShadow.bind(0);
+	spotShadow.bind(0);
 	depthThumbnailFbo.begin();
 	ofClear(0);
 	depthThumbnailShader.begin();
@@ -495,7 +495,7 @@ ofTexture* ofxPBR::getDepthMap(int index){
 	ofDrawPlane(depthThumbnailFbo.getWidth() / 2, depthThumbnailFbo.getHeight() / 2, depthThumbnailFbo.getWidth(), depthThumbnailFbo.getHeight());
 	depthThumbnailShader.end();
 	depthThumbnailFbo.end();
-	directionalShadow.unbind();
+	spotShadow.unbind();
 
     return &depthThumbnailFbo.getTexture();
 }

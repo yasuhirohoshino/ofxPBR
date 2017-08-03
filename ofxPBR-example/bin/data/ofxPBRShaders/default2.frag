@@ -35,7 +35,7 @@ struct Light {
     float spotLightDistance;
     float pointLightRadius;
     int shadowType;
-    int shadowIndex;
+    int spotShadowIndex;
     int omniShadowIndex;
 	int cascadeShadowIndex;
 	int directionalShadowIndex;
@@ -68,8 +68,8 @@ uniform float cameraNear;
 uniform float cameraFar;
 
 // Shadows
-uniform sampler2DArrayShadow shadowMap;
-uniform mat4 shadowMatrix[MAX_LIGHTS];
+uniform sampler2DArrayShadow spotShadowMap;
+uniform mat4 spotShadowMatrix[MAX_LIGHTS];
 uniform samplerCubeArray omniShadowMap;
 uniform sampler2DArrayShadow cascadeShadowMap;
 uniform int numCascade;
@@ -77,7 +77,7 @@ uniform float cascadeClips[5];
 uniform mat4 cascadeShadowMatrix[MAX_LIGHTS * 4];
 
 uniform sampler2DArrayShadow directionalShadowMap;
-
+uniform mat4 directionalShadowMatrix[MAX_LIGHTS];
 
 // IBL
 uniform samplerCube envMap;
@@ -118,7 +118,7 @@ uniform int enableGlobalColor;
 
 vec3 mv_normal;
 float gamma = 1.0;
-vec4 v_shadowCoord[MAX_LIGHTS];
+vec4 v_spotShadowCoord[MAX_LIGHTS];
 vec4 v_cascadeShadowCoord[MAX_LIGHTS * 4];
 vec4 v_directionalShadowCoord[MAX_LIGHTS];
 
@@ -127,8 +127,8 @@ void SetParams() {
 	for (int i = 0; i < MAX_LIGHTS; i++) {
 		if (i <= numLights) {
 			if(lights[i].type == LIGHTTYPE_SPOT){
-				int index = lights[i].shadowIndex;
-				v_shadowCoord[index] = shadowMatrix[index] * m_positionVarying;
+				int index = lights[i].spotShadowIndex;
+				v_spotShadowCoord[index] = spotShadowMatrix[index] * m_positionVarying;
 			} 
 			else if(lights[i].type == LIGHTTYPE_DIRECTIONAL || lights[i].type == LIGHTTYPE_SKY){
 				//int index = lights[i].cascadeShadowIndex;
@@ -137,7 +137,7 @@ void SetParams() {
 				//}
 
 				int index = lights[i].directionalShadowIndex;
-				v_directionalShadowCoord[index] = shadowMatrix[index] * m_positionVarying;
+				v_directionalShadowCoord[index] = directionalShadowMatrix[index] * m_positionVarying;
 			}
 		}
 		else {
@@ -286,10 +286,10 @@ void CalcDirectionalLight(vec3 normal, vec3 color, int index, float roughness, o
 	specular = lights[index].intensity * (color.rgb * lights[index].color.rgb * spec);
 }
 
-float CalcShadow(int index) {
+float CalcSpotShadow(int index) {
 	float visiblity = 1.0;
-	int shadowIndex = lights[index].shadowIndex;
-	vec3 projCoords = v_shadowCoord[shadowIndex].xyz / v_shadowCoord[shadowIndex].w;
+	int shadowIndex = lights[index].spotShadowIndex;
+	vec3 projCoords = v_spotShadowCoord[shadowIndex].xyz / v_spotShadowCoord[shadowIndex].w;
 	float currentDepth = projCoords.z;
 	if (projCoords.x >= 1.0 || projCoords.x <= 0.0 ||
 		projCoords.y >= 1.0 || projCoords.y <= 0.0 ||
@@ -298,22 +298,22 @@ float CalcShadow(int index) {
 	}else{
 		if(lights[index].shadowType == SHADOWTYPE_SOFT){
 			float offset = 1.0;
-			visiblity = texture(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias));
-			visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(-offset, -offset));
-			visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(-offset, offset));
-			visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(offset, offset));
-			visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(offset, -offset));
+			visiblity = texture(spotShadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias));
+			visiblity += textureOffset(spotShadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(-offset, -offset));
+			visiblity += textureOffset(spotShadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(-offset, offset));
+			visiblity += textureOffset(spotShadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(offset, offset));
+			visiblity += textureOffset(spotShadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(offset, -offset));
 			if(visiblity < 5.0){
-				visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(0, offset));
-				visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(offset, 0));
-				visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(0, -offset));
-				visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(-offset, 0));
+				visiblity += textureOffset(spotShadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(0, offset));
+				visiblity += textureOffset(spotShadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(offset, 0));
+				visiblity += textureOffset(spotShadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(0, -offset));
+				visiblity += textureOffset(spotShadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias), ivec2(-offset, 0));
 				visiblity /= 9.0;
 			}else{
 				visiblity /= 5.0;
 			}
 		}else{
-			visiblity = texture(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias));
+			visiblity = texture(spotShadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - lights[index].bias));
 		}
 	}
 	visiblity = 1.0 - (1.0 - visiblity) * lights[index].shadowStrength;
@@ -429,7 +429,7 @@ void LightWithShadow(vec3 normal, vec3 color, float roughness, int index, out ve
 		}else if(lights[index].type == LIGHTTYPE_POINT){
 			shadow = CalcOmniShadow(index, m_positionVarying.xyz);
 		}else{
-			shadow = CalcShadow(index);
+			shadow = CalcSpotShadow(index);
 		}
 	}
 

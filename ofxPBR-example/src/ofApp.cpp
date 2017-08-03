@@ -12,49 +12,49 @@ void ofApp::setup(){
 	scene = bind(&ofApp::renderScene, this);
 
     cubeMap.load("Barce_Rooftop_C_3k.jpg", 1024, true, "filteredMapCache");
-    pbr.setup(scene, &cam, 2048);
+    pbr.setup(scene, &cam, 1024);
     pbr.setCubeMap(&cubeMap);
 	pbr.setDrawEnvironment(true);
     
     render.load("ofxPBRShaders/default2.vert", "ofxPBRShaders/default2.frag");
+
+	light2.setup();
+	light2.setLightType(LightType_Directional);
+	//light2.setPosition(1500, 1000, 1500);
+	//light2.lookAt(ofVec3f(0));
+	//light2.setScale(1.5);
+	//light2.setColor(ofFloatColor(1.0));
+	light2.setShadowType(ShadowType_Soft);
+	pbr.addLight(&light2);
     
 	light.setup();
 	//light.setEnable(true);
-    //light.setLightType(LightType_Spot);
-	//light.setSpotLightDistance(5000);
-	//light.setSpotLightCutoff(15);
- //   light.setPosition(-500, 1000, 500);
- //   light.lookAt(ofVec3f(0));
+	light.setLightType(LightType_Spot);
+	light.setShadowType(ShadowType_Soft);
+	light.setSpotLightGradient(10.0);
+	light.setSpotLightDistance(3000);
+	light.setSpotLightCutoff(30);
+	//   light.setPosition(-500, 1000, 500);
+	//   light.lookAt(ofVec3f(0));
 	//light.setScale(1.0);
 	//light.setColor(ofFloatColor(1.0));
-	light.setShadowType(ShadowType_Soft);
-//	//light.setSpotLightDistance(5000);
-//	//light.setSpotLightCutoff(45);
-//	//light.setSpotLightFactor(5.0);
-////    light.setPointLightRadius(5000);
-//    light.setNearClip(1.0);
-//    light.setFarClip(5000);
+	//	//light.setSpotLightDistance(5000);
+	//	//light.setSpotLightCutoff(45);
+	////    light.setPointLightRadius(5000);
+	//light.setNearClip(1.0);
+	//light.setFarClip(5000);
 	pbr.addLight(&light);
 
-	//light2.setup();
- //   light2.setLightType(LightType_Directional);
- //   //light2.setPosition(1500, 1000, 1500);
- //   //light2.lookAt(ofVec3f(0));
- //   //light2.setScale(1.5);
- //   //light2.setColor(ofFloatColor(1.0));
- //   light2.setShadowType(ShadowType_Soft);
- //   pbr.addLight(&light2);
-    
     cubeMap.setEnvLevel(0.3);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	light.setPosition(sin(ofGetElapsedTimef()), 1, cos(ofGetElapsedTimef()));
+	light.setPosition(500 * sin(ofGetElapsedTimef()), 500, 500 * cos(ofGetElapsedTimef()));
 	light.lookAt(ofVec3f(0));
 
-	//light2.setPosition(-sin(ofGetElapsedTimef()), 1, -cos(ofGetElapsedTimef()));
-	//light2.lookAt(ofVec3f(0));
+	light2.setPosition(-sin(ofGetElapsedTimef()), 1, -cos(ofGetElapsedTimef()));
+	light2.lookAt(ofVec3f(0));
 }
 
 //--------------------------------------------------------------

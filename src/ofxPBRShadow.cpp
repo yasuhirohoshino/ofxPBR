@@ -43,8 +43,6 @@ void ofxPBRShadow::initFbo() {
 }
 
 void ofxPBRShadow::beginDepthMap(int index, ofCamera * cam, ofCamera * depthCam) {
-	currentTexIndex = index;
-
 	viewProjMatrix[index] = depthCam->getModelViewProjectionMatrix(ofRectangle(0, 0, depthMapRes, depthMapRes));
 	shadowMatrix[index] = viewProjMatrix[index] * biasMatrix;
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
