@@ -4,7 +4,6 @@
 #include "ofxPBRLight.h"
 #include "ofxPBRSpotShadow.h"
 #include "ofxPBROmniShadow.h"
-#include "ofxPBRCascadeShadow.h"
 #include "ofxPBRDirectionalShadow.h"
 #include "ofxPBRMaterial.h"
 #include "shaders/environment.h"
@@ -106,7 +105,6 @@ private:
 	// shadow
 	ofxPBRSpotShadow spotShadow;
 	ofxPBROmniShadow omniShadow;
-	ofxPBRCascadeShadow cascadeShadow;
 	ofxPBRDirectionalShadow directionalShadow;
 
     int spotShadowIndex = 0;
