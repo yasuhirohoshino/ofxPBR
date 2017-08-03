@@ -7,12 +7,12 @@ void ofApp::setup(){
 
     ofDisableArbTex();
     
-    cam.setupPerspective(false, 60, 1, 3000);
+    cam.setupPerspective(false, 60, 1, 5000);
 
 	scene = bind(&ofApp::renderScene, this);
 
     cubeMap.load("Barce_Rooftop_C_3k.jpg", 1024, true, "filteredMapCache");
-    pbr.setup(scene, &cam, 1024);
+    pbr.setup(scene, &cam, 2048);
     pbr.setCubeMap(&cubeMap);
 	pbr.setDrawEnvironment(true);
     
@@ -67,7 +67,7 @@ void ofApp::draw(){
 	pbr.renderScene();
 	cam.end();
 
-	pbr.getDepthMap(0)->draw(0, 0, 256, 256);
+	pbr.getDirectionalDepthMap(0)->draw(0, 0, 256, 256);
 
     ofSetWindowTitle(ofToString(ofGetFrameRate()));
 	float t = ofGetElapsedTimef() - prevTime;

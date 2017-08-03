@@ -8,7 +8,6 @@
 #include "ofxPBRMaterial.h"
 #include "shaders/environment.h"
 #include "shaders/pbr.h"
-#include "shaders/depthThumbnail.h"
 
 enum RenderMode {
 	Mode_PBR = 0,
@@ -65,7 +64,6 @@ public:
 	int getMaxDirectionalShadow() { return directionalShadow.getMaxShadow(); }
 
 	int getDepthMapResolution() { return spotShadow.getDepthMapResolution(); }
-	ofTexture* getDepthMap(int index);
 
 	ofShader* getShader() { return PBRShader; }
 	int getLastTextureIndex() { return 12; }
@@ -111,11 +109,6 @@ private:
 	int omniShadowIndex = 0;
 	int omniShadowFace = 0;
 	int directionalShadowIndex = 0;
-    
-	// depth map thumbnail
-    DepthThumbnail depthThumbnail;
-    ofFbo depthThumbnailFbo;
-    ofShader depthThumbnailShader;
 
 	function<void()> scene;
 };

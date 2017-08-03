@@ -10,8 +10,10 @@ public:
 
 	PBR() {
 		gl3VertShader = "#version 410\n";
-		gl3VertShader += STRINGIFY(const int MAX_LIGHTS = 8;
 
+		gl3VertShader += STRINGIFY(const int MAX_LIGHTS = 8;);
+
+		gl3VertShader += STRINGIFY(
 		const int MODE_PBR = 0;
 		const int MODE_DIRECTIONALSHADOW = 1;
 		const int MODE_SPOTSHADOW = 2;
@@ -45,7 +47,7 @@ public:
 		out vec3 mv_normalVarying;
 		out vec4 mv_positionVarying;
 
-		void main() {
+		void SendPBRVaryings() {
 			if (renderMode == MODE_PBR) {
 				// render pass
 				m_positionVarying = inverse(viewMatrix) * modelViewMatrix * position;
@@ -62,9 +64,17 @@ public:
 				gl_Position = lightsViewProjectionMatrix * m_positionVarying;
 			}
 		});
+
+		gl3VertShader += STRINGIFY(
+			void main() {
+				SendPBRVaryings();
+		});
         
         gl3FragShader = "#version 410\n";
-		gl3FragShader += STRINGIFY(const int MAX_LIGHTS = 8;
+		
+		gl3FragShader += STRINGIFY(const int MAX_LIGHTS = 8;);
+
+		gl3FragShader += STRINGIFY(
 		const float PI = 3.14159265358979;
 		const float TwoPI = 6.28318530718;
 
