@@ -13,11 +13,10 @@
 
 enum RenderMode {
 	Mode_PBR = 0,
-	Mode_SpotShadow = 1,
-	Mode_OmniShadow = 2,
-	Mode_CascadeShadow = 3,
-	Mode_DirectionalShadow = 4,
-	num_Mode = 5
+	Mode_DirectionalShadow = 1,
+	Mode_SpotShadow = 2,
+	Mode_OmniShadow = 3,
+	num_Mode = 4
 };
 
 class ofxPBR{
@@ -49,7 +48,6 @@ public:
 	// shadow
 	void setMaxShadow(int maxShadow);
 	void setMaxOmniShadow(int maxOmniShadow);
-	void setMaxCascadeShadow(int maxCascadeShadow);
 	void setMaxDirectionalShadow(int maxDirectionalShadow);
 	void resizeDepthMap(int resolution);
 	void setDirectionalShadowBB(float x, float y, float z, float width, float height, float depth);
@@ -65,8 +63,6 @@ public:
 
 	int getMaxShadow() { return spotShadow.getMaxShadow(); }
 	int getMaxOmniShadow() { return omniShadow.getMaxShadow(); }
-	int getMaxCascadeShadow() { return 0; }
-	int getNumCascade() { return numCascade; }
 	int getMaxDirectionalShadow() { return directionalShadow.getMaxShadow(); }
 
 	int getDepthMapResolution() { return spotShadow.getDepthMapResolution(); }
@@ -84,7 +80,6 @@ private:
     
     void beginSpotDepthMap();
 	void beginDepthCubeMap();
-	void beginCascadeDepthMap();
 	void beginDirectionalDepthMap();
 
     ofMesh sphereMesh;
@@ -118,11 +113,6 @@ private:
 	int omniShadowIndex = 0;
 	int omniShadowFace = 0;
 	int directionalShadowIndex = 0;
-
-	int cascadeShadowIndex = 0;
-	int currentCascade = 0;
-	vector<float> cascadeDistances;
-	int numCascade = 3;
     
 	// depth map thumbnail
     DepthThumbnail depthThumbnail;

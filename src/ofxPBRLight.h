@@ -74,7 +74,6 @@ public:
 	void setShadowStrength(float strength);
 	void setSpotShadowIndex(int index);
 	void setOmniShadowIndex(int index);
-	void setCascadeShadowIndex(int index);
 	void setDirectionalShadowIndex(int index);
 
 	// paremeters
@@ -102,7 +101,6 @@ public:
 	float getShadowStrength() { return lightData.shadowStrength; }
 	int getSpotShadowIndex() { return spotShadowIndex; }
 	int getOmniShadowIndex() { return pointLightIndex; }
-	int getCascadeShadowIndex() { return cascadeShadowIndex; }
 	int getDirectionalShadowIndex() { return directionalShadowIndex; }
 
 	ofxPBRLightData getParameters() { return lightData; }
@@ -117,6 +115,5 @@ private:
 
 	int spotShadowIndex = 0;
 	int pointLightIndex = 0;
-	int cascadeShadowIndex = 0;
 	int directionalShadowIndex = 0;
 };

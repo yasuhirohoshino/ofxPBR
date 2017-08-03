@@ -3,10 +3,9 @@
 const int MAX_LIGHTS = 8;
 
 const int MODE_PBR = 0;
-const int MODE_SPOTSHADOW = 1;
-const int MODE_OMNISHADOW = 2;
-const int MODE_CASCADESHADOW = 3;
-const int MODE_DIRECTIONALSHADOW = 4;
+const int MODE_DIRECTIONALSHADOW = 1;
+const int MODE_SPOTSHADOW = 2;
+const int MODE_OMNISHADOW = 3;
 
 uniform int renderMode;
 

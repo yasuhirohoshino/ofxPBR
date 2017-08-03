@@ -143,11 +143,6 @@ void ofxPBRLight::setOmniShadowIndex(int index)
 	pointLightIndex = index;
 }
 
-void ofxPBRLight::setCascadeShadowIndex(int index)
-{
-	cascadeShadowIndex = index;
-}
-
 void ofxPBRLight::setDirectionalShadowIndex(int index)
 {
 	directionalShadowIndex = index;
