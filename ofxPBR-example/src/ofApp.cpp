@@ -17,7 +17,7 @@ void ofApp::setup(){
     pbr.setCubeMap(&cubeMap);
 	pbr.setDrawEnvironment(true);
     
-    // render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag");
+     render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag");
 
 	light2.setup();
 	light2.setLightType(LightType_Directional);
@@ -73,7 +73,7 @@ void ofApp::draw(){
 void ofApp::renderScene(){
 	ofEnableDepthTest();
 	glEnable(GL_CULL_FACE);
-	pbr.beginDefaultRenderer();
+	pbr.beginCustomRenderer(&render);
     {
         material.roughness = 0.25;
         material.metallic = 0.0;
