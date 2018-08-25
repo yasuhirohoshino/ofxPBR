@@ -233,17 +233,17 @@ float Falloff(float dist, float lightRadius) {
 	return att;
 }
 
-void CalcPointLight(vec3 normal, vec3 color, int index, float roughness, out vec3 deffuse, out vec3 specular) {
+void CalcPointLight(vec3 normal, vec3 diffuseColor, vec3 specularColor, int index, float roughness, out vec3 deffuse, out vec3 specular) {
 	Light light = lights[index];
 	vec3 s = normalize(light.vPosition - mv_positionVarying.xyz);
 	float dif = OrenNayarDiffuse(s, -normalize(mv_positionVarying.xyz), normal, roughness);
 	float falloff = Falloff(length(light.vPosition - mv_positionVarying.xyz), light.pointLightRadius);
 	float spec = CookTorranceSpecular(s, -normalize(mv_positionVarying.xyz), normal, roughness);
-	deffuse = light.intensity * (color.rgb * light.color.rgb * dif * falloff);
-	specular = light.intensity * (color.rgb * light.color.rgb * spec * falloff);
+	deffuse = light.intensity * (diffuseColor.rgb * light.color.rgb * dif * falloff);
+	specular = light.intensity * (specularColor.rgb * light.color.rgb * spec * falloff);
 }
 
-void CalcSpotLight(vec3 normal, vec3 color, int index, float roughness, out vec3 deffuse, out vec3 specular) {
+void CalcSpotLight(vec3 normal, vec3 diffuseColor, vec3 specularColor, int index, float roughness, out vec3 deffuse, out vec3 specular) {
 	Light light = lights[index];
 	vec3 s = normalize(light.vPosition - mv_positionVarying.xyz);
 	float angle = acos(dot(-s, light.direction));
@@ -253,8 +253,8 @@ void CalcSpotLight(vec3 normal, vec3 color, int index, float roughness, out vec3
 		float dif = OrenNayarDiffuse(s, -normalize(mv_positionVarying.xyz), normal, roughness);
 		float falloff = Falloff(length(light.vPosition - mv_positionVarying.xyz), light.spotLightDistance);
 		float spec = CookTorranceSpecular(s, -normalize(mv_positionVarying.xyz), normal, roughness);
-		deffuse = light.intensity * (color.rgb * light.color.rgb * dif * falloff) * smoothstep(cutoff2, cutoff1, angle);
-		specular = light.intensity * (color.rgb * light.color.rgb * spec * falloff) * smoothstep(cutoff2, cutoff1, angle);
+		deffuse = light.intensity * (diffuseColor.rgb * light.color.rgb * dif * falloff) * smoothstep(cutoff2, cutoff1, angle);
+		specular = light.intensity * (specularColor.rgb * light.color.rgb * spec * falloff) * smoothstep(cutoff2, cutoff1, angle);
 	}
 	else {
 		deffuse = vec3(0.0);
@@ -262,12 +262,12 @@ void CalcSpotLight(vec3 normal, vec3 color, int index, float roughness, out vec3
 	}
 }
 
-void CalcDirectionalLight(vec3 normal, vec3 color, int index, float roughness, out vec3 deffuse, out vec3 specular) {
+void CalcDirectionalLight(vec3 normal, vec3 diffuseColor, vec3 specularColor, int index, float roughness, out vec3 deffuse, out vec3 specular) {
 	Light light = lights[index];
 	float dif = OrenNayarDiffuse(-light.direction, -normalize(mv_positionVarying.xyz), normal, roughness);
 	float spec = CookTorranceSpecular(-light.direction, -normalize(mv_positionVarying.xyz), normal, roughness);
-	deffuse = light.intensity * (color.rgb * light.color.rgb * dif);
-	specular = light.intensity * (color.rgb * light.color.rgb * spec);
+	deffuse = light.intensity * (diffuseColor.rgb * light.color.rgb * dif);
+	specular = light.intensity * (specularColor.rgb * light.color.rgb * spec);
 }
 
 float CalcShadow(sampler2DArrayShadow shadowMap, vec3 projCoords, int lightIndex, int shadowIndex, int offset) {
@@ -326,17 +326,17 @@ float CalcOmniShadow(int index, vec3 fragPos) {
 	return shadow;
 }
 
-void LightWithShadow(vec3 normal, vec3 color, float roughness, int index, out vec3 deffuse, out vec3 specular) {
+void LightWithShadow(vec3 normal, vec3 diffuseColor, vec3 specularColor, float roughness, int index, out vec3 deffuse, out vec3 specular) {
 	vec3 lightDeffuse = vec3(0.0);
 	vec3 lightSpecular = vec3(0.0);
 	if (lights[index].type == LIGHTTYPE_DIRECTIONAL || lights[index].type == LIGHTTYPE_SKY) {
-		CalcDirectionalLight(normal, color, index, roughness, lightDeffuse, lightSpecular);
+		CalcDirectionalLight(normal, diffuseColor, specularColor, index, roughness, lightDeffuse, lightSpecular);
 	}
 	else if (lights[index].type == LIGHTTYPE_SPOT) {
-		CalcSpotLight(normal, color, index, roughness, lightDeffuse, lightSpecular);
+		CalcSpotLight(normal, diffuseColor, specularColor, index, roughness, lightDeffuse, lightSpecular);
 	}
 	else if (lights[index].type == LIGHTTYPE_POINT) {
-		CalcPointLight(normal, color, index, roughness, lightDeffuse, lightSpecular);
+		CalcPointLight(normal, diffuseColor, specularColor, index, roughness, lightDeffuse, lightSpecular);
 	}
 
 	float shadow = 1.0;
@@ -462,16 +462,16 @@ float GetOcclusion(vec2 texCoordVarying) {
 
 vec3 CalcColor(vec3 baseColor, float roughnessVal, float metallicVal, vec3 normal, vec3 reflectDir, float occlusion) {
 	vec3 viewDir = normalize(-mv_positionVarying.xyz);
-	vec3 diffuseColor = baseColor - baseColor * metallicVal;
-	vec3 specularColor = mix(vec3(0.01), baseColor, metallicVal);
+	vec3 diffuseColor = baseColor * (1.0 - metallicVal);
+	vec3 specularColor = mix(vec3(1.0), baseColor, metallicVal);
 	vec3 diffuse = PrefilterEnvMap(int(numMips * 2 / 3), normal) * diffuseColor;
-	vec3 specular = ApproximateSpecularIBL(specularColor, roughnessVal, normal, viewDir, reflectDir);
-	vec3 fresnel = Fresnel(normal, normalize(-mv_positionVarying.xyz), roughnessVal, reflectDir, 0.02) * specularColor * metallicVal;
+	vec3 specular = ApproximateSpecularIBL(specularColor, roughnessVal, normal, viewDir, reflectDir) * metallicVal;
+	vec3 fresnel = Fresnel(normal, normalize(-mv_positionVarying.xyz), roughnessVal, reflectDir, 0.2) * metallicVal;
 	for (int i = 0; i < numLights; i++) {
 		if (lights[i].isEnabled == true) {
 			vec3 lightDeffuse;
 			vec3 lightSpecular;
-			LightWithShadow(normal, diffuseColor, roughnessVal, i, lightDeffuse, lightSpecular);
+			LightWithShadow(normal, diffuseColor, specularColor, roughnessVal, i, lightDeffuse, lightSpecular);
 			diffuse += lightDeffuse;
 			specular += lightSpecular;
 		}

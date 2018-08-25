@@ -2,7 +2,6 @@
 
 #include "ofMain.h"
 #include "ofxPBR.h"
-#include "ofxGui.h"
 
 class ofApp : public ofBaseApp{
 

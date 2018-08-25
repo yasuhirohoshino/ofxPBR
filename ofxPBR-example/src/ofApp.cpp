@@ -13,17 +13,18 @@ void ofApp::setup(){
 
     cubeMap.load("Barce_Rooftop_C_3k.jpg", 1024, true, "filteredMapCache");
     pbr.setup(scene, &cam, 2048);
+	pbr.setUsingCameraFrustom(false);
     pbr.setCubeMap(&cubeMap);
 	pbr.setDrawEnvironment(true);
     
-    render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag");
+    // render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag");
 
 	light2.setup();
 	light2.setLightType(LightType_Directional);
 	//light2.setPosition(1500, 1000, 1500);
 	//light2.lookAt(ofVec3f(0));
 	//light2.setScale(1.5);
-	//light2.setColor(ofFloatColor(1.0));
+	//light2.setColor(ofFloatColor(0.0, 0.0, 1.0));
 	light2.setShadowType(ShadowType_Soft);
 	pbr.addLight(&light2);
     
@@ -50,8 +51,8 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	light.setPosition(500 * sin(ofGetElapsedTimef()), 500, 500 * cos(ofGetElapsedTimef()));
-	light.lookAt(ofVec3f(0));
+	//light.setPosition(500 * sin(ofGetElapsedTimef()), 500, 500 * cos(ofGetElapsedTimef()));
+	//light.lookAt(ofVec3f(0));
 
 	light2.setPosition(-sin(ofGetElapsedTimef()), 1, -cos(ofGetElapsedTimef()));
 	light2.lookAt(ofVec3f(0));
@@ -66,17 +67,13 @@ void ofApp::draw(){
 	cam.begin();
 	pbr.renderScene();
 	cam.end();
-
-    ofSetWindowTitle(ofToString(ofGetFrameRate()));
-	float t = ofGetElapsedTimef() - prevTime;
-	ofDrawBitmapString(ofToString(t), 20, 20);
 }
 
 //--------------------------------------------------------------
 void ofApp::renderScene(){
 	ofEnableDepthTest();
 	glEnable(GL_CULL_FACE);
-    pbr.beginCustomRenderer(&render);
+	pbr.beginDefaultRenderer();
     {
         material.roughness = 0.25;
         material.metallic = 0.0;
