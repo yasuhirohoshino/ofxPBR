@@ -270,7 +270,7 @@ void CalcDirectionalLight(vec3 normal, vec3 diffuseColor, vec3 specularColor, in
 	specular = light.intensity * (specularColor.rgb * light.color.rgb * spec);
 }
 
-float CalcShadow(sampler2DArrayShadow shadowMap, vec3 projCoords, int lightIndex, int shadowIndex, int offset) {
+float CalcShadow(sampler2DArrayShadow shadowMap, vec3 projCoords, int lightIndex, int shadowIndex, float offset) {
 	Light light = lights[lightIndex];
 	float visiblity = 1.0;
 	if (projCoords.x >= 1.0 || projCoords.x <= 0.0 ||
@@ -279,15 +279,15 @@ float CalcShadow(sampler2DArrayShadow shadowMap, vec3 projCoords, int lightIndex
 		visiblity = 1.0;
 	}else{
 		if(light.shadowType == SHADOWTYPE_SOFT){
-			ivec2 offsetArray1[4] = ivec2[](ivec2(-offset, -offset), ivec2(-offset, offset), ivec2(offset, offset), ivec2(offset, -offset));
+			vec2 offsetArray1[4] = vec2[](vec2(-offset, -offset), vec2(-offset, offset), vec2(offset, offset), vec2(offset, -offset));
 			visiblity = texture(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - light.bias));
 			for(int i = 0; i < 4; i++){
-				visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - light.bias), offsetArray1[i]);	
+				visiblity += texture(shadowMap, vec4(projCoords.xy + offsetArray1[i], shadowIndex, projCoords.z - light.bias));	
 			}
 			if(visiblity < 5.0){
-				ivec2 offsetArray2[4] = ivec2[](ivec2(0, offset), ivec2(offset, 0), ivec2(0, -offset), ivec2(-offset, 0));
+				vec2 offsetArray2[4] = vec2[](vec2(0, offset), vec2(offset, 0), vec2(0, -offset), vec2(-offset, 0));
 				for(int i = 0; i < 4; i++){
-					visiblity += textureOffset(shadowMap, vec4(projCoords.xy, shadowIndex, projCoords.z - light.bias), offsetArray2[i]);	
+					visiblity += texture(shadowMap, vec4(projCoords.xy + offsetArray2[i], shadowIndex, projCoords.z - light.bias));	
 				}
 				visiblity /= 9.0;
 			}else{
@@ -304,13 +304,13 @@ float CalcShadow(sampler2DArrayShadow shadowMap, vec3 projCoords, int lightIndex
 float CalcSpotShadow(int index) {
 	int shadowIndex = lights[index].spotShadowIndex;
 	vec3 projCoords = v_spotShadowCoord[shadowIndex].xyz / v_spotShadowCoord[shadowIndex].w;
-	return CalcShadow(spotShadowMap, projCoords, index, shadowIndex, 1);
+	return CalcShadow(spotShadowMap, projCoords, index, shadowIndex, 0.001);
 }
 
 float CalcDirectionalShadow(int index) {
 	int shadowIndex = lights[index].directionalShadowIndex;
 	vec3 projCoords = v_directionalShadowCoord[shadowIndex].xyz / v_directionalShadowCoord[shadowIndex].w;
-	return CalcShadow(directionalShadowMap, projCoords, index, shadowIndex, 1);
+	return CalcShadow(directionalShadowMap, projCoords, index, shadowIndex, 0.001);
 }
 
 float CalcOmniShadow(int index, vec3 fragPos) {

@@ -35,6 +35,4 @@ class ofApp : public ofBaseApp{
     
     ofShader render;
     ofShader render2;
-
-	float prevTime = 0;
 };
