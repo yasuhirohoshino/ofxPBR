@@ -27,12 +27,8 @@ class ofApp : public ofBaseApp{
     
     ofxPBRCubeMap cubeMap;
     ofxPBRMaterial material;
-    ofxPBRLight light, light2;
+    ofxPBRLight light1, light2;
     ofxPBR pbr;
     
-    ofShader renderShader;
     ofEasyCam cam;
-    
-    ofShader render;
-    ofShader render2;
 };

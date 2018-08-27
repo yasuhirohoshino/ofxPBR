@@ -2,9 +2,6 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	ofSetFrameRate(0);
-	ofSetVerticalSync(false);
-
     ofDisableArbTex();
     
     cam.setupPerspective(false, 60, 1, 5000);
@@ -13,46 +10,31 @@ void ofApp::setup(){
 
     cubeMap.load("Barce_Rooftop_C_3k.jpg", 1024, true, "filteredMapCache");
     pbr.setup(scene, &cam, 2048);
-	pbr.setUsingCameraFrustom(true);
+	pbr.setUsingCameraFrustomForShadow(false);
+	pbr.setDirectionalShadowBBox(0, 0, 0, 1000, 1000, 1000);
     pbr.setCubeMap(&cubeMap);
 	pbr.setDrawEnvironment(true);
     
-    render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag");
+	light1.setup();
+	light1.setLightType(LightType_Spot);
+	light1.setShadowType(ShadowType_Soft);
+	light1.setSpotLightGradient(10.0);
+	light1.setSpotLightDistance(3000);
+	light1.setSpotLightCutoff(30);
+	pbr.addLight(&light1);
 
 	light2.setup();
 	light2.setLightType(LightType_Directional);
-	//light2.setPosition(1500, 1000, 1500);
-	//light2.lookAt(ofVec3f(0));
-	//light2.setScale(1.5);
-	//light2.setColor(ofFloatColor(0.0, 0.0, 1.0));
 	light2.setShadowType(ShadowType_Soft);
 	pbr.addLight(&light2);
-    
-	light.setup();
-	//light.setEnable(true);
-	light.setLightType(LightType_Spot);
-	light.setShadowType(ShadowType_Soft);
-	light.setSpotLightGradient(10.0);
-	light.setSpotLightDistance(3000);
-	light.setSpotLightCutoff(30);
-	//   light.setPosition(-500, 1000, 500);
-	//   light.lookAt(ofVec3f(0));
-	//light.setScale(1.0);
-	//light.setColor(ofFloatColor(1.0));
-	//	//light.setSpotLightDistance(5000);
-	//	//light.setSpotLightCutoff(45);
-	////    light.setPointLightRadius(5000);
-	//light.setNearClip(1.0);
-	//light.setFarClip(5000);
-	pbr.addLight(&light);
 
     cubeMap.setEnvLevel(0.3);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	light.setPosition(500 * sin(ofGetElapsedTimef()), 500, 500 * cos(ofGetElapsedTimef()));
-	light.lookAt(ofVec3f(0));
+	light1.setPosition(500 * sin(ofGetElapsedTimef()), 500, 500 * cos(ofGetElapsedTimef()));
+	light1.lookAt(ofVec3f(0));
 
 	light2.setPosition(-sin(ofGetElapsedTimef()), 1, -cos(ofGetElapsedTimef()));
 	light2.lookAt(ofVec3f(0));
@@ -70,7 +52,7 @@ void ofApp::draw(){
 void ofApp::renderScene(){
 	ofEnableDepthTest();
 	glEnable(GL_CULL_FACE);
-	pbr.beginCustomRenderer(&render);
+	pbr.beginDefaultRenderer();
     {
         material.roughness = 0.25;
         material.metallic = 0.0;
@@ -90,7 +72,7 @@ void ofApp::renderScene(){
             }
         }
 	}
-	pbr.endCustomRenderer();
+	pbr.endDefaultRenderer();
 	glDisable(GL_CULL_FACE);
 	ofDisableDepthTest();
 }
@@ -102,7 +84,7 @@ void ofApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-	render.load("ofxPBRShaders/default.vert", "ofxPBRShaders/default.frag");
+
 }
 
 //--------------------------------------------------------------
