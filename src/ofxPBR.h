@@ -48,8 +48,8 @@ public:
 	void setMaxOmniShadow(int maxOmniShadow);
 	void setMaxDirectionalShadow(int maxDirectionalShadow);
 	void resizeDepthMap(int resolution);
-	void setDirectionalShadowBB(float x, float y, float z, float width, float height, float depth);
-	void setUsingCameraFrustom(bool usingCameraFrustom);
+	void setDirectionalShadowBBox(float x, float y, float z, float width, float height, float depth);
+	void setUsingCameraFrustomForShadow(bool usingCameraFrustom);
 
 	// light
 	void addLight(ofxPBRLight* light);

@@ -178,12 +178,12 @@ void ofxPBR::resizeDepthMap(int resolution){
     spotShadow.resizeDepthMap(resolution);
 }
 
-void ofxPBR::setDirectionalShadowBB(float x, float y, float z, float width, float height, float depth)
+void ofxPBR::setDirectionalShadowBBox(float x, float y, float z, float width, float height, float depth)
 {
 	directionalShadow.setBoundingBox(x, y, x, width, height, depth);
 }
 
-void ofxPBR::setUsingCameraFrustom(bool usingCameraFrustom)
+void ofxPBR::setUsingCameraFrustomForShadow(bool usingCameraFrustom)
 {
 	directionalShadow.setUsingCameraFrustom(usingCameraFrustom);
 }
