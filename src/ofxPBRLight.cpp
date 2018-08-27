@@ -16,18 +16,18 @@ void ofxPBRLight::setEnable(bool enable) {
 
 // for rendering shader
 
-ofVec3f ofxPBRLight::getViewSpacePosition(ofMatrix4x4 viewMatrix) {
+ofVec3f ofxPBRLight::getViewSpacePosition(glm::mat4 viewMatrix) {
 	float w = 1.0;
 	if (lightData.lightType == LightType_Directional || lightData.lightType == LightType_Sky) {
 		w = 0.0;
 	}
 	ofVec4f pos = ofVec4f(this->getPosition().x, this->getPosition().y, this->getPosition().z, w);
-	return pos * viewMatrix;
+	return  viewMatrix * pos;
 }
 
-ofVec3f ofxPBRLight::getViewSpaceDirection(ofMatrix4x4 viewMatrix) {
+ofVec3f ofxPBRLight::getViewSpaceDirection(glm::mat4 viewMatrix) {
 	ofVec4f dir = ofVec4f(getLookAtDir().x, getLookAtDir().y, getLookAtDir().z, 0.0);
-	return ofVec3f(dir * viewMatrix).getNormalized();
+	return ofVec3f(viewMatrix * dir).getNormalized();
 }
 
 // color

@@ -18,6 +18,6 @@ private:
 	float BBWidth, BBHeight, BBDepth;
 	float negX, posX, negY, posY, negZ, posZ;
 	ofCamera depthCam;
-	ofMatrix4x4 cameraInverseViewMmatrix;
+	glm::mat4 cameraInverseViewMmatrix;
 	bool usingCameraFrustom = true;
 };

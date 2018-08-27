@@ -3,8 +3,8 @@
 void ofxPBRShadow::setup(int maxShadow, int resolution) {
 	this->maxShadow = maxShadow;
 	this->depthMapRes = resolution;
-	viewProjMatrix.assign(maxShadow, ofMatrix4x4());
-	shadowMatrix.assign(maxShadow, ofMatrix4x4());
+	viewProjMatrix.assign(maxShadow, glm::mat4());
+	shadowMatrix.assign(maxShadow, glm::mat4());
 	initFbo();
 }
 
@@ -15,8 +15,8 @@ void ofxPBRShadow::resizeDepthMap(int resolution) {
 
 void ofxPBRShadow::setMaxShadow(int maxShadow) {
 	this->maxShadow = maxShadow;
-	viewProjMatrix.assign(maxShadow, ofMatrix4x4());
-	shadowMatrix.assign(maxShadow, ofMatrix4x4());
+	viewProjMatrix.assign(maxShadow, glm::mat4());
+	shadowMatrix.assign(maxShadow, glm::mat4());
 	initFbo();
 }
 
@@ -44,7 +44,7 @@ void ofxPBRShadow::initFbo() {
 
 void ofxPBRShadow::beginDepthMap(int index, ofCamera * cam, ofCamera * depthCam) {
 	viewProjMatrix[index] = depthCam->getModelViewProjectionMatrix(ofRectangle(0, 0, depthMapRes, depthMapRes));
-	shadowMatrix[index] = viewProjMatrix[index] * biasMatrix;
+	shadowMatrix[index] = biasMatrix * viewProjMatrix[index];
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
 	glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMapIndex, 0, index);
 	ofPushView();

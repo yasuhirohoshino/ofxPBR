@@ -70,9 +70,9 @@ void ofxPBRDirectionalShadow::setUsingCameraFrustom(bool usingCameraFrustom)
 
 void ofxPBRDirectionalShadow::beginDepthMap(int index, ofCamera * cam, ofCamera * light)
 {
-	ofMatrix4x4 lightMatrix;
-	lightMatrix.makeLookAtViewMatrix(ofVec3f(0.0), -light->getLookAtDir(), ofVec3f(0.0, 1.0, 0.0));
-	ofMatrix4x4 inverseLightViewMatrix = lightMatrix.getInverse();
+	glm::mat4 lightMatrix;
+	lightMatrix = glm::lookAt(glm::vec3(0.0), -light->getLookAtDir(), glm::vec3(0.0, 1.0, 0.0));
+	glm::mat4 inverseLightViewMatrix = glm::inverse(lightMatrix);
 
 	float minX, minY, minZ, maxX, maxY, maxZ;
 	minX = FLT_MAX;
@@ -83,8 +83,8 @@ void ofxPBRDirectionalShadow::beginDepthMap(int index, ofCamera * cam, ofCamera 
 	maxZ = FLT_MIN;
 
 	for (int j = 0; j < 8; j++) {
-		ofVec3f AABBCorner = ofVec3f(ofVec4f(corners[j].x, corners[j].y, corners[j].z, 1.0) * cameraInverseViewMmatrix);
-		AABBCorner = ofVec3f(ofVec4f(AABBCorner.x, AABBCorner.y, AABBCorner.z, 1.0) * lightMatrix);
+		glm::vec3 AABBCorner = glm::vec3(cameraInverseViewMmatrix * glm::vec4(corners[j].x, corners[j].y, corners[j].z, 1.0));
+		AABBCorner = glm::vec3(lightMatrix * glm::vec4(AABBCorner.x, AABBCorner.y, AABBCorner.z, 1.0));
 		minX = fminf(minX, AABBCorner.x);
 		minY = fminf(minY, AABBCorner.y);
 		minZ = fminf(minZ, AABBCorner.z);
@@ -94,14 +94,14 @@ void ofxPBRDirectionalShadow::beginDepthMap(int index, ofCamera * cam, ofCamera 
 	}
 
 	ofVec3f AABBCorners[8];
-	AABBCorners[0] = ofVec3f(ofVec4f(minX, minY, minZ, 1.0) * inverseLightViewMatrix);
-	AABBCorners[1] = ofVec3f(ofVec4f(maxX, minY, minZ, 1.0) * inverseLightViewMatrix);
-	AABBCorners[2] = ofVec3f(ofVec4f(maxX, maxY, minZ, 1.0) * inverseLightViewMatrix);
-	AABBCorners[3] = ofVec3f(ofVec4f(minX, maxY, minZ, 1.0) * inverseLightViewMatrix);
-	AABBCorners[4] = ofVec3f(ofVec4f(minX, minY, maxZ, 1.0) * inverseLightViewMatrix);
-	AABBCorners[5] = ofVec3f(ofVec4f(maxX, minY, maxZ, 1.0) * inverseLightViewMatrix);
-	AABBCorners[6] = ofVec3f(ofVec4f(maxX, maxY, maxZ, 1.0) * inverseLightViewMatrix);
-	AABBCorners[7] = ofVec3f(ofVec4f(minX, maxY, maxZ, 1.0) * inverseLightViewMatrix);
+	AABBCorners[0] = glm::vec3(inverseLightViewMatrix * glm::vec4(minX, minY, minZ, 1.0));
+	AABBCorners[1] = glm::vec3(inverseLightViewMatrix * glm::vec4(maxX, minY, minZ, 1.0));
+	AABBCorners[2] = glm::vec3(inverseLightViewMatrix * glm::vec4(maxX, maxY, minZ, 1.0));
+	AABBCorners[3] = glm::vec3(inverseLightViewMatrix * glm::vec4(minX, maxY, minZ, 1.0));
+	AABBCorners[4] = glm::vec3(inverseLightViewMatrix * glm::vec4(minX, minY, maxZ, 1.0));
+	AABBCorners[5] = glm::vec3(inverseLightViewMatrix * glm::vec4(maxX, minY, maxZ, 1.0));
+	AABBCorners[6] = glm::vec3(inverseLightViewMatrix * glm::vec4(maxX, maxY, maxZ, 1.0));
+	AABBCorners[7] = glm::vec3(inverseLightViewMatrix * glm::vec4(minX, maxY, maxZ, 1.0));
 
 	float sx = (ofVec3f(maxX, minY, minZ) - ofVec3f(minX, minY, minZ)).length() / depthMapRes;
 	float sy = (ofVec3f(minX, maxY, minZ) - ofVec3f(minX, minY, minZ)).length() / depthMapRes;

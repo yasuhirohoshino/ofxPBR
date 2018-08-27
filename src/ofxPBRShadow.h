@@ -13,8 +13,8 @@ public:
 
 	int getMaxShadow() { return maxShadow; }
 	int getDepthMapResolution() { return depthMapRes; }
-	ofMatrix4x4 getViewProjMatrix(int index) { return viewProjMatrix[index]; }
-	vector<ofMatrix4x4> getShadowMatrix() { return shadowMatrix; }
+	glm::mat4 getViewProjMatrix(int index) { return viewProjMatrix[index]; }
+	vector<glm::mat4> getShadowMatrix() { return shadowMatrix; }
 
 protected:
 	void initFbo();
@@ -25,9 +25,9 @@ protected:
 	GLuint depthMapFbo;
 	int currentTexIndex = 0;
 
-	vector<ofMatrix4x4> viewProjMatrix;
-	vector<ofMatrix4x4> shadowMatrix;
-	const ofMatrix4x4 biasMatrix = ofMatrix4x4(
+	vector<glm::mat4> viewProjMatrix;
+	vector<glm::mat4> shadowMatrix;
+	const glm::mat4 biasMatrix = glm::mat4(
 		0.5, 0.0, 0.0, 0.0,
 		0.0, 0.5, 0.0, 0.0,
 		0.0, 0.0, 0.5, 0.0,

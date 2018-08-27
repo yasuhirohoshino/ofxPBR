@@ -106,8 +106,8 @@ public:
 	ofxPBRLightData getParameters() { return lightData; }
 
 	// for rendering shader
-	ofVec3f getViewSpacePosition(ofMatrix4x4 viewMatrix);
-	ofVec3f getViewSpaceDirection(ofMatrix4x4 viewMatrix);
+	ofVec3f getViewSpacePosition(glm::mat4 viewMatrix);
+	ofVec3f getViewSpaceDirection(glm::mat4 viewMatrix);
 
 private:
 	void setSkyLightPos();

@@ -45,9 +45,6 @@ void ofApp::draw(){
 	pbr.updateDepthMaps();
 	cam.begin();
 	pbr.renderScene();
-
-	ofDrawSphere(light1.getPosition(), 20.0);
-	ofDrawLine(light1.getPosition(), light1.getPosition() + light1.getLookAtDir() * 100.0);
 	cam.end();
 }
 

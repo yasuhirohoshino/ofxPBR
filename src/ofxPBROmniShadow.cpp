@@ -5,7 +5,7 @@ void ofxPBROmniShadow::setup(int maxShadow, int resolution)
 	this->maxShadow = maxShadow;
 	this->depthMapRes = resolution;
 	for (int i = 0; i < 6; i++) {
-		pointLightViewProjMat[i].assign(maxShadow, ofMatrix4x4());
+		pointLightViewProjMat[i].assign(maxShadow, glm::mat4());
 	}
 	initFbo();
 }
@@ -25,20 +25,20 @@ void ofxPBROmniShadow::setMaxShadow(int maxShadow)
 
 void ofxPBROmniShadow::updateMatrix(int index, ofCamera * lightCam)
 {
-	ofMatrix4x4 shadowProjMatrix;
-	shadowProjMatrix.makePerspectiveMatrix(90.0, 1.0, 1.0, lightCam->getFarClip());
+	glm::mat4 shadowProjMatrix;
+	shadowProjMatrix = glm::perspective(ofDegToRad(90), 1.0f, 1.0f, lightCam->getFarClip());
 
-	ofMatrix4x4 pointLightLookAtMat[6];
-	pointLightLookAtMat[0].makeLookAtViewMatrix(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + ofVec3f(1, 0, 0), ofVec3f(0, -1, 0));
-	pointLightLookAtMat[1].makeLookAtViewMatrix(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + ofVec3f(-1, 0, 0), ofVec3f(0, -1, 0));
-	pointLightLookAtMat[2].makeLookAtViewMatrix(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + ofVec3f(0, 1, 0), ofVec3f(0, 0, 1));
-	pointLightLookAtMat[3].makeLookAtViewMatrix(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + ofVec3f(0, -1, 0), ofVec3f(0, 0, -1));
-	pointLightLookAtMat[4].makeLookAtViewMatrix(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + ofVec3f(0, 0, 1), ofVec3f(0, -1, 0));
-	pointLightLookAtMat[5].makeLookAtViewMatrix(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + ofVec3f(0, 0, -1), ofVec3f(0, -1, 0));
+	glm::mat4 pointLightLookAtMat[6];
+	pointLightLookAtMat[0] = (glm::lookAt(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + glm::vec3(1, 0, 0), glm::vec3(0, -1, 0)));
+	pointLightLookAtMat[1] = (glm::lookAt(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + glm::vec3(-1, 0, 0), glm::vec3(0, -1, 0)));
+	pointLightLookAtMat[2] = (glm::lookAt(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + glm::vec3(0, 1, 0), glm::vec3(0, 0, 1)));
+	pointLightLookAtMat[3] = (glm::lookAt(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + glm::vec3(0, -1, 0), glm::vec3(0, 0, -1)));
+	pointLightLookAtMat[4] = (glm::lookAt(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + glm::vec3(0, 0, 1), glm::vec3(0, -1, 0)));
+	pointLightLookAtMat[5] = (glm::lookAt(lightCam->getGlobalPosition(), lightCam->getGlobalPosition() + glm::vec3(0, 0, -1), glm::vec3(0, -1, 0)));
 
 	// make view projection matricies
 	for (int i = 0; i < 6; i++) {
-		pointLightViewProjMat[i][index] = pointLightLookAtMat[i] * shadowProjMatrix;
+		pointLightViewProjMat[i][index] = shadowProjMatrix * pointLightLookAtMat[i];
 	}
 }
 

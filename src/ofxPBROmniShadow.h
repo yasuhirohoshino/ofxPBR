@@ -15,7 +15,7 @@ public:
 
 	int getMaxShadow() { return maxShadow; }
 	int getDepthMapResolution() { return depthMapRes; }
-	ofMatrix4x4 getViewProjMatrix(int index, int face) { return pointLightViewProjMat[face][index]; }
+	glm::mat4 getViewProjMatrix(int index, int face) { return pointLightViewProjMat[face][index]; }
 
 private:
 	void initFbo();
@@ -26,5 +26,5 @@ private:
     GLuint texIndex;
     GLuint fbo;
 
-	vector<ofMatrix4x4> pointLightViewProjMat[6];
+	vector<glm::mat4> pointLightViewProjMat[6];
 };

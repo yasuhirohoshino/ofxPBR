@@ -345,11 +345,11 @@ void ofxPBR::beginPBR(){
     // depth map uniforms
 	directionalShadow.bind(10);
 	PBRShader->setUniform1i("directionalShadowMap", 10);
-	glUniformMatrix4fv(PBRShader->getUniformLocation("directionalShadowMatrix"), directionalShadow.getShadowMatrix().size(), false, directionalShadow.getShadowMatrix()[0].getPtr());
+	glUniformMatrix4fv(PBRShader->getUniformLocation("directionalShadowMatrix"), directionalShadow.getShadowMatrix().size(), false, &directionalShadow.getShadowMatrix()[0][0][0]);
 
 	spotShadow.bind(11);
 	PBRShader->setUniform1i("spotShadowMap", 11);
-	glUniformMatrix4fv(PBRShader->getUniformLocation("spotShadowMatrix"), spotShadow.getShadowMatrix().size(), false, spotShadow.getShadowMatrix()[0].getPtr());
+	glUniformMatrix4fv(PBRShader->getUniformLocation("spotShadowMatrix"), spotShadow.getShadowMatrix().size(), false, &spotShadow.getShadowMatrix()[0][0][0]);
 
 	omniShadow.bind(12);
 	PBRShader->setUniform1i("omniShadowMap", 12);
