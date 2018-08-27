@@ -213,7 +213,7 @@ void ofxPBRCubeMap::generate(){
     
     sphereMesh = ofSpherePrimitive(2048, 100).getMesh();
     for(int i=0;i<sphereMesh.getNormals().size();i++){
-        sphereMesh.setNormal(i, ofVec3f(-1.0, 1.0, 1.0) * sphereMesh.getVertex(i).normalize());
+        sphereMesh.setNormal(i, ofVec3f(-1.0, 1.0, 1.0) * glm::normalize(sphereMesh.getVertex(i)));
     }
     envSphereMesh = ofSpherePrimitive(2048, 100).getMesh();
     for(int i=0;i<envSphereMesh.getTexCoords().size();i++){

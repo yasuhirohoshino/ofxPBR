@@ -34,10 +34,10 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
 	light1.setPosition(500 * sin(ofGetElapsedTimef()), 500, 500 * cos(ofGetElapsedTimef()));
-	light1.lookAt(ofVec3f(0));
+	light1.lookAt(glm::vec3(0), glm::vec3(0.0, 1.0, 0.0));
 
 	light2.setPosition(-sin(ofGetElapsedTimef()), 1, -cos(ofGetElapsedTimef()));
-	light2.lookAt(ofVec3f(0));
+	light2.lookAt(glm::vec3(0), glm::vec3(0.0, 1.0, 0.0));
 }
 
 //--------------------------------------------------------------
@@ -45,6 +45,9 @@ void ofApp::draw(){
 	pbr.updateDepthMaps();
 	cam.begin();
 	pbr.renderScene();
+
+	ofDrawSphere(light1.getPosition(), 20.0);
+	ofDrawLine(light1.getPosition(), light1.getPosition() + light1.getLookAtDir() * 100.0);
 	cam.end();
 }
 
@@ -54,14 +57,13 @@ void ofApp::renderScene(){
 	glEnable(GL_CULL_FACE);
 	pbr.beginDefaultRenderer();
     {
+		glCullFace(GL_FRONT);
         material.roughness = 0.25;
         material.metallic = 0.0;
         material.begin(&pbr);
-		glCullFace(GL_BACK);
         ofDrawBox(0, -40, 0, 2000, 10, 2000);
         material.end();
         
-		glCullFace(GL_FRONT);
         for(int i=0;i<10;i++){
             material.roughness = float(i) / 9.0;
             for(int j=0;j<10;j++){

@@ -10,7 +10,7 @@ void ofxPBR::setup(function<void()> scene, ofCamera* camera, int depthMapResolut
 
 	sphereMesh = ofSpherePrimitive(1, 100).getMesh();
 	for (int i = 0; i<sphereMesh.getNormals().size(); i++) {
-		sphereMesh.setNormal(i, ofVec3f(1.0, 1.0, -1.0) * sphereMesh.getVertex(i).normalize());
+		sphereMesh.setNormal(i, ofVec3f(1.0, 1.0, -1.0) * glm::normalize(sphereMesh.getVertex(i)));
 	}
 
 	spotShadow.setup(4, depthMapResolution);
@@ -133,9 +133,12 @@ void ofxPBR::setDrawEnvironment(bool enable)
 void ofxPBR::drawEnvironment(){
 	if (enableCubemap && cubeMap != nullptr && cubeMap->isAllocated()) {
 		float scale = (camera->getFarClip() - camera->getNearClip()) / 2;
+		glm::mat4 invCurrentViewMatrix = glm::inverse(ofGetCurrentViewMatrix());
+		glm::vec3 translate = glm::vec3(invCurrentViewMatrix[3][0], invCurrentViewMatrix[3][1], invCurrentViewMatrix[3][2]);
+
 		ofDisableDepthTest();
 		ofPushMatrix();
-		ofTranslate(ofGetCurrentViewMatrix().getInverse().getTranslation());
+		ofTranslate(translate);
 		cubeMap->bind(1);
 		envShader->begin();
 		envShader->setUniform1f("envLevel", cubeMap->getEnvLevel());
@@ -289,7 +292,7 @@ void ofxPBR::beginPBR(){
 
 	// common uniforms
 	PBRShader->setUniform1i("renderMode", renderMode);
-	PBRShader->setUniformMatrix4f("viewTranspose", ofMatrix4x4::getTransposedOf(camera->getModelViewMatrix()));
+	PBRShader->setUniformMatrix4f("viewTranspose", glm::transpose(camera->getModelViewMatrix()));
 	PBRShader->setUniformMatrix4f("viewMatrix", camera->getModelViewMatrix());
 
     // cubemap uniforms

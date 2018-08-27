@@ -115,7 +115,7 @@ void ofxPBRLight::setSkyLightPos()
 	pos.z = sin(lightData.skyLightLatitude) * sin(lightData.skyLightLongitude + lightData.skyLightAngle);
 	pos.y = cos(lightData.skyLightLatitude);
 	setPosition(pos);
-	this->lookAt(ofVec3f::zero());
+	this->lookAt(ofVec3f::zero(), glm::vec3(0, 1, 0));
 }
 
 // shadow

@@ -8,7 +8,7 @@ void ofxPBRDirectionalShadow::setup(int maxShadow, int resolution)
 void ofxPBRDirectionalShadow::calcCorners(ofCamera * cam)
 {
 	if (usingCameraFrustom) {
-		cameraInverseViewMmatrix = cam->getModelViewMatrix().getInverse();
+		cameraInverseViewMmatrix = glm::inverse(cam->getModelViewMatrix());
 		float nearClip = cam->getNearClip();
 		float farClip = cam->getFarClip();
 
@@ -114,7 +114,7 @@ void ofxPBRDirectionalShadow::beginDepthMap(int index, ofCamera * cam, ofCamera 
 	depthCam.setVFlip(false);
 	depthCam.enableOrtho();
 	depthCam.setPosition(position);
-	depthCam.lookAt(target);
+	depthCam.lookAt(target, glm::vec3(0, 1, 0));
 	depthCam.setNearClip(0.01);
 	depthCam.setFarClip(depthCamFarClip);
 	depthCam.setScale(sx, sy, 1);
