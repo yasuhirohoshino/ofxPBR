@@ -17,98 +17,103 @@ enum ShadowType{
     NumShadowTypes = 3
 };
 
+struct ofxPBRLightData{
+    LightType lightType = LightType_Directional;
+	bool enable = true;
+    ofFloatColor color = ofFloatColor(1.0,1.0,1.0,1.0);
+    float intensity = 1.0;
+
+	// shadow
+	ShadowType shadowType = ShadowType_Hard;
+	float shadowBias = 0.005;
+	float shadowStrength = 1.0;
+
+	// pointLight
+	float pointLightRadius = 1000;
+
+	// spotLight
+	float spotLightGradient = 1;
+	float spotLightCutoff = 30;
+	float spotLightDistance = 5000;
+
+	// skyLight
+	float skyLightLatitude = 0;
+	float skyLightLongitude = 0;
+	float skyLightAngle = 0;
+};
+
 class ofxPBRLight : public ofCamera{
 public:
     ofxPBRLight();
     ~ofxPBRLight();
 
-	void setup(float resolution);
-    
-    void enable(bool isEnabled = true);
-    void disable();
-    bool isEnabled();
-	void setSkyLightCoordinate(float longitude, float latitude, float radius);
-	void setSkyLightRotation(float angle);
-    
-    // depth camera
-    void lookAt(ofVec3f target);
-    void setDepthMapRes(float resolution);
-    void beginDepthCamera();
-    void endDepthCamera();
-    
-    // for rendering shader
-    ofVec3f getViewSpacePosition(ofMatrix4x4 viewMatrix);
-    ofMatrix4x4 getShadowMatrix(ofMatrix4x4 cameraModelViewMatrix);
-    ofVec3f getViewSpaceDirection(ofMatrix4x4 viewMatrix);
-    
+	void setup();
+    void setEnable(bool enable);
+	void setLightType(LightType lightType);
+
     // color
     void setColor(ofFloatColor color);
     void setColor(ofColor color);
-    ofFloatColor getColor();
-    
-    // light
-    void setLightType(LightType lightType);
-    LightType getLightType();
-    void setIntensity(float intensity);
-    float getIntensity();
-    
-    // spotlight & pointlight
-    void setRadius(float radius);
-    float getRadius();
+	void setIntensity(float intensity);
+
+	// pointLight
+	void setPointLightRadius(float radius);
     
     // spotLight
-    void setCutoff(float cutoff);
-    float getCutoff();
-    void setSpotFactor(float spotFactor);
-    float getSpotFactor();
+	void setSpotLightCutoff(float cutoff);
+	void setSpotLightGradient(float spotFactor);
+	void setSpotLightDistance(float distance);
+
+	// skyLight
+	void setSkyLightCoordinate(float longitude, float latitude);
+	void setSkyLightRotation(float angle);
     
     // shadow
     void setShadowType(ShadowType shadowType);
-    ShadowType getShadowType();
     void setShadowBias(float shadowBias);
-    float getShadowBias();
-    void setSoftShadowExponent(float softShadowExponent);
-    float getSoftShadowExponent();
-    void beginLighting(ofShader * shader, int index);
-    void endLighting(ofShader * shader);
-    
-	void setSkyLighExposure(float brightness);
+	void setShadowStrength(float strength);
+	void setSpotShadowIndex(int index);
+	void setOmniShadowIndex(int index);
+	void setDirectionalShadowIndex(int index);
 
-	float getSkyLightLatitude();
-	float getSkyLightLongitude();
-	float getSkyLightRadius();
+	// paremeters
+	void setParameters(ofxPBRLightData params);
 
-	void setId(int id);
-	int getId();
-    
+	// getter
+
+	bool getIsEnabled() { return lightData.enable; }
+	LightType getLightType() { return lightData.lightType; }
+
+	ofFloatColor getColor() { return lightData.color; }
+	float getIntensity() { return lightData.intensity; }
+
+	float getPointLightRadius() { return lightData.pointLightRadius; }
+
+	float getSpotLightCutoff() { return lightData.spotLightCutoff; }
+	float getSpotLightGradient() { return lightData.spotLightGradient; }
+	float getSpotLightDistance() { return lightData.spotLightDistance; }
+
+	float getSkyLightLatitude() { return lightData.skyLightLatitude; }
+	float getSkyLightLongitude() { return lightData.skyLightLongitude; }
+
+	ShadowType getShadowType() { return lightData.shadowType; }
+	float getShadowBias() { return lightData.shadowBias; }
+	float getShadowStrength() { return lightData.shadowStrength; }
+	int getSpotShadowIndex() { return spotShadowIndex; }
+	int getOmniShadowIndex() { return pointLightIndex; }
+	int getDirectionalShadowIndex() { return directionalShadowIndex; }
+
+	ofxPBRLightData getParameters() { return lightData; }
+
+	// for rendering shader
+	ofVec3f getViewSpacePosition(glm::mat4 viewMatrix);
+	ofVec3f getViewSpaceDirection(glm::mat4 viewMatrix);
+
 private:
-	void begin() { this->::ofCamera::begin(); };
-	void end() { this->::ofCamera::end(); };
-    ofFloatColor color = ofFloatColor(1.0,1.0,1.0,1.0);
-    LightType lightType = LightType_Directional;
-    ShadowType shadowType = ShadowType_Soft;
-	ofVec3f target = ofVec3f::zero();
-    float spotFactor = 1;
-    float cutoff = 45;
-    float radius = 1000;
-    float depthMapRes = 1024;
-    float shadowBias = 0.001;
-    float softShadowExponent = 75.0;
-    float intensity = 1.0;
-    bool isLightEnabled = true;
-    ofMatrix4x4 shadowTransMatrix;
-    const ofMatrix4x4 biasMatrix = ofMatrix4x4(
-                                               0.5, 0.0, 0.0, 0.0,
-                                               0.0, 0.5, 0.0, 0.0,
-                                               0.0, 0.0, 0.5, 0.0,
-                                               0.5, 0.5, 0.5, 1.0
-                                               );
-	string lightIndex;
-	int id;
+	void setSkyLightPos();
+	ofxPBRLightData lightData;
 
-	float skyLightLatitude = 0;
-	float skyLightLongitude = 0;
-	float skyLightRadius = 0;
-	float skyLightExposure = 1.0;
-	float skyLightAngle = 0;
+	int spotShadowIndex = 0;
+	int pointLightIndex = 0;
+	int directionalShadowIndex = 0;
 };
