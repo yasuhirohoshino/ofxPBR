@@ -4,25 +4,15 @@
 class ofxPBR;
 class ofxPBRMaterial{
 public:
-    bool enableBaseColorMap = false;
-    bool enableRoughnessMap = false;
-    bool enableMetallicMap = false;
-    bool enableNormalMap = false;
-    bool enableOcclusionMap = false;
-    bool enableEmissionMap = false;
-    bool enableDetailBaseColorMap = false;
-    bool enableDetailNormalMap = false;
+    bool enableBaseColorMap = true;
+    bool enableRoughnessMap = true;
+    bool enableMetallicMap = true;
+    bool enableNormalMap = true;
+    bool enableOcclusionMap = true;
+    bool enableEmissionMap = true;
+    bool enableDetailBaseColorMap = true;
+    bool enableDetailNormalMap = true;
     bool enableGlobalColor = false;
-    
-    GLuint baseColorMapIndex;
-    GLuint roughnessMapIndex;
-    GLuint metallicMapIndex;
-    GLuint normalMapIndex;
-    GLuint occlusionMapIndex;
-    GLuint emissionMapIndex;
-    GLuint detailBaseColorMapIndex;
-    GLuint DetailNormalMapIndex;
-    GLuint GlobalColorIndex;
         
     ofTexture* baseColorMap;
     ofTexture* roughnessMap;
@@ -32,16 +22,18 @@ public:
     ofTexture* emissionMap;
     ofTexture* detailBaseColorMap;
     ofTexture* detailNormalMap;
+
     ofFloatColor baseColor = ofFloatColor(1);
     float roughness = 0.0;
     float metallic = 0.0;
     float normalVal = 1.0;
-    ofVec2f textureRepeat = ofVec2f(1.0, 1.0);
+    
+	ofVec2f textureRepeat = ofVec2f(1.0, 1.0);
     ofVec2f detailTextureRepeat = ofVec2f(1.0, 1.0);
     
-    void begin(ofxPBR* pbr);
-    void begin(ofShader* shader);
+    void begin(ofxPBR * pbr);
     void end();
 private:
     ofShader* shader;
+	ofxPBR* pbr;
 };

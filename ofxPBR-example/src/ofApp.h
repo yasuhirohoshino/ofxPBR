@@ -28,9 +28,26 @@ class ofApp : public ofBaseApp{
     
     ofxPBRCubeMap cubeMap;
     ofxPBRMaterial material;
-    ofxPBRLight light;
+    ofxPBRLight directionalLight, pointLight, spotLight;
     ofxPBR pbr;
     
-    ofShader renderShader;
     ofEasyCam cam;
+
+	ofImage groundBaseColor;
+	ofImage groundMetallic;
+	ofImage groundRoughness;
+	ofImage groundNormal;
+	ofxPBRMaterial groundMaterial;
+
+	ofxPanel gui;
+	ofParameter<ofFloatColor> materialColor;
+
+	ofParameter<bool> enableDerectionalLight;
+	ofParameter<ofFloatColor> directionalLightColor;
+	
+	ofParameter<bool> enablePointLight;
+	ofParameter<ofFloatColor> pointLightColor;
+
+	ofParameter<bool> enableSpotLight;
+	ofParameter<ofFloatColor> spotLightColor;
 };

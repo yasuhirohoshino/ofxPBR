@@ -3,6 +3,8 @@
 
 #define STRINGIFY(A) #A
 
+// based on https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
+
 class ImportanceSampling{
 public:
     string gl3VertShader;

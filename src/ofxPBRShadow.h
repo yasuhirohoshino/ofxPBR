@@ -1,38 +1,36 @@
-#ifndef ofxPBRShadow_h
-#define ofxPBRShadow_h
-
+#pragma once
 #include "ofMain.h"
-#include "ofxPBRLight.h"
-#include "shaders/blur.h"
 
-class ofxPBRShadow{
+class ofxPBRShadow {
 public:
-    void setup(int resolution);
-    void resizeDepthMap(int resolution);
-    void setNumLights(int numLights);
-    void beginDepthMap(ofxPBRLight * pbrLight, int index);
-    void endDepthMap();
-    ofTexture *getDepthMap();
-    int getDepthMapResolution();
-    ofVec2f getDepthMapAtrasRes();
-    ofVec2f getDepthTexMag();
-    
-private:
-    void setShadowMap();
-    
-    ofShader blurShader, depthShader;
-    ofMatrix4x4 inverseCameraMatrix;
-    int depthMapRes;
-    int depthMapAtrasWidth, depthMapAtrasHeight;
-    ofVec2f depthTexMag;
-    ofFbo depthMap;
-    ofFbo depthSumFbo, blurVFbo, blurHFbo;
-    ofFbo::Settings settings;
-    ofxPBRLight * pbrLight;
-    int numLights;
-    Blur blur;
+	void setup(int maxShadow, int resolution);
+	void resizeDepthMap(int resolution);
+	void setMaxShadow(int maxShadow);
+	void beginDepthMap(int index, ofCamera * cam, ofCamera * depthCam);
+	void endDepthMap();
+	void bind(GLuint index);
+	void unbind();
 
-	int currentLightIndex;
+	int getMaxShadow() { return maxShadow; }
+	int getDepthMapResolution() { return depthMapRes; }
+	glm::mat4 getViewProjMatrix(int index) { return viewProjMatrix[index]; }
+	vector<glm::mat4> getShadowMatrix() { return shadowMatrix; }
+
+protected:
+	void initFbo();
+
+	int depthMapRes;
+	int maxShadow;
+	GLuint depthMapIndex;
+	GLuint depthMapFbo;
+	int currentTexIndex = 0;
+
+	vector<glm::mat4> viewProjMatrix;
+	vector<glm::mat4> shadowMatrix;
+	const glm::mat4 biasMatrix = glm::mat4(
+		0.5, 0.0, 0.0, 0.0,
+		0.0, 0.5, 0.0, 0.0,
+		0.0, 0.0, 0.5, 0.0,
+		0.5, 0.5, 0.5, 1.0
+	);
 };
-
-#endif

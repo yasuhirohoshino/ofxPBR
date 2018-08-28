@@ -33,7 +33,7 @@ struct ofxPBRLightData{
 
 	// spotLight
 	float spotLightGradient = 1;
-	float spotLightCutoff = 30;
+	float spotLightCutoff = 45;
 	float spotLightDistance = 5000;
 
 	// skyLight
