@@ -9,45 +9,52 @@ private:
     ofFbo cacheEnvFbo;
     ofTexture envTexture;
     
-    ofImage iEnv;
-    ofImage iEnvMapImages[6];
-    vector <ofImage> iFilteredImages[6];
+    template<typename T>
+    struct Texture{
+        T rawTexture;
+        T cubeMapFaces[6];
+        vector<T> filteredCubeMapFaces[6];
+        T cacheTexture;
+    };
     
-    ofFloatImage fEnv;
-    ofFloatImage fEnvMapImages[6];
-    vector <ofFloatImage> fFilteredImages[6];
+    Texture<ofImage> iTex;
+    Texture<ofFloatImage> fTex;
     
     ofShader shader;
     ImportanceSampling importanceSampling;
     ofMesh sphereMesh, envSphereMesh;
+    
     unsigned int cubeMapID;
     unsigned int filteredCubeMapID;
     int textureUnit;
     int baseSize;
+    int textureFormat;
+    int maxMipLevel;
     
     int cacheWidth, cacheHeight;
     ofFbo cacheFbo;
     
-    int textureFormat;
-    ofImage iCacheImage;
-    ofFloatImage fCacheImage;
-    
-    ofMesh skyboxFaces[6];
-    
-    int maxMipLevel;
-
 	bool bIsAllocated = false;
+    
+    float rotation = 0.0;
+    float exposure = 1.0;
+    float envLevel = 0.0;
 
 	void loadShaders();
-    void makeCubeMapTextures();
-    void makeCubeMap();
+    void loadImage(string imagePath);
+    void generate();
+    void makeRawCubeMap();
     void makeFilteredCubeMap();
     void makeCache(string cachePath);
-    void makeCube();
-
-	float rotation = 0.0;
-	float exposure = 1.0;
-	float envLevel = 0.0;
+    void makeCubeMapFaces(int width, int height,
+                          ofPixels& px, ofPixels& py, ofPixels& pz,
+                          ofPixels& nx, ofPixels& ny, ofPixels& nz,
+                          int index = 0);
+    void makeCubeMapFaces(int width, int height,
+                          ofFloatPixels& px, ofFloatPixels& py, ofFloatPixels& pz,
+                          ofFloatPixels& nx, ofFloatPixels& ny, ofFloatPixels& nz,
+                          int index = 0);
+    bool isHDRImagePath(string path);
     
 public:
     ofxPBRCubeMap();
@@ -62,9 +69,9 @@ public:
 	bool isAllocated();
     int getNumMips();
 	ofTexture* getPanoramaTexture();
-	ofImage* getPanoramaImage();
-	ofFloatImage* getFloatPanoramaImage();
 	ofFloatColor getColor(int x, int y);
+    template<typename T>
+    T* getPanorama();
 
 	void setRotation(float rotation) { this->rotation = rotation; };
 	float getRotation() { return rotation; };

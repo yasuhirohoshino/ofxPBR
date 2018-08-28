@@ -1,9 +1,9 @@
-#version 330
+#version 410
 
-#define MAX_LIGHTS 8
+const int MAX_LIGHTS = 8;
 
 #pragma include "pbrVert.glsl"
 
 void main() {
-    SendPBRVaryings();
+	SendPBRVaryings();
 }

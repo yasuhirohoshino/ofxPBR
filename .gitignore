@@ -132,3 +132,24 @@ Desktop.ini
 
 .mailmap
 /apps*/
+
+#########################
+# VC
+#########################
+
+*.sln
+*.VC.db
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.exp
+*.VC.VC.opendb
+*.dll
+*.lib
+icon.rc
+
+#########################
+# ofxPBR
+#########################
+
+*/bin/data/filteredMapCache
