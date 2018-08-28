@@ -14,6 +14,7 @@ void ofxPBRMaterial::begin(ofxPBR * pbr){
 			shader->setUniform1i("enableGlobalColor", 0);
 			shader->setUniform4f("baseColorUniform", baseColor);
 		}
+
 		if (enableBaseColorMap && baseColorMap != nullptr && baseColorMap->isAllocated()) {
 			shader->setUniform1i("enableBaseColorMap", 1);
 			shader->setUniformTexture("baseColorMap", *baseColorMap, 2);

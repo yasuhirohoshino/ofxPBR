@@ -4,14 +4,14 @@
 class ofxPBR;
 class ofxPBRMaterial{
 public:
-    bool enableBaseColorMap = false;
-    bool enableRoughnessMap = false;
-    bool enableMetallicMap = false;
-    bool enableNormalMap = false;
-    bool enableOcclusionMap = false;
-    bool enableEmissionMap = false;
-    bool enableDetailBaseColorMap = false;
-    bool enableDetailNormalMap = false;
+    bool enableBaseColorMap = true;
+    bool enableRoughnessMap = true;
+    bool enableMetallicMap = true;
+    bool enableNormalMap = true;
+    bool enableOcclusionMap = true;
+    bool enableEmissionMap = true;
+    bool enableDetailBaseColorMap = true;
+    bool enableDetailNormalMap = true;
     bool enableGlobalColor = false;
         
     ofTexture* baseColorMap;

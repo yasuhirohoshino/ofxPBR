@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxPBR.h"
+#include "ofxGui.h"
 
 class ofApp : public ofBaseApp{
 
@@ -27,8 +28,26 @@ class ofApp : public ofBaseApp{
     
     ofxPBRCubeMap cubeMap;
     ofxPBRMaterial material;
-    ofxPBRLight light1, light2;
+    ofxPBRLight directionalLight, pointLight, spotLight;
     ofxPBR pbr;
     
     ofEasyCam cam;
+
+	ofImage groundBaseColor;
+	ofImage groundMetallic;
+	ofImage groundRoughness;
+	ofImage groundNormal;
+	ofxPBRMaterial groundMaterial;
+
+	ofxPanel gui;
+	ofParameter<ofFloatColor> materialColor;
+
+	ofParameter<bool> enableDerectionalLight;
+	ofParameter<ofFloatColor> directionalLightColor;
+	
+	ofParameter<bool> enablePointLight;
+	ofParameter<ofFloatColor> pointLightColor;
+
+	ofParameter<bool> enableSpotLight;
+	ofParameter<ofFloatColor> spotLightColor;
 };

@@ -2,42 +2,81 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ofDisableArbTex();
-    
     cam.setupPerspective(false, 60, 1, 5000);
 
 	scene = bind(&ofApp::renderScene, this);
 
     cubeMap.load("Barce_Rooftop_C_3k.jpg", 1024, true, "filteredMapCache");
+	cubeMap.setEnvLevel(0.3);
+
     pbr.setup(scene, &cam, 2048);
-	pbr.setUsingCameraFrustomForShadow(false);
-	pbr.setDirectionalShadowBBox(0, 0, 0, 1000, 1000, 1000);
     pbr.setCubeMap(&cubeMap);
 	pbr.setDrawEnvironment(true);
-    
-	light1.setup();
-	light1.setLightType(LightType_Spot);
-	light1.setShadowType(ShadowType_Soft);
-	light1.setSpotLightGradient(10.0);
-	light1.setSpotLightDistance(3000);
-	light1.setSpotLightCutoff(30);
-	pbr.addLight(&light1);
 
-	light2.setup();
-	light2.setLightType(LightType_Directional);
-	light2.setShadowType(ShadowType_Soft);
-	pbr.addLight(&light2);
+	// directionalLight
+	directionalLight.setup();
+	directionalLight.setLightType(LightType_Directional);
+	directionalLight.setShadowType(ShadowType_Soft);
+	pbr.addLight(&directionalLight);
+	pbr.setUsingCameraFrustomForShadow(false);
+	pbr.setDirectionalShadowBBox(0, 0, 0, 1000, 1000, 1000);
 
-    cubeMap.setEnvLevel(0.3);
+	// pointLight
+	pointLight.setup();
+	pointLight.setLightType(LightType_Point);
+	pbr.addLight(&pointLight);
+
+	// spotLight
+	spotLight.setup();
+	spotLight.setLightType(LightType_Spot);
+	spotLight.setShadowType(ShadowType_Soft);
+	pbr.addLight(&spotLight);
+
+	// material
+	ofDisableArbTex();
+	groundBaseColor.load("pbrTextures/basecolor.png");
+	groundMetallic.load("pbrTextures/metallic.png");
+	groundRoughness.load("pbrTextures/roughness.png");
+	groundNormal.load("pbrTextures/normal.png");
+	groundMaterial.baseColorMap = &groundBaseColor.getTexture();
+	groundMaterial.metallicMap = &groundMetallic.getTexture();
+	groundMaterial.roughnessMap = &groundRoughness.getTexture();
+	groundMaterial.normalMap = &groundNormal.getTexture();
+
+	// gui
+	gui.setup();
+	gui.add(materialColor.set("material color", ofFloatColor(1.0), ofFloatColor(0.0), ofFloatColor(1.0)));
+	gui.add(enableDerectionalLight.set("directional light", true));
+	gui.add(directionalLightColor.set("directional light color", ofFloatColor(1.0), ofFloatColor(0.0), ofFloatColor(1.0)));
+	gui.add(enablePointLight.set("point light", true));
+	gui.add(pointLightColor.set("point light color", ofFloatColor(1.0), ofFloatColor(0.0), ofFloatColor(1.0)));
+	gui.add(enableSpotLight.set("spot light", true));
+	gui.add(spotLightColor.set("spot light color", ofFloatColor(1.0), ofFloatColor(0.0), ofFloatColor(1.0)));
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	light1.setPosition(500 * sin(ofGetElapsedTimef()), 500, 500 * cos(ofGetElapsedTimef()));
-	light1.lookAt(glm::vec3(0), glm::vec3(0.0, 1.0, 0.0));
+	// update Lights
+	directionalLight.setPosition(500 * cos(ofGetElapsedTimef()), 500, 500 * sin(ofGetElapsedTimef()));
+	directionalLight.lookAt(glm::vec3(0), glm::vec3(0.0, 1.0, 0.0));
 
-	light2.setPosition(-sin(ofGetElapsedTimef()), 1, -cos(ofGetElapsedTimef()));
-	light2.lookAt(glm::vec3(0), glm::vec3(0.0, 1.0, 0.0));
+	pointLight.setPosition(150 * cos(ofGetElapsedTimef()), 150, 150 * sin(ofGetElapsedTimef()));
+
+	spotLight.setPosition(-500 * cos(ofGetElapsedTimef()), 500,- 500 * sin(ofGetElapsedTimef()));
+	spotLight.lookAt(glm::vec3(0), glm::vec3(0.0, 1.0, 0.0));
+
+	// update material
+	material.baseColor = materialColor;
+
+	// update light parameters
+	directionalLight.setEnable(enableDerectionalLight);
+	directionalLight.setColor(directionalLightColor);
+
+	pointLight.setEnable(enablePointLight);
+	pointLight.setColor(pointLightColor);
+
+	spotLight.setEnable(enableSpotLight);
+	spotLight.setColor(spotLightColor);
 }
 
 //--------------------------------------------------------------
@@ -46,21 +85,27 @@ void ofApp::draw(){
 	cam.begin();
 	pbr.renderScene();
 	cam.end();
+
+	gui.draw();
 }
 
 //--------------------------------------------------------------
 void ofApp::renderScene(){
 	ofEnableDepthTest();
 	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 	pbr.beginDefaultRenderer();
     {
-		glCullFace(GL_FRONT);
-        material.roughness = 0.25;
-        material.metallic = 0.0;
-        material.begin(&pbr);
-        ofDrawBox(0, -40, 0, 2000, 10, 2000);
-        material.end();
+		// draw ground
+		groundMaterial.begin(&pbr);
+		ofPushMatrix();
+		ofTranslate(0, -35, 0);
+		ofRotateX(-90);
+		ofDrawPlane(2000, 2000);
+		ofPopMatrix();
+		groundMaterial.end();
         
+		// draw spheres
         for(int i=0;i<10;i++){
             material.roughness = float(i) / 9.0;
             for(int j=0;j<10;j++){
