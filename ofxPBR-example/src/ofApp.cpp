@@ -48,9 +48,9 @@ void ofApp::setup(){
 	gui.add(materialColor.set("material color", ofFloatColor(1.0), ofFloatColor(0.0), ofFloatColor(1.0)));
 	gui.add(enableDerectionalLight.set("directional light", true));
 	gui.add(directionalLightColor.set("directional light color", ofFloatColor(1.0), ofFloatColor(0.0), ofFloatColor(1.0)));
-	gui.add(enablePointLight.set("point light", true));
+	gui.add(enablePointLight.set("point light", false));
 	gui.add(pointLightColor.set("point light color", ofFloatColor(1.0), ofFloatColor(0.0), ofFloatColor(1.0)));
-	gui.add(enableSpotLight.set("spot light", true));
+	gui.add(enableSpotLight.set("spot light", false));
 	gui.add(spotLightColor.set("spot light color", ofFloatColor(1.0), ofFloatColor(0.0), ofFloatColor(1.0)));
 }
 
@@ -60,7 +60,7 @@ void ofApp::update(){
 	directionalLight.setPosition(500 * cos(ofGetElapsedTimef()), 500, 500 * sin(ofGetElapsedTimef()));
 	directionalLight.lookAt(glm::vec3(0), glm::vec3(0.0, 1.0, 0.0));
 
-	pointLight.setPosition(150 * cos(ofGetElapsedTimef()), 150, 150 * sin(ofGetElapsedTimef()));
+	pointLight.setPosition(150 * cos(ofGetElapsedTimef()), 250, 150 * sin(ofGetElapsedTimef()));
 
 	spotLight.setPosition(-250 * cos(ofGetElapsedTimef()), 500, -250 * sin(ofGetElapsedTimef()));
 	spotLight.lookAt(glm::vec3(0), glm::vec3(0.0, 1.0, 0.0));
