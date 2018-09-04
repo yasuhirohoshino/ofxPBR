@@ -6,6 +6,7 @@ void ofApp::setup(){
 
 	scene = bind(&ofApp::renderScene, this);
 
+	ofDisableArbTex();
     cubeMap.load("Barce_Rooftop_C_3k.jpg", 1024, true, "filteredMapCache");
 	cubeMap.setEnvLevel(0.3);
 
