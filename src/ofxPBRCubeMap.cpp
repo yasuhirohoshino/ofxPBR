@@ -272,9 +272,11 @@ void ofxPBRCubeMap::generate(){
             glActiveTexture( GL_TEXTURE0 + 1 );
             glEnable( GL_TEXTURE_CUBE_MAP );
             glBindTexture( GL_TEXTURE_CUBE_MAP, cubeMapID );
+			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
             
             shader.begin();
             shader.setUniform1i("envMap", 1);
+			shader.setUniform1f("faceResolution", baseSize);
             shader.setUniform1f("Roughness", ofMap(j, 0, maxMipLevel-1, 0.0, 1.0 ));
             sphereMesh.draw();
             shader.end();
@@ -312,11 +314,10 @@ void ofxPBRCubeMap::makeRawCubeMap(){
     
     glGenTextures(1, &cubeMapID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapID);
-    
     glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     if(textureFormat == GL_RGB32F){

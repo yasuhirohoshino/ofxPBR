@@ -35,6 +35,7 @@ public:
                                    
                                    uniform samplerCube envMap;
                                    uniform float Roughness;
+								   uniform float faceResolution;
                                    
                                    in vec3 normalVarying;
                                    
@@ -84,7 +85,21 @@ public:
                                        float Glvn = G1l * G1v;
                                        return Glvn;
                                    }
-                                   
+
+								   float DistributionGGX(vec3 N, vec3 H, float roughness)
+								   {
+									   float a = roughness * roughness;
+									   float a2 = a * a;
+									   float NdotH = max(dot(N, H), 0.0);
+									   float NdotH2 = NdotH * NdotH;
+
+									   float nom = a2;
+									   float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+									   denom = PI * denom * denom;
+
+									   return nom / denom;
+								   }
+
                                    vec3 prefilterEnvMap(float Roughness, vec3 R){
                                        vec3 N = R;
                                        vec3 V = R;
@@ -101,9 +116,23 @@ public:
                                            float NoL = clamp(dot(N, L), 0, 1);
                                            
                                            if (NoL > 0.0) {
-                                               vec3 SampleColor = texture( envMap, L, 0 ).rgb;
+											   // https://learnopengl.com/PBR/IBL/Specular-IBL
+											   // sample from the environment's mip level based on roughness/pdf
+											   float D = DistributionGGX(N, H, Roughness);
+											   float NdotH = max(dot(N, H), 0.0);
+											   float HdotV = max(dot(H, V), 0.0);
+											   float pdf = D * NdotH / (4.0 * HdotV) + 0.0001;
+
+											   float resolution = faceResolution; // resolution of source cubemap (per face)
+											   float saTexel = 4.0 * PI / (6.0 * resolution * resolution);
+											   float saSample = 1.0 / (float(NumSamples) * pdf + 0.0001);
+
+											   float mipLevel = Roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);
+
+											   vec3 SampleColor = textureLod(envMap, L, mipLevel).rgb * NoL;
+
                                                PrefilteredColor += SampleColor;
-                                               totalsample++;
+											   totalsample += NoL;
                                            }
                                        }
                                        return PrefilteredColor / totalsample;
