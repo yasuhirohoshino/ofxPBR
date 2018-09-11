@@ -68,7 +68,7 @@ void ofxPBRDirectionalShadow::setUsingCameraFrustom(bool usingCameraFrustom)
 	this->usingCameraFrustom = usingCameraFrustom;
 }
 
-void ofxPBRDirectionalShadow::beginDepthMap(int index, ofCamera * cam, ofCamera * light)
+void ofxPBRDirectionalShadow::beginDepthMap(int index, ofCamera * light)
 {
 	glm::mat4 lightMatrix;
 	lightMatrix = glm::lookAt(glm::vec3(0.0), -light->getLookAtDir(), glm::vec3(0.0, 1.0, 0.0));
@@ -119,5 +119,5 @@ void ofxPBRDirectionalShadow::beginDepthMap(int index, ofCamera * cam, ofCamera 
 	depthCam.setFarClip(depthCamFarClip);
 	depthCam.setScale(sx, sy, 1);
 
-	ofxPBRShadow::beginDepthMap(index, cam, &depthCam);
+	ofxPBRShadow::beginDepthMap(index, &depthCam);
 }

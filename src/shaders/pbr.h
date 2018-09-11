@@ -115,7 +115,7 @@ public:
 			float shadowStrength;
 			float bias;
 		};
-
+		
 		// in
 		in vec4 colorVarying;
 		in vec2 texCoordVarying;

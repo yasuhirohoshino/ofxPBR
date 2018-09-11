@@ -8,7 +8,7 @@ public:
 	void calcCorners(ofCamera * cam);
 	void setBoundingBox(float x, float y, float z, float width, float height, float depth);
 	void setUsingCameraFrustom(bool usingCameraFrustom);
-	void beginDepthMap(int index, ofCamera * cam, ofCamera * light);
+	void beginDepthMap(int index, ofCamera * light);
 
 	bool isUsingCameraFrustom() { return usingCameraFrustom; }
 

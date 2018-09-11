@@ -31,9 +31,6 @@ public:
 	void beginCustomRenderer(ofShader* shader = nullptr);
 	void endCustomRenderer();
 
-	// camera
-	void setCamera(ofCamera* camera);
-
 	// cube map
 	void setCubeMap(ofxPBRCubeMap* cubeMap);
 	void enableCubeMap(bool enable);
@@ -50,6 +47,7 @@ public:
 	void resizeDepthMap(int resolution);
 	void setDirectionalShadowBBox(float x, float y, float z, float width, float height, float depth);
 	void setUsingCameraFrustomForShadow(bool usingCameraFrustom);
+	void setCameraForDirectionalShadowBBox(ofCamera* camera);
 
 	// light
 	void addLight(ofxPBRLight* light);

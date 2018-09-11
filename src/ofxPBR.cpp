@@ -107,7 +107,7 @@ void ofxPBR::renderScene()
 }
 
 // camera
-void ofxPBR::setCamera(ofCamera* camera)
+void ofxPBR::setCameraForDirectionalShadowBBox(ofCamera* camera)
 {
 	this->camera = camera;
 }
@@ -131,8 +131,16 @@ void ofxPBR::setDrawEnvironment(bool enable)
 }
 
 void ofxPBR::drawEnvironment(){
+
+	glm::mat4 projectionMatrix = ofGetCurrentMatrix(OF_MATRIX_PROJECTION);
+	float m22 = projectionMatrix[2][2];
+	float m32 = projectionMatrix[3][2];
+\
+	float nearClip = (2.0f*m32) / (2.0f*m22 - 2.0f);
+	float farClip = ((m22 - 1.0f) * nearClip) / (m22 + 1.0);
+
 	if (enableCubemap && cubeMap != nullptr && cubeMap->isAllocated()) {
-		float scale = (camera->getFarClip() - camera->getNearClip()) / 2;
+		float scale = (farClip - nearClip) / 2;
 		glm::mat4 invCurrentViewMatrix = glm::inverse(ofGetCurrentViewMatrix());
 		glm::vec3 translate = glm::vec3(invCurrentViewMatrix[3][0], invCurrentViewMatrix[3][1], invCurrentViewMatrix[3][2]);
 
@@ -219,7 +227,7 @@ void ofxPBR::updateDepthMaps()
 					}
 					renderMode = Mode_DirectionalShadow;
 					lights[i]->setDirectionalShadowIndex(directionalShadowIndex);
-					directionalShadow.beginDepthMap(directionalShadowIndex, camera, lights[i]);
+					directionalShadow.beginDepthMap(directionalShadowIndex, lights[i]);
 					scene();
 					directionalShadow.endDepthMap();
 					directionalShadowIndex++;
@@ -233,7 +241,7 @@ void ofxPBR::updateDepthMaps()
 				if (spotShadowIndex < spotShadow.getMaxShadow()) {
 					renderMode = Mode_SpotShadow;
 					lights[i]->setSpotShadowIndex(spotShadowIndex);
-					spotShadow.beginDepthMap(spotShadowIndex, camera, lights[i]);
+					spotShadow.beginDepthMap(spotShadowIndex, lights[i]);
 					scene();
 					spotShadow.endDepthMap();
 					spotShadowIndex++;
@@ -287,13 +295,16 @@ void ofxPBR::removeLight(int index) {
 
 // pbr
 void ofxPBR::beginPBR(){
+
+	glm::mat4 modelViewMatrix = ofGetCurrentMatrix(ofMatrixMode::OF_MATRIX_MODELVIEW);
+	
 	// pbr
     PBRShader->begin();
 
 	// common uniforms
 	PBRShader->setUniform1i("renderMode", renderMode);
-	PBRShader->setUniformMatrix4f("viewTranspose", glm::transpose(camera->getModelViewMatrix()));
-	PBRShader->setUniformMatrix4f("viewMatrix", camera->getModelViewMatrix());
+	PBRShader->setUniformMatrix4f("viewTranspose", glm::transpose(modelViewMatrix));
+	PBRShader->setUniformMatrix4f("viewMatrix", modelViewMatrix);
 
     // cubemap uniforms
     if (enableCubemap && cubeMap != nullptr && cubeMap->isAllocated()) {
@@ -324,8 +335,8 @@ void ofxPBR::beginPBR(){
 		PBRShader->setUniform1f("lights[" + lightIndex + "].intensity", lights[i]->getIntensity());
 		// transform
 		PBRShader->setUniform3f("lights[" + lightIndex + "].position", lights[i]->getGlobalPosition());
-		PBRShader->setUniform3f("lights[" + lightIndex + "].vPosition", lights[i]->getViewSpacePosition(camera->getModelViewMatrix()));
-		PBRShader->setUniform3f("lights[" + lightIndex + "].direction", lights[i]->getViewSpaceDirection(camera->getModelViewMatrix()));
+		PBRShader->setUniform3f("lights[" + lightIndex + "].vPosition", lights[i]->getViewSpacePosition(modelViewMatrix));
+		PBRShader->setUniform3f("lights[" + lightIndex + "].direction", lights[i]->getViewSpaceDirection(modelViewMatrix));
 		// shadow
 		PBRShader->setUniform1i("lights[" + lightIndex + "].shadowType", lights[i]->getShadowType());
 		PBRShader->setUniform1i("lights[" + lightIndex + "].spotShadowIndex", lights[i]->getSpotShadowIndex());

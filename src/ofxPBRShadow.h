@@ -6,7 +6,7 @@ public:
 	void setup(int maxShadow, int resolution);
 	void resizeDepthMap(int resolution);
 	void setMaxShadow(int maxShadow);
-	void beginDepthMap(int index, ofCamera * cam, ofCamera * depthCam);
+	void beginDepthMap(int index, ofCamera * depthCam);
 	void endDepthMap();
 	void bind(GLuint index);
 	void unbind();

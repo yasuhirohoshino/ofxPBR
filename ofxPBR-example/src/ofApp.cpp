@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    cam.setupPerspective(false, 60, 1, 5000);
+	cam.setupPerspective(false, 60, 1, 5000);
 
 	scene = bind(&ofApp::renderScene, this);
 
@@ -83,6 +83,7 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 	pbr.updateDepthMaps();
+
 	cam.begin();
 	pbr.renderScene();
 	cam.end();
