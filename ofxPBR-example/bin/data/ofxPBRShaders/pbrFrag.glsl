@@ -340,13 +340,15 @@ void LightWithShadow(vec3 normal, vec3 diffuseColor, vec3 specularColor, float r
 	}
 
 	float shadow = 1.0;
-	if (lights[index].shadowType != SHADOWTYPE_NONE || lightDeffuse.r > 0.0 && lightDeffuse.g > 0.0 && lightDeffuse.b > 0.0) {
-		if(lights[index].type == LIGHTTYPE_DIRECTIONAL || lights[index].type == LIGHTTYPE_SKY) {
-			shadow = CalcDirectionalShadow(index);
-		}else if(lights[index].type == LIGHTTYPE_POINT) {
-			shadow = CalcOmniShadow(index, m_positionVarying.xyz);
-		}else{
-			shadow = CalcSpotShadow(index);
+	if (lights[index].shadowType != SHADOWTYPE_NONE){
+		if (lightDeffuse.r > 0.0 && lightDeffuse.g > 0.0 && lightDeffuse.b > 0.0) {
+			if(lights[index].type == LIGHTTYPE_DIRECTIONAL || lights[index].type == LIGHTTYPE_SKY) {
+				shadow = CalcDirectionalShadow(index);
+			}else if(lights[index].type == LIGHTTYPE_POINT) {
+				shadow = CalcOmniShadow(index, m_positionVarying.xyz);
+			}else{
+				shadow = CalcSpotShadow(index);
+			}
 		}
 	}
 
